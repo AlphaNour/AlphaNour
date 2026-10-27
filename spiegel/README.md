@@ -10,16 +10,16 @@ you fill from memory, until you tell your life in German.
 | # | Structure | Status |
 |---|---|---|
 | 1 | [Method spec](docs/01-method-spec.md) | ✅ Draft |
-| 2 | Data model (User, Story, Sentence, Chunk, Lemma, Review, Stufe) | ⏳ Next |
-| 3 | AI engine (backend + Claude API: weave, tag, fade, correct) | ⬜ |
+| 2 | [Data model](docs/02-data-model.md) (local-first SQLite on the phone) | ✅ Draft |
+| 3 | AI engine (backend + Claude API: weave, tag, fade, correct) | ⏳ Next |
 | 4 | Memory engine (FSRS scheduling + fade levels) | ⬜ |
 | 5 | Voice layer (speech-to-text, German text-to-speech) | ⬜ |
 | 6 | Phone app (Expo / React Native): Tell → Mirror → Fade → Speak → Book | ⬜ |
 | 7 | Level tracker (Stufe level-up logic) | ⬜ |
-| 8 | Ship (TestFlight / Play internal testing) | ⬜ |
+| 8 | Ship (Android APK / Play internal testing) | ⬜ |
 
 ## v1 settings
 
 - Helper language: English
 - Starting level: absolute beginner (Stufe 1)
-- Platform: iOS + Android via Expo
+- Platform: Android first, via Expo (React Native)
