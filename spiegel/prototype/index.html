@@ -1,0 +1,568 @@
+<title>Spiegel Croissant Thief</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap">
+<style>
+/* Layout: one phone-width column; a mirrored wordmark, the story card, then practice and the word bank. */
+:root {
+  --bg: #EEF1F6; --surface: #FFFFFF; --sunk: #E3E8F0; --ink: #141A26; --muted: #5B6476; --line: #D3DAE5;
+  --accent: #E39B26; --on-accent: #1B1404;
+  --der: #2160E0; --die: #D52C44; --das: #11895A; --verb: #A86A10;
+  --good: #11895A; --soft: #D52C44;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E121A; --surface: #171D29; --sunk: #1F2735; --ink: #E8ECF4; --muted: #97A1B4; --line: #2B3446;
+  --accent: #F2B544; --on-accent: #1B1404;
+  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --verb: #F2B544;
+  --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0E121A; --surface: #171D29; --sunk: #1F2735; --ink: #E8ECF4; --muted: #97A1B4; --line: #2B3446;
+  --accent: #F2B544; --on-accent: #1B1404;
+  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --verb: #F2B544;
+  --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); }
+.wrap { max-width: 600px; margin: 0 auto; padding-block: 20px 140px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px; }
+
+/* Wordmark with its reflection */
+.brand { display: grid; justify-items: start; }
+.brand h1, .brand .mirror { font: 800 clamp(44px, 12vw, 64px)/0.9 var(--display); letter-spacing: -0.02em; margin: 0; }
+.brand .mirror { transform: scaleY(-1); opacity: 0.18; margin-top: 2px; height: 0.45em; overflow: hidden;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent); mask-image: linear-gradient(to top, #000, transparent); }
+.brand p { margin: 8px 0 0; color: var(--muted); max-width: 46ch; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 14px; color: var(--muted); }
+.legend b { font-weight: 700; }
+.legend .m { color: var(--der); } .legend .f { color: var(--die); } .legend .n { color: var(--das); }
+
+/* Story card */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.card h2 { font: 800 26px/1.15 var(--display); margin: 2px 0 0; text-wrap: balance; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { border: 0; border-radius: 999px; padding: 9px 16px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.btn.ghost { background: var(--sunk); color: var(--ink); }
+
+.tabs { display: flex; gap: 4px; background: var(--sunk); padding: 4px; border-radius: 12px; overflow-x: auto; }
+.tabs button { flex: 1 0 auto; border: 0; background: transparent; border-radius: 9px; padding: 8px 12px; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+.hint { margin: 0; font-size: 14px; color: var(--muted); }
+
+.story { display: grid; gap: 12px; font-size: 19px; line-height: 1.75; }
+.story p { margin: 0; }
+.gloss { display: block; font-size: 14px; line-height: 1.4; color: var(--muted); }
+
+/* German words */
+.de { border: 0; background: none; padding: 0 2px; font-weight: 700; border-radius: 4px; border-bottom: 3px solid currentColor; line-height: 1.3; }
+.de:hover { background: var(--sunk); }
+.de.g-m { color: var(--der); } .de.g-f { color: var(--die); } .de.g-n { color: var(--das); } .de.g-x { color: var(--ink); border-bottom-style: dotted; }
+.de.br { color: var(--verb); border-bottom-style: dashed; }
+.de.br.lit { background: color-mix(in srgb, var(--verb) 22%, transparent); }
+.role { font-size: 0.75em; vertical-align: super; margin-left: 1px; }
+
+/* Gaps */
+.gap { border: 2px dashed var(--line); background: var(--sunk); border-radius: 8px; padding: 0 10px; min-width: 64px; font-weight: 700; line-height: 1.5; color: var(--muted); }
+.gap.active { border-color: var(--accent); border-style: solid; color: var(--ink); }
+.gap.done { border-style: solid; background: none; }
+.gap.g-m.hinted { border-bottom: 4px solid var(--der); } .gap.g-f.hinted { border-bottom: 4px solid var(--die); } .gap.g-n.hinted { border-bottom: 4px solid var(--das); }
+.gap.done.g-m { color: var(--der); border-color: var(--der); } .gap.done.g-f { color: var(--die); border-color: var(--die); } .gap.done.g-n { color: var(--das); border-color: var(--das); }
+
+/* Practice panel */
+.panel { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 12px; }
+.panel h3 { margin: 0; font: 700 16px/1.3 var(--body); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 16px; font-weight: 700; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.recall { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.recall input { flex: 1 1 160px; min-width: 0; font: 700 18px var(--body); padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.feedback { margin: 0; font-size: 15px; min-height: 1.5em; }
+.feedback.ok { color: var(--good); } .feedback.no { color: var(--soft); }
+.result { font: 800 22px/1.2 var(--display); margin: 0; }
+
+/* Time machine */
+.stufen { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Word bank */
+.bank h2 { font: 800 22px/1.2 var(--display); margin: 0 0 4px; }
+.bank ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.bank li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.bank .w { font-weight: 700; }
+.bank .e { color: var(--muted); font-size: 14px; grid-column: 1; }
+.dots { display: flex; gap: 4px; grid-row: span 2; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); }
+.reset { justify-self: start; border: 0; background: none; color: var(--muted); text-decoration: underline; font-size: 14px; padding: 0; }
+
+/* Word sheet */
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+  box-shadow: 0 -8px 24px rgb(0 0 0 / 0.14); padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet-in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+.sheet .big { font: 800 28px/1.15 var(--display); margin: 0; }
+.sheet .meta { margin: 0; color: var(--muted); font-size: 15px; grid-column: 1; }
+.sheet .acts { grid-row: 1 / span 3; grid-column: 2; display: grid; gap: 6px; }
+.big.g-m { color: var(--der); } .big.g-f { color: var(--die); } .big.g-n { color: var(--das); } .big.g-x { color: var(--ink); } .big.br { color: var(--verb); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sheet { animation: up 0.18s ease-out; }
+  @keyframes up { from { transform: translateY(100%); } }
+}
+</style>
+
+<div class="wrap">
+  <header class="brand">
+    <h1>Spiegel</h1>
+    <div class="mirror" aria-hidden="true">Spiegel</div>
+    <p>Lesson one at Stufe 1. Tap any colored word to hear it and see what it means, then practise as if it were day 1 and day 3.</p>
+  </header>
+
+  <div class="legend" aria-label="Gender colors">
+    <span class="m"><b>der</b> masculine</span>
+    <span class="f"><b>die</b> feminine</span>
+    <span class="n"><b>das</b> neuter</span>
+  </div>
+
+  <section class="card" aria-labelledby="story-title">
+    <div class="card-head">
+      <div>
+        <p class="eyebrow">Example story · told Tuesday</p>
+        <h2 id="story-title">The Croissant Thief</h2>
+      </div>
+      <button class="btn" id="listen" type="button">▶ Listen</button>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Practice mode">
+      <button role="tab" id="tab-mirror" aria-selected="true" data-mode="mirror" type="button">Day 0 · Mirror</button>
+      <button role="tab" id="tab-choose" aria-selected="false" data-mode="choose" type="button">Day 1 · Choose</button>
+      <button role="tab" id="tab-recall" aria-selected="false" data-mode="recall" type="button">Day 3 · Recall</button>
+      <button role="tab" id="tab-time" aria-selected="false" data-mode="time" type="button">Time machine</button>
+    </div>
+
+    <p class="hint" id="hint"></p>
+    <div class="story" id="story"></div>
+    <div class="panel" id="panel" hidden></div>
+  </section>
+
+  <section class="bank" aria-labelledby="bank-title">
+    <h2 id="bank-title">Your word bank</h2>
+    <p class="hint">Dots show mastery from 0 to 5. Choosing right gives 1, recalling word and article gives 2. Speaking and retelling come later.</p>
+    <ul id="bank"></ul>
+    <button class="reset" id="reset" type="button">Reset progress</button>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-label="Word details">
+  <div class="sheet-in">
+    <p class="big" id="sh-word"></p>
+    <p class="meta" id="sh-en"></p>
+    <p class="meta" id="sh-extra"></p>
+    <div class="acts">
+      <button class="btn" id="sh-say" type="button">🔊 Hear</button>
+      <button class="btn ghost" id="sh-close" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ART = { m: 'der', f: 'die', n: 'das' };
+const GENDER_NAME = { m: 'masculine', f: 'feminine', n: 'neuter' };
+const ROLE = { nom: { icon: '🎭', name: 'actor (Nominativ)' }, akk: { icon: '🎯', name: 'target (Akkusativ)' } };
+
+const ITEMS = {
+  croissant: { de: 'Croissant', g: 'n', en: 'croissant', pl: 'die Croissants' },
+  kaffee:    { de: 'Kaffee',    g: 'm', en: 'coffee',    pl: 'die Kaffees' },
+  taube:     { de: 'Taube',     g: 'f', en: 'pigeon',    pl: 'die Tauben' },
+  kellner:   { de: 'Kellner',   g: 'm', en: 'waiter',    pl: 'die Kellner' },
+};
+const DISTRACTORS = ['Hund', 'Tisch', 'Katze', 'Brot', 'Zug', 'Lampe'];
+
+// A segment is a plain string, or { i: itemId } / { t, en, i?, c?, br? } for German.
+const STORY = {
+  1: [
+    { segs: ['This morning I went to my favourite café and ordered a ', { i: 'croissant' }, ' and a ', { i: 'kaffee' }, '.'] },
+    { segs: ['I opened my laptop. Big mistake.'] },
+    { segs: ['Whoosh! A ', { i: 'taube' }, ' flew in, grabbed my ', { i: 'croissant' }, ' and flew away.'] },
+    { segs: ['The ', { i: 'kellner' }, ' laughed so hard he dropped a tray.'] },
+    { segs: ['I laughed too. But from today, that ', { i: 'taube' }, ' is my enemy.'] },
+  ],
+  3: [
+    { segs: ['This morning I went to the café and ordered a ', { i: 'croissant' }, '. ', { t: 'Ich trinke Kaffee.', en: 'I drink coffee.' }] },
+    { segs: ['I opened my laptop. Big mistake.'] },
+    { segs: ['Whoosh! A ', { i: 'taube' }, ' grabbed my ', { i: 'croissant' }, ' and flew away.'] },
+    { segs: [{ t: 'Der Kellner', i: 'kellner', c: 'nom', en: 'the waiter' }, ' ', { t: 'lacht.', en: 'laughs.' }, ' He dropped a tray.'] },
+    { segs: [{ t: 'Ich lache auch.', en: 'I laugh too.' }, ' But that ', { i: 'taube' }, ' is my enemy now.'] },
+  ],
+  5: [
+    { gloss: 'This morning I went to the café.',
+      segs: [{ t: 'Heute Morgen', en: 'this morning' }, ' ', { t: 'bin', br: 1, en: 'am (helper verb for movement)' }, ' ich ', { t: 'ins Café', en: 'into the café' }, ' ', { t: 'gegangen', br: 1, en: 'gone' }, '.'] },
+    { gloss: 'I ordered a coffee and a croissant.',
+      segs: ['Ich ', { t: 'habe', br: 2, en: 'have (helper verb)' }, ' ', { t: 'einen Kaffee', i: 'kaffee', c: 'akk', en: 'a coffee' }, ' und ', { t: 'ein Croissant', i: 'croissant', c: 'akk', en: 'a croissant' }, ' ', { t: 'bestellt', br: 2, en: 'ordered' }, '.'] },
+    { gloss: 'Suddenly a pigeon flew in and stole my croissant!',
+      segs: [{ t: 'Plötzlich', en: 'suddenly' }, ' ', { t: 'ist', br: 3, en: 'is (helper verb for movement)' }, ' ', { t: 'eine Taube', i: 'taube', c: 'nom', en: 'a pigeon' }, ' ', { t: 'hereingeflogen', br: 3, en: 'flown in' }, ' und ', { t: 'hat', br: 4, en: 'has (helper verb)' }, ' ', { t: 'mein Croissant', i: 'croissant', c: 'akk', en: 'my croissant' }, ' ', { t: 'gestohlen', br: 4, en: 'stolen' }, '!'] },
+    { gloss: 'The waiter laughed loudly.',
+      segs: [{ t: 'Der Kellner', i: 'kellner', c: 'nom', en: 'the waiter' }, ' ', { t: 'hat', br: 5, en: 'has (helper verb)' }, ' ', { t: 'laut', en: 'loudly' }, ' ', { t: 'gelacht', br: 5, en: 'laughed' }, '.'] },
+    { gloss: 'I laughed too. But now the pigeon is my enemy.',
+      segs: ['Ich ', { t: 'habe', br: 6, en: 'have (helper verb)' }, ' auch ', { t: 'gelacht', br: 6, en: 'laughed' }, '. Aber jetzt ist ', { t: 'die Taube', i: 'taube', c: 'nom', en: 'the pigeon' }, ' ', { t: 'mein Feind', en: 'my enemy' }, '.'] },
+  ],
+};
+
+const HINTS = {
+  mirror: 'Read and listen. Nothing is hidden today. Tap a colored word for its meaning.',
+  choose: 'Day 1: the German words have faded. Pick the right one for each gap.',
+  recall: 'Day 3: type each word from memory and pick its article. You get the first letter and the gender color.',
+  time: 'This is how the same story will look as you climb the Stufen.',
+};
+
+// ---------- state ----------
+let mode = 'mirror';
+let timeStufe = 5;
+let gaps = [];      // [{ item, el }]
+let gapIdx = 0;
+let score = 0;
+let pickedArticle = null;
+let lastWord = null;
+
+const mastery = load();
+function load() {
+  try { return JSON.parse(localStorage.getItem('spiegel-mastery')) || {}; } catch { return {}; }
+}
+function save() {
+  try { localStorage.setItem('spiegel-mastery', JSON.stringify(mastery)); } catch {}
+}
+function raise(id, to) {
+  mastery[id] = Math.max(mastery[id] || 0, to);
+  save(); renderBank();
+}
+
+// ---------- speech ----------
+const synth = window.speechSynthesis;
+function voiceFor(lang) {
+  const vs = synth ? synth.getVoices() : [];
+  return vs.find((v) => v.lang && v.lang.toLowerCase().startsWith(lang)) || null;
+}
+function say(parts) {
+  if (!synth) { flashHint('Your browser cannot read aloud, but everything else works.'); return; }
+  synth.cancel();
+  for (const [text, lang] of parts) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'de' ? 'de-DE' : 'en-US';
+    const v = voiceFor(lang);
+    if (v) u.voice = v;
+    u.rate = lang === 'de' ? 0.85 : 1;
+    synth.speak(u);
+  }
+}
+if (synth) synth.onvoiceschanged = () => {};
+
+// ---------- helpers ----------
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+function segText(s) { return typeof s === 'string' ? s : (s.t || ITEMS[s.i].de); }
+function flashHint(msg) { $('hint').textContent = msg; }
+
+// ---------- rendering ----------
+function wordButton(seg, stufe) {
+  const it = seg.i ? ITEMS[seg.i] : null;
+  const b = el('button', 'de');
+  b.type = 'button';
+  b.textContent = segText(seg);
+  if (seg.br) { b.classList.add('br'); b.dataset.br = seg.br; }
+  else b.classList.add('g-' + (it ? it.g : 'x'));
+  if (seg.c && stufe >= 3) {
+    const r = el('span', 'role', ROLE[seg.c].icon);
+    r.setAttribute('aria-hidden', 'true');
+    b.append(r);
+  }
+  b.addEventListener('click', () => {
+    openSheet(seg);
+    if (seg.br) {
+      const p = b.closest('p');
+      p.querySelectorAll('.br').forEach((x) => x.classList.toggle('lit', x.dataset.br === String(seg.br)));
+    }
+  });
+  return b;
+}
+
+function renderStory() {
+  const box = $('story');
+  box.textContent = '';
+  gaps = [];
+  const stufe = mode === 'time' ? timeStufe : 1;
+  for (const sentence of STORY[stufe]) {
+    const p = el('p');
+    for (const seg of sentence.segs) {
+      if (typeof seg === 'string') { p.append(seg); continue; }
+      if ((mode === 'choose' || mode === 'recall') && seg.i) {
+        const it = ITEMS[seg.i];
+        const g = el('button', 'gap g-' + it.g, mode === 'recall' ? it.de[0] + '…' : '?');
+        g.type = 'button';
+        if (mode === 'recall') g.classList.add('hinted');
+        const idx = gaps.length;
+        g.addEventListener('click', () => { if (!g.classList.contains('done')) { gapIdx = idx; activate(); } });
+        gaps.push({ item: seg.i, el: g });
+        p.append(g);
+      } else {
+        p.append(wordButton(seg, stufe));
+      }
+    }
+    if (sentence.gloss) p.append(el('span', 'gloss', sentence.gloss));
+    box.append(p);
+  }
+  if (mode === 'mirror') {
+    Object.keys(ITEMS).forEach((id) => { if (!(id in mastery)) mastery[id] = 0; });
+    save();
+    renderBank();
+  }
+}
+
+function renderPanel() {
+  const panel = $('panel');
+  panel.textContent = '';
+  if (mode === 'mirror') { panel.hidden = true; return; }
+  panel.hidden = false;
+
+  if (mode === 'time') {
+    panel.append(el('h3', null, 'Pick a Stufe'));
+    const row = el('div', 'stufen');
+    for (const [s, label] of [[1, 'Stufe 1 · now'], [3, 'Stufe 3 · ~2 months'], [5, 'Stufe 5 · ~6 months']]) {
+      const c = el('button', 'chip', label);
+      c.type = 'button';
+      c.setAttribute('aria-pressed', String(s === timeStufe));
+      c.addEventListener('click', () => { timeStufe = s; render(); });
+      row.append(c);
+    }
+    panel.append(row);
+    const notes = {
+      1: 'German nouns woven into English. Only gender is shown.',
+      3: 'Short German sentences appear. 🎭 marks the actor of the sentence.',
+      5: 'Mostly German. 🎯 marks the target. Amber words are a verb bracket: tap one to light up its partner.',
+    };
+    panel.append(el('p', 'hint', notes[timeStufe]));
+    return;
+  }
+
+  score = 0; gapIdx = 0;
+  panel.append(el('h3', null, ''), el('div', 'chips'), el('p', 'feedback'));
+  if (mode === 'recall') {
+    const row = el('div', 'recall');
+    const input = el('input');
+    input.id = 'recall-input';
+    input.placeholder = 'Type the German word';
+    input.autocomplete = 'off';
+    input.setAttribute('autocapitalize', 'words');
+    input.setAttribute('aria-label', 'German word');
+    const go = el('button', 'btn', 'Check');
+    go.type = 'button';
+    go.addEventListener('click', checkRecall);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkRecall(); });
+    row.append(input, go);
+    panel.append(row);
+  }
+  activate();
+}
+
+function activate() {
+  const panel = $('panel');
+  gaps.forEach((g, i) => g.el.classList.toggle('active', i === gapIdx));
+  const g = gaps[gapIdx];
+  if (!g) return finish();
+  const it = ITEMS[g.item];
+  const chips = panel.querySelector('.chips');
+  chips.textContent = '';
+  panel.querySelector('.feedback').textContent = '';
+  panel.querySelector('.feedback').className = 'feedback';
+  pickedArticle = null;
+
+  if (mode === 'choose') {
+    panel.querySelector('h3').textContent = `Gap ${gapIdx + 1} of ${gaps.length}: which word fits?`;
+    const others = Object.keys(ITEMS).filter((k) => k !== g.item).map((k) => ITEMS[k].de);
+    const pool = [...new Set([...others, ...DISTRACTORS])].sort(() => Math.random() - 0.5).slice(0, 2);
+    const options = [it.de, ...pool].sort(() => Math.random() - 0.5);
+    for (const o of options) {
+      const c = el('button', 'chip', o);
+      c.type = 'button';
+      c.addEventListener('click', () => answerChoose(o));
+      chips.append(c);
+    }
+  } else {
+    panel.querySelector('h3').textContent = `Gap ${gapIdx + 1} of ${gaps.length}: it starts with “${it.de[0]}” and means “${it.en}”.`;
+    for (const a of ['der', 'die', 'das']) {
+      const c = el('button', 'chip', a);
+      c.type = 'button';
+      c.setAttribute('aria-pressed', 'false');
+      c.addEventListener('click', () => {
+        pickedArticle = a;
+        chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+      });
+      chips.append(c);
+    }
+    const input = $('recall-input');
+    input.value = '';
+    input.focus({ preventScroll: true });
+  }
+}
+
+function fill(g, ok) {
+  const it = ITEMS[g.item];
+  g.el.textContent = it.de;
+  g.el.classList.add('done');
+  g.el.classList.remove('active');
+  if (ok) score++;
+}
+
+function next(delay) {
+  setTimeout(() => {
+    gapIdx = gaps.findIndex((x) => !x.el.classList.contains('done'));
+    if (gapIdx === -1) finish(); else activate();
+  }, delay);
+}
+
+function answerChoose(choice) {
+  const g = gaps[gapIdx];
+  const it = ITEMS[g.item];
+  const fb = $('panel').querySelector('.feedback');
+  const ok = choice === it.de;
+  fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+  fb.textContent = ok ? `Richtig! ${ART[it.g]} ${it.de} means ${it.en}.` : `Not quite. This gap is ${ART[it.g]} ${it.de}, the ${it.en}.`;
+  if (ok) raise(g.item, 1);
+  say([[it.de, 'de']]);
+  fill(g, ok);
+  next(ok ? 900 : 1800);
+}
+
+function checkRecall() {
+  const g = gaps[gapIdx];
+  if (!g) return;
+  const it = ITEMS[g.item];
+  const fb = $('panel').querySelector('.feedback');
+  const raw = $('recall-input').value.trim();
+  if (!raw) { fb.className = 'feedback no'; fb.textContent = 'Type the word first.'; return; }
+  const words = raw.toLowerCase().split(/\s+/);
+  const typedArticle = ['der', 'die', 'das'].includes(words[0]) && words.length > 1 ? words.shift() : null;
+  const article = typedArticle || pickedArticle;
+  const wordOk = words.join(' ') === it.de.toLowerCase();
+  const artOk = article === ART[it.g];
+  let msg;
+  if (wordOk && artOk) msg = `Perfekt! ${ART[it.g]} ${it.de}.`;
+  else if (wordOk && !article) msg = `Right word! Next time pick the article too: it's ${ART[it.g]} ${it.de}.`;
+  else if (wordOk) msg = `Right word. ${it.de} is ${GENDER_NAME[it.g]}, so it's ${ART[it.g]} ${it.de}.`;
+  else msg = `Almost. The word is ${ART[it.g]} ${it.de}.`;
+  fb.className = 'feedback ' + (wordOk ? 'ok' : 'no');
+  fb.textContent = msg;
+  if (wordOk && artOk) raise(g.item, 2);
+  else if (wordOk) raise(g.item, 1);
+  say([[`${ART[it.g]} ${it.de}`, 'de']]);
+  fill(g, wordOk && artOk);
+  next(wordOk && artOk ? 1000 : 2200);
+}
+
+function finish() {
+  const panel = $('panel');
+  panel.textContent = '';
+  const total = gaps.length;
+  panel.append(el('p', 'result', `${score} of ${total} ${mode === 'recall' ? 'perfect' : 'right'}`));
+  const msg = score === total ? 'Sehr gut! Every gap filled.' : 'Good work. The words you missed will come back sooner.';
+  panel.append(el('p', 'hint', msg));
+  const row = el('div', 'chips');
+  const again = el('button', 'btn ghost', 'Try again');
+  again.type = 'button';
+  again.addEventListener('click', render);
+  row.append(again);
+  if (mode === 'choose') {
+    const on = el('button', 'btn', 'Go to day 3 →');
+    on.type = 'button';
+    on.addEventListener('click', () => setMode('recall'));
+    row.append(on);
+  } else {
+    const on = el('button', 'btn', 'Open the time machine →');
+    on.type = 'button';
+    on.addEventListener('click', () => setMode('time'));
+    row.append(on);
+  }
+  panel.append(row);
+}
+
+function renderBank() {
+  const ul = $('bank');
+  ul.textContent = '';
+  for (const [id, it] of Object.entries(ITEMS)) {
+    const li = el('li');
+    const w = el('span', 'w', `${ART[it.g]} ${it.de}`);
+    w.style.color = `var(--${ART[it.g]})`;
+    const dots = el('span', 'dots');
+    dots.setAttribute('aria-label', `mastery ${mastery[id] || 0} of 5`);
+    for (let i = 1; i <= 5; i++) dots.append(el('i', i <= (mastery[id] || 0) ? 'on' : ''));
+    li.append(w, dots, el('span', 'e', `${it.en} · plural ${it.pl}`));
+    ul.append(li);
+  }
+}
+
+// ---------- word sheet ----------
+function openSheet(seg) {
+  const it = seg.i ? ITEMS[seg.i] : null;
+  const big = $('sh-word');
+  big.className = 'big ' + (seg.br ? 'br' : 'g-' + (it ? it.g : 'x'));
+  const shown = seg.t || (it ? `${ART[it.g]} ${it.de}` : '');
+  big.textContent = shown;
+  $('sh-en').textContent = seg.en ? `“${seg.en}”` : `“${it.en}”`;
+  const extra = [];
+  if (it) extra.push(`${ART[it.g]} ${it.de} · ${GENDER_NAME[it.g]} · plural ${it.pl}`);
+  if (seg.c) extra.push(`${ROLE[seg.c].icon} ${ROLE[seg.c].name}`);
+  if (seg.br) extra.push('Part of a verb bracket. Its partner is lit up in the sentence.');
+  $('sh-extra').textContent = extra.join('  ·  ');
+  lastWord = shown;
+  $('sheet').hidden = false;
+  say([[shown, 'de']]);
+}
+$('sh-say').addEventListener('click', () => lastWord && say([[lastWord, 'de']]));
+$('sh-close').addEventListener('click', () => { $('sheet').hidden = true; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('sheet').hidden = true; });
+
+// ---------- listen ----------
+$('listen').addEventListener('click', () => {
+  const stufe = mode === 'time' ? timeStufe : 1;
+  const parts = [];
+  for (const s of STORY[stufe]) {
+    for (const seg of s.segs) {
+      const text = segText(seg).trim();
+      if (!text) continue;
+      const german = typeof seg !== 'string' || stufe >= 5;
+      parts.push([text, german ? 'de' : 'en']);
+    }
+  }
+  say(parts);
+});
+
+// ---------- modes ----------
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === m)));
+  render();
+}
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+function render() {
+  $('sheet').hidden = true;
+  if (synth) synth.cancel();
+  flashHint(HINTS[mode]);
+  renderStory();
+  renderPanel();
+}
+
+$('reset').addEventListener('click', () => {
+  for (const k of Object.keys(mastery)) delete mastery[k];
+  save(); renderBank();
+});
+
+render();
+renderBank();
+</script>
