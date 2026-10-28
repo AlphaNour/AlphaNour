@@ -1,170 +1,136 @@
-<title>Spiegel Croissant Thief</title>
+<title>Karl und das Brot</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap">
 <style>
-/* Layout: one phone-width column; a mirrored wordmark, the story card, then practice and the word bank. */
+/* Layout: one phone-width column. A comic strip to read, then Morph and Build to turn English into German yourself, then the secret-code cards. */
 :root {
-  --bg: #EEF1F6; --surface: #FFFFFF; --sunk: #E3E8F0; --ink: #141A26; --muted: #5B6476; --line: #D3DAE5;
-  --accent: #E39B26; --on-accent: #1B1404;
-  --der: #2160E0; --die: #D52C44; --das: #11895A; --verb: #A86A10;
-  --good: #11895A; --soft: #D52C44;
+  --bg: #EDF0F5; --surface: #FFFFFF; --sunk: #E2E7EF; --ink: #161B27; --muted: #5A6375; --line: #D2D9E4;
+  --accent: #E39B26; --on-accent: #1E1404; --karl: #D9711A; --becker: #2F62A3;
+  --der: #2160E0; --die: #D52C44; --das: #11895A; --good: #11895A; --soft: #D52C44;
   --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0E121A; --surface: #171D29; --sunk: #1F2735; --ink: #E8ECF4; --muted: #97A1B4; --line: #2B3446;
-  --accent: #F2B544; --on-accent: #1B1404;
-  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --verb: #F2B544;
-  --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
+  --bg: #0E121A; --surface: #171D29; --sunk: #202838; --ink: #E8ECF4; --muted: #98A2B5; --line: #2C3547;
+  --accent: #F2B544; --karl: #F5A14E; --becker: #7FAAF0;
+  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --bg: #0E121A; --surface: #171D29; --sunk: #1F2735; --ink: #E8ECF4; --muted: #97A1B4; --line: #2B3446;
-  --accent: #F2B544; --on-accent: #1B1404;
-  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --verb: #F2B544;
-  --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
+  --bg: #0E121A; --surface: #171D29; --sunk: #202838; --ink: #E8ECF4; --muted: #98A2B5; --line: #2C3547;
+  --accent: #F2B544; --karl: #F5A14E; --becker: #7FAAF0;
+  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); }
-.wrap { max-width: 600px; margin: 0 auto; padding-block: 20px 140px;
+body { background: var(--bg); color: var(--ink); font: 17px/1.55 var(--body); }
+.wrap { max-width: 620px; margin: 0 auto; padding-block: 20px 150px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 20px; }
-
-/* Wordmark with its reflection */
-.brand { display: grid; justify-items: start; }
-.brand h1, .brand .mirror { font: 800 clamp(44px, 12vw, 64px)/0.9 var(--display); letter-spacing: -0.02em; margin: 0; }
-.brand .mirror { transform: scaleY(-1); opacity: 0.18; margin-top: 2px; height: 0.45em; overflow: hidden;
-  -webkit-mask-image: linear-gradient(to top, #000, transparent); mask-image: linear-gradient(to top, #000, transparent); }
-.brand p { margin: 8px 0 0; color: var(--muted); max-width: 46ch; }
-
-.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 14px; color: var(--muted); }
-.legend b { font-weight: 700; }
-.legend .m { color: var(--der); } .legend .f { color: var(--die); } .legend .n { color: var(--das); }
-
-/* Story card */
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
-.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
-.card h2 { font: 800 26px/1.15 var(--display); margin: 2px 0 0; text-wrap: balance; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.btn { border: 0; border-radius: 999px; padding: 9px 16px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+header h1 { font: 800 clamp(36px, 10vw, 52px)/1 var(--display); margin: 0; letter-spacing: -0.02em; }
+header .sub { margin: 6px 0 0; color: var(--muted); }
+header .sub b { color: var(--ink); }
+
+.tabs { display: flex; gap: 4px; background: var(--sunk); padding: 4px; border-radius: 12px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+.tabs button { flex: 1; border: 0; background: transparent; border-radius: 9px; padding: 9px 6px; font-size: 15px; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 1px 2px rgb(0 0 0 / 0.14); }
+.intro { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* Comic */
+.strip { display: grid; gap: 18px; }
+.panel { background: var(--surface); border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; }
+.panel svg { display: block; width: 100%; height: auto; aspect-ratio: 360 / 200; max-width: 100%; border-bottom: 2px solid var(--ink); }
+.caption { margin: 0; padding: 8px 14px; background: #FFE9A8; color: #3A2A05; font-size: 14px; font-style: italic; border-bottom: 2px solid var(--ink); }
+.bubbles { display: grid; gap: 10px; padding: 14px; }
+.bubble { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: start; }
+.who { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.who.karl { color: var(--karl); } .who.becker { color: var(--becker); }
+.de-line { font: 700 22px/1.45 var(--body); min-width: 0; }
+.en-line { grid-column: 1; color: var(--muted); font-size: 16px; }
+.w { border: 0; background: none; padding: 0 1px; border-radius: 4px; font-weight: 700; }
+.w:hover { background: var(--sunk); }
+.w.g-m { box-shadow: inset 0 -3px var(--der); } .w.g-f { box-shadow: inset 0 -3px var(--die); } .w.g-n { box-shadow: inset 0 -3px var(--das); }
+.w.coded::after { content: "🔑"; font-size: 0.5em; vertical-align: super; }
+.play { border: 0; background: var(--sunk); border-radius: 999px; width: 42px; height: 42px; font-size: 18px; grid-row: 2; grid-column: 2; }
+
+/* Morph and Build cards */
+.work { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.work-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.step-count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.thumb { width: 100%; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; display: block; aspect-ratio: 360 / 200; height: auto; }
+.label { margin: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.big-en { margin: 0; font: 700 22px/1.35 var(--body); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tok { border: 2px solid var(--line); background: var(--bg); border-radius: 10px; padding: 6px 12px; font: 700 19px/1.3 var(--body); min-width: 2.5em; }
+.tok.todo { border-style: dashed; border-color: var(--accent); }
+.tok.done { background: var(--surface); }
+.tok.done.g-m { border-color: var(--der); } .tok.done.g-f { border-color: var(--die); } .tok.done.g-n { border-color: var(--das); }
+.tok .new { color: var(--accent); }
+.punct { font: 700 19px var(--body); color: var(--muted); }
+.code-pop { margin: 0; padding: 10px 14px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); font-size: 15px; }
+.code-pop b { font-family: var(--display); }
+.btn { border: 0; border-radius: 999px; padding: 10px 18px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
 .btn.ghost { background: var(--sunk); color: var(--ink); }
-
-.tabs { display: flex; gap: 4px; background: var(--sunk); padding: 4px; border-radius: 12px; overflow-x: auto; }
-.tabs button { flex: 1 0 auto; border: 0; background: transparent; border-radius: 9px; padding: 8px 12px; font-size: 14px; color: var(--muted); white-space: nowrap; }
-.tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
-.hint { margin: 0; font-size: 14px; color: var(--muted); }
-
-.story { display: grid; gap: 12px; font-size: 19px; line-height: 1.75; }
-.story p { margin: 0; }
-.gloss { display: block; font-size: 14px; line-height: 1.4; color: var(--muted); }
-
-/* German words */
-.de { border: 0; background: none; padding: 0 2px; font-weight: 700; border-radius: 4px; border-bottom: 3px solid currentColor; line-height: 1.3; }
-.de:hover { background: var(--sunk); }
-.de.g-m { color: var(--der); } .de.g-f { color: var(--die); } .de.g-n { color: var(--das); } .de.g-x { color: var(--ink); border-bottom-style: dotted; }
-.de.br { color: var(--verb); border-bottom-style: dashed; }
-.de.br.lit { background: color-mix(in srgb, var(--verb) 22%, transparent); }
-.role { font-size: 0.75em; vertical-align: super; margin-left: 1px; }
-
-/* Gaps */
-.gap { border: 2px dashed var(--line); background: var(--sunk); border-radius: 8px; padding: 0 10px; min-width: 64px; font-weight: 700; line-height: 1.5; color: var(--muted); }
-.gap.active { border-color: var(--accent); border-style: solid; color: var(--ink); }
-.gap.done { border-style: solid; background: none; }
-.gap.g-m.hinted { border-bottom: 4px solid var(--der); } .gap.g-f.hinted { border-bottom: 4px solid var(--die); } .gap.g-n.hinted { border-bottom: 4px solid var(--das); }
-.gap.done.g-m { color: var(--der); border-color: var(--der); } .gap.done.g-f { color: var(--die); border-color: var(--die); } .gap.done.g-n { color: var(--das); border-color: var(--das); }
-
-/* Practice panel */
-.panel { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 12px; }
-.panel h3 { margin: 0; font: 700 16px/1.3 var(--body); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 16px; font-weight: 700; }
-.chip:hover { border-color: var(--accent); }
-.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-.recall { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.recall input { flex: 1 1 160px; min-width: 0; font: 700 18px var(--body); padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
-.feedback { margin: 0; font-size: 15px; min-height: 1.5em; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+.slot { min-height: 52px; border: 2px dashed var(--line); border-radius: 12px; padding: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.slot:empty::before { content: "Tap the German words in the right order"; color: var(--muted); font-size: 14px; padding: 0 6px; }
+.feedback { margin: 0; min-height: 1.5em; font-size: 16px; }
 .feedback.ok { color: var(--good); } .feedback.no { color: var(--soft); }
-.result { font: 800 22px/1.2 var(--display); margin: 0; }
+.done-card { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 10px 0; }
+.done-card p { margin: 0; }
+.done-card .score { font: 800 30px var(--display); }
 
-/* Time machine */
-.stufen { display: flex; gap: 8px; flex-wrap: wrap; }
-
-/* Word bank */
-.bank h2 { font: 800 22px/1.2 var(--display); margin: 0 0 4px; }
-.bank ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.bank li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
-.bank .w { font-weight: 700; }
-.bank .e { color: var(--muted); font-size: 14px; grid-column: 1; }
-.dots { display: flex; gap: 4px; grid-row: span 2; }
-.dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
-.dots i.on { background: var(--accent); }
-.reset { justify-self: start; border: 0; background: none; color: var(--muted); text-decoration: underline; font-size: 14px; padding: 0; }
+/* Secret codes */
+.codes h2 { font: 800 24px/1.2 var(--display); margin: 0; }
+.codes > p { margin: 4px 0 12px; color: var(--muted); font-size: 15px; }
+.code-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.code { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; }
+.code .rule { font: 800 24px/1.1 var(--display); }
+.code .ex { font-size: 14px; color: var(--muted); }
+.code.locked .rule { color: var(--muted); }
+.code.locked .ex { filter: blur(4px); user-select: none; }
+.code.open { border-color: var(--accent); }
 
 /* Word sheet */
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
-  box-shadow: 0 -8px 24px rgb(0 0 0 / 0.14); padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-.sheet-in { max-width: 600px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
-.sheet .big { font: 800 28px/1.15 var(--display); margin: 0; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -8px 24px rgb(0 0 0 / 0.16);
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet-in { max-width: 620px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+.sheet .pair { margin: 0; font: 800 26px/1.2 var(--display); }
+.sheet .pair span { color: var(--muted); font-weight: 500; }
 .sheet .meta { margin: 0; color: var(--muted); font-size: 15px; grid-column: 1; }
-.sheet .acts { grid-row: 1 / span 3; grid-column: 2; display: grid; gap: 6px; }
-.big.g-m { color: var(--der); } .big.g-f { color: var(--die); } .big.g-n { color: var(--das); } .big.g-x { color: var(--ink); } .big.br { color: var(--verb); }
-
-@media (prefers-reduced-motion: no-preference) {
-  .sheet { animation: up 0.18s ease-out; }
-  @keyframes up { from { transform: translateY(100%); } }
-}
+.sheet .acts { grid-row: 1 / span 2; grid-column: 2; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: up 0.18s ease-out; } @keyframes up { from { transform: translateY(100%); } } }
 </style>
 
 <div class="wrap">
-  <header class="brand">
-    <h1>Spiegel</h1>
-    <div class="mirror" aria-hidden="true">Spiegel</div>
-    <p>Lesson one at Stufe 1. Tap any colored word to hear it and see what it means, then practise as if it were day 1 and day 3.</p>
+  <header>
+    <h1>Karl und das Brot</h1>
+    <p class="sub"><b>Karl and the bread.</b> A hungry cat walks into a Berlin bakery. A comic in German and English.</p>
   </header>
 
-  <div class="legend" aria-label="Gender colors">
-    <span class="m"><b>der</b> masculine</span>
-    <span class="f"><b>die</b> feminine</span>
-    <span class="n"><b>das</b> neuter</span>
+  <div class="tabs" role="tablist" aria-label="Mode">
+    <button role="tab" id="tab-read" data-mode="read" aria-selected="true" type="button">📖 Read</button>
+    <button role="tab" id="tab-morph" data-mode="morph" aria-selected="false" type="button">✨ Morph</button>
+    <button role="tab" id="tab-build" data-mode="build" aria-selected="false" type="button">🧩 Build</button>
   </div>
+  <p class="intro" id="intro"></p>
 
-  <section class="card" aria-labelledby="story-title">
-    <div class="card-head">
-      <div>
-        <p class="eyebrow">Example story · told Tuesday</p>
-        <h2 id="story-title">The Croissant Thief</h2>
-      </div>
-      <button class="btn" id="listen" type="button">▶ Listen</button>
-    </div>
+  <main id="main"></main>
 
-    <div class="tabs" role="tablist" aria-label="Practice mode">
-      <button role="tab" id="tab-mirror" aria-selected="true" data-mode="mirror" type="button">Day 0 · Mirror</button>
-      <button role="tab" id="tab-choose" aria-selected="false" data-mode="choose" type="button">Day 1 · Choose</button>
-      <button role="tab" id="tab-recall" aria-selected="false" data-mode="recall" type="button">Day 3 · Recall</button>
-      <button role="tab" id="tab-time" aria-selected="false" data-mode="time" type="button">Time machine</button>
-    </div>
-
-    <p class="hint" id="hint"></p>
-    <div class="story" id="story"></div>
-    <div class="panel" id="panel" hidden></div>
-  </section>
-
-  <section class="bank" aria-labelledby="bank-title">
-    <h2 id="bank-title">Your word bank</h2>
-    <p class="hint">Dots show mastery from 0 to 5. Choosing right gives 1, recalling word and article gives 2. Speaking and retelling come later.</p>
-    <ul id="bank"></ul>
-    <button class="reset" id="reset" type="button">Reset progress</button>
+  <section class="codes" aria-labelledby="codes-title">
+    <h2 id="codes-title">Secret codes</h2>
+    <p>English and German are cousins. Many German words are English words with a few letters swapped by the same rules. Morph words to unlock each code.</p>
+    <div class="code-grid" id="codes"></div>
   </section>
 </div>
 
 <div class="sheet" id="sheet" hidden role="dialog" aria-label="Word details">
   <div class="sheet-in">
-    <p class="big" id="sh-word"></p>
-    <p class="meta" id="sh-en"></p>
-    <p class="meta" id="sh-extra"></p>
+    <p class="pair" id="sh-pair"></p>
+    <p class="meta" id="sh-meta"></p>
     <div class="acts">
       <button class="btn" id="sh-say" type="button">🔊 Hear</button>
       <button class="btn ghost" id="sh-close" type="button">Close</button>
@@ -173,396 +139,391 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 </div>
 
 <script>
+// ---------- story data ----------
+// A token is [english, german, info?] for a word, or [punctuation] alone.
+// info: { g: gender, code: [rule ids], note }
+const RULES = {
+  'd-t':  { from: 'd', to: 't',   ex: 'good → gut · bread → Brot · day → Tag' },
+  'th-d': { from: 'th', to: 'd',  ex: 'that → das · thanks → danke · thou → du' },
+  'p-pf': { from: 'p', to: 'pf',  ex: 'apple → Apfel · pepper → Pfeffer' },
+  'k-ch': { from: 'k', to: 'ch',  ex: 'milk → Milch · make → machen · book → Buch' },
+  't-z':  { from: 't', to: 'z / s', ex: 'cat → Katze · that → das · water → Wasser' },
+};
 const ART = { m: 'der', f: 'die', n: 'das' };
-const GENDER_NAME = { m: 'masculine', f: 'feminine', n: 'neuter' };
-const ROLE = { nom: { icon: '🎭', name: 'actor (Nominativ)' }, akk: { icon: '🎯', name: 'target (Akkusativ)' } };
 
-const ITEMS = {
-  croissant: { de: 'Croissant', g: 'n', en: 'croissant', pl: 'die Croissants' },
-  kaffee:    { de: 'Kaffee',    g: 'm', en: 'coffee',    pl: 'die Kaffees' },
-  taube:     { de: 'Taube',     g: 'f', en: 'pigeon',    pl: 'die Tauben' },
-  kellner:   { de: 'Kellner',   g: 'm', en: 'waiter',    pl: 'die Kellner' },
-};
-const DISTRACTORS = ['Hund', 'Tisch', 'Katze', 'Brot', 'Zug', 'Lampe'];
+const LINES = [
+  { who: 'karl', en: 'Hello! I am Karl.',
+    toks: [['Hello', 'Hallo'], ['!'], ['I', 'Ich'], ['am', 'bin'], ['Karl', 'Karl'], ['.']] },
+  { who: 'becker', en: 'Good morning, Karl! Are you hungry?',
+    toks: [['Good', 'Guten', { code: ['d-t'] }], ['morning', 'Morgen', { g: 'm' }], [','], ['Karl', 'Karl'], ['!'],
+           ['hast', 'Hast', { note: 'Old English “thou hast” means “you have”. German still says it.' }], ['thou', 'du', { code: ['th-d'], note: '“Thou” is old English for “you”.' }], ['hunger', 'Hunger', { g: 'm' }], ['?']] },
+  { who: 'karl', en: 'Yes! Milk and bread, please.',
+    toks: [['Yeah', 'Ja'], ['!'], ['Milk', 'Milch', { g: 'f', code: ['k-ch'] }], ['and', 'und'], ['bread', 'Brot', { g: 'n', code: ['d-t'] }], [','], ['please', 'bitte'], ['.']] },
+  { who: 'becker', en: 'Here is an apple. That is good!',
+    toks: [['Here', 'Hier'], ['is', 'ist'], ['an', 'ein'], ['apple', 'Apfel', { g: 'm', code: ['p-pf'] }], ['.'],
+           ['That', 'Das', { code: ['th-d', 't-z'] }], ['is', 'ist'], ['good', 'gut', { code: ['d-t'] }], ['!']] },
+  { who: 'karl', en: 'An apple?! I am a cat!',
+    toks: [['An', 'Ein'], ['apple', 'Apfel', { g: 'm', code: ['p-pf'] }], ['?!'], ['I', 'Ich'], ['am', 'bin'], ['a', 'eine'], ['cat', 'Katze', { g: 'f', code: ['t-z'] }], ['!']] },
+  { who: 'becker', en: 'Okay, okay! Here is milk.',
+    toks: [['Okay', 'Okay'], [','], ['okay', 'okay'], ['!'], ['Here', 'Hier'], ['is', 'ist'], ['milk', 'Milch', { g: 'f', code: ['k-ch'] }], ['.']] },
+  { who: 'karl', en: 'Thanks! That is good.',
+    toks: [['Thanks', 'Danke', { code: ['th-d'] }], ['!'], ['That', 'Das', { code: ['th-d', 't-z'] }], ['is', 'ist'], ['good', 'gut', { code: ['d-t'] }], ['.']] },
+];
+const NAMES = { karl: 'Karl, the cat', becker: 'Frau Becker, the baker' };
 
-// A segment is a plain string, or { i: itemId } / { t, en, i?, c?, br? } for German.
-const STORY = {
-  1: [
-    { segs: ['This morning I went to my favourite café and ordered a ', { i: 'croissant' }, ' and a ', { i: 'kaffee' }, '.'] },
-    { segs: ['I opened my laptop. Big mistake.'] },
-    { segs: ['Whoosh! A ', { i: 'taube' }, ' flew in, grabbed my ', { i: 'croissant' }, ' and flew away.'] },
-    { segs: ['The ', { i: 'kellner' }, ' laughed so hard he dropped a tray.'] },
-    { segs: ['I laughed too. But from today, that ', { i: 'taube' }, ' is my enemy.'] },
-  ],
-  3: [
-    { segs: ['This morning I went to the café and ordered a ', { i: 'croissant' }, '. ', { t: 'Ich trinke Kaffee.', en: 'I drink coffee.' }] },
-    { segs: ['I opened my laptop. Big mistake.'] },
-    { segs: ['Whoosh! A ', { i: 'taube' }, ' grabbed my ', { i: 'croissant' }, ' and flew away.'] },
-    { segs: [{ t: 'Der Kellner', i: 'kellner', c: 'nom', en: 'the waiter' }, ' ', { t: 'lacht.', en: 'laughs.' }, ' He dropped a tray.'] },
-    { segs: [{ t: 'Ich lache auch.', en: 'I laugh too.' }, ' But that ', { i: 'taube' }, ' is my enemy now.'] },
-  ],
-  5: [
-    { gloss: 'This morning I went to the café.',
-      segs: [{ t: 'Heute Morgen', en: 'this morning' }, ' ', { t: 'bin', br: 1, en: 'am (helper verb for movement)' }, ' ich ', { t: 'ins Café', en: 'into the café' }, ' ', { t: 'gegangen', br: 1, en: 'gone' }, '.'] },
-    { gloss: 'I ordered a coffee and a croissant.',
-      segs: ['Ich ', { t: 'habe', br: 2, en: 'have (helper verb)' }, ' ', { t: 'einen Kaffee', i: 'kaffee', c: 'akk', en: 'a coffee' }, ' und ', { t: 'ein Croissant', i: 'croissant', c: 'akk', en: 'a croissant' }, ' ', { t: 'bestellt', br: 2, en: 'ordered' }, '.'] },
-    { gloss: 'Suddenly a pigeon flew in and stole my croissant!',
-      segs: [{ t: 'Plötzlich', en: 'suddenly' }, ' ', { t: 'ist', br: 3, en: 'is (helper verb for movement)' }, ' ', { t: 'eine Taube', i: 'taube', c: 'nom', en: 'a pigeon' }, ' ', { t: 'hereingeflogen', br: 3, en: 'flown in' }, ' und ', { t: 'hat', br: 4, en: 'has (helper verb)' }, ' ', { t: 'mein Croissant', i: 'croissant', c: 'akk', en: 'my croissant' }, ' ', { t: 'gestohlen', br: 4, en: 'stolen' }, '!'] },
-    { gloss: 'The waiter laughed loudly.',
-      segs: [{ t: 'Der Kellner', i: 'kellner', c: 'nom', en: 'the waiter' }, ' ', { t: 'hat', br: 5, en: 'has (helper verb)' }, ' ', { t: 'laut', en: 'loudly' }, ' ', { t: 'gelacht', br: 5, en: 'laughed' }, '.'] },
-    { gloss: 'I laughed too. But now the pigeon is my enemy.',
-      segs: ['Ich ', { t: 'habe', br: 6, en: 'have (helper verb)' }, ' auch ', { t: 'gelacht', br: 6, en: 'laughed' }, '. Aber jetzt ist ', { t: 'die Taube', i: 'taube', c: 'nom', en: 'the pigeon' }, ' ', { t: 'mein Feind', en: 'my enemy' }, '.'] },
-  ],
-};
-
-const HINTS = {
-  mirror: 'Read and listen. Nothing is hidden today. Tap a colored word for its meaning.',
-  choose: 'Day 1: the German words have faded. Pick the right one for each gap.',
-  recall: 'Day 3: type each word from memory and pick its article. You get the first letter and the gender color.',
-  time: 'This is how the same story will look as you climb the Stufen.',
-};
-
-// ---------- state ----------
-let mode = 'mirror';
-let timeStufe = 5;
-let gaps = [];      // [{ item, el }]
-let gapIdx = 0;
-let score = 0;
-let pickedArticle = null;
-let lastWord = null;
-
-const mastery = load();
-function load() {
-  try { return JSON.parse(localStorage.getItem('spiegel-mastery')) || {}; } catch { return {}; }
+// ---------- drawings ----------
+function bg(withCounter = true) {
+  return `<rect width="360" height="200" fill="#F4D7A6"/>
+  <rect width="360" height="12" fill="#E3B474"/>
+  <rect x="18" y="20" width="118" height="26" rx="4" fill="#2E4057"/>
+  <text x="77" y="38" font-size="14" font-weight="700" fill="#F4D7A6" text-anchor="middle" font-family="sans-serif" letter-spacing="2">BÄCKEREI</text>
+  <rect x="200" y="44" width="146" height="6" fill="#8E5A31"/>
+  <ellipse cx="222" cy="37" rx="13" ry="7" fill="#C27A38"/><ellipse cx="252" cy="37" rx="13" ry="7" fill="#B06A2C"/>
+  <ellipse cx="282" cy="37" rx="13" ry="7" fill="#C27A38"/><ellipse cx="316" cy="37" rx="15" ry="8" fill="#B06A2C"/>
+  <rect y="172" width="360" height="28" fill="#B47647"/>
+  ${withCounter ? '' : ''}`;
 }
-function save() {
-  try { localStorage.setItem('spiegel-mastery', JSON.stringify(mastery)); } catch {}
+function counter() {
+  return `<rect x="192" y="122" width="168" height="54" fill="#8A5833"/><rect x="186" y="114" width="174" height="11" rx="3" fill="#6B4225"/>`;
 }
-function raise(id, to) {
-  mastery[id] = Math.max(mastery[id] || 0, to);
-  save(); renderBank();
+function cat(x, y, s, mood = 'normal') {
+  const o = '#F28C28', dark = '#5A2D0C';
+  const eyes = {
+    normal: `<circle cx="41" cy="42" r="4" fill="#222"/><circle cx="59" cy="42" r="4" fill="#222"/><circle cx="42.4" cy="40.6" r="1.3" fill="#fff"/><circle cx="60.4" cy="40.6" r="1.3" fill="#fff"/>`,
+    shock: `<circle cx="40" cy="41" r="8" fill="#fff" stroke="${dark}" stroke-width="1.5"/><circle cx="60" cy="41" r="8" fill="#fff" stroke="${dark}" stroke-width="1.5"/><circle cx="40" cy="42" r="3" fill="#222"/><circle cx="60" cy="42" r="3" fill="#222"/>`,
+    happy: `<path d="M36 43 q5 -6 10 0 M54 43 q5 -6 10 0" stroke="${dark}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+  };
+  eyes.wave = eyes.normal; eyes.dreamy = eyes.happy;
+  const mouth = mood === 'shock'
+    ? `<ellipse cx="50" cy="60" rx="4" ry="5" fill="${dark}"/>`
+    : `<path d="M50 54 q-4 4 -8 1 M50 54 q4 4 8 1" stroke="${dark}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  const paw = mood === 'wave' ? `<ellipse cx="80" cy="56" rx="7" ry="9" fill="${o}" transform="rotate(-20 80 56)"/><path d="M76 72 L79 62" stroke="${o}" stroke-width="8" stroke-linecap="round"/>` : '';
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M74 84 C98 80 100 52 88 42" stroke="#E07B1F" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50" cy="80" rx="26" ry="19" fill="${o}"/>
+    <polygon points="31,32 35,10 48,24" fill="${o}"/><polygon points="69,32 65,10 52,24" fill="${o}"/>
+    <polygon points="35,27 37,16 44,24" fill="#F7B5A8"/><polygon points="65,27 63,16 56,24" fill="#F7B5A8"/>
+    <circle cx="50" cy="44" r="23" fill="${o}"/>
+    <path d="M44 23 l2 7 M50 21 v8 M56 23 l-2 7" stroke="#D9711A" stroke-width="3" stroke-linecap="round"/>
+    ${eyes[mood]}
+    <polygon points="47,50 53,50 50,54" fill="#E8707E"/>
+    ${mouth}
+    <path d="M34 52 L17 49 M34 55 L17 58 M66 52 L83 49 M66 55 L83 58" stroke="${dark}" stroke-width="1.4"/>
+    ${paw}
+  </g>`;
 }
+function baker(x, y, s, mood = 'smile') {
+  const eyes = mood === 'laugh'
+    ? `<path d="M40 59 q3 -4 6 0 M54 59 q3 -4 6 0" stroke="#2A1A10" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="43" cy="58" r="2.6" fill="#2A1A10"/><circle cx="57" cy="58" r="2.6" fill="#2A1A10"/>`;
+  const mouth = mood === 'laugh'
+    ? `<path d="M42 65 q8 11 16 0 Z" fill="#7A2A20"/>`
+    : `<path d="M44 66 q6 5 12 0" stroke="#7A2A20" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M18 150 Q18 84 50 80 Q82 84 82 150 Z" fill="#3D6FA8"/>
+    <rect x="34" y="94" width="32" height="56" rx="5" fill="#FFFFFF"/>
+    <circle cx="50" cy="58" r="20" fill="#EDBB99"/>
+    <path d="M30 60 Q29 38 50 38 Q71 38 70 60 Q66 47 50 47 Q34 47 30 60 Z" fill="#7A4A2A"/>
+    <rect x="35" y="27" width="30" height="14" fill="#FFFFFF" stroke="#D9D9D9"/>
+    <circle cx="40" cy="25" r="10" fill="#FFFFFF"/><circle cx="60" cy="25" r="10" fill="#FFFFFF"/><circle cx="50" cy="18" r="11" fill="#FFFFFF"/>
+    <circle cx="38" cy="65" r="3.5" fill="#F09A8A" opacity="0.7"/><circle cx="62" cy="65" r="3.5" fill="#F09A8A" opacity="0.7"/>
+    ${eyes}${mouth}
+  </g>`;
+}
+const apple = (x, y) => `<g transform="translate(${x} ${y})"><circle r="11" fill="#D7263D"/><path d="M0 -10 q2 -6 5 -8" stroke="#5A3A1A" stroke-width="2.5" fill="none"/><ellipse cx="7" cy="-15" rx="6" ry="3" fill="#3FA34D" transform="rotate(-25 7 -15)"/><circle cx="-4" cy="-4" r="2.5" fill="#fff" opacity="0.5"/></g>`;
+const bread = (x, y) => `<g transform="translate(${x} ${y})"><ellipse rx="18" ry="10" fill="#C27A38"/><path d="M-8 -6 l4 8 M0 -8 l4 8 M8 -6 l4 7" stroke="#8E5420" stroke-width="2" stroke-linecap="round"/></g>`;
+const milk = (x, y) => `<g transform="translate(${x} ${y})"><rect x="-8" y="-14" width="16" height="30" rx="4" fill="#FFFFFF" stroke="#C9CED6"/><rect x="-5" y="-20" width="10" height="7" rx="2" fill="#2F62A3"/><rect x="-8" y="-2" width="16" height="8" fill="#9EC1EE"/></g>`;
 
-// ---------- speech ----------
-const synth = window.speechSynthesis;
-function voiceFor(lang) {
-  const vs = synth ? synth.getVoices() : [];
-  return vs.find((v) => v.lang && v.lang.toLowerCase().startsWith(lang)) || null;
-}
-function say(parts) {
-  if (!synth) { flashHint('Your browser cannot read aloud, but everything else works.'); return; }
-  synth.cancel();
-  for (const [text, lang] of parts) {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang === 'de' ? 'de-DE' : 'en-US';
-    const v = voiceFor(lang);
-    if (v) u.voice = v;
-    u.rate = lang === 'de' ? 0.85 : 1;
-    synth.speak(u);
-  }
-}
-if (synth) synth.onvoiceschanged = () => {};
+const ART_PANELS = [
+  () => `${bg()}<rect x="250" y="64" width="78" height="108" rx="4" fill="#6B4225"/><rect x="262" y="76" width="54" height="40" rx="3" fill="#BFE0F5"/><circle cx="306" cy="128" r="4" fill="#E3B474"/>${cat(50, 70, 1.05, 'wave')}`,
+  () => `${bg()}${baker(222, 26, 1, 'smile')}${counter()}${cat(30, 78, 0.95, 'normal')}`,
+  () => `${bg()}${baker(222, 26, 1, 'smile')}${counter()}${cat(24, 78, 0.95, 'dreamy')}
+         <circle cx="112" cy="86" r="5" fill="#fff"/><circle cx="122" cy="72" r="8" fill="#fff"/>
+         <ellipse cx="160" cy="42" rx="44" ry="28" fill="#fff"/>${milk(140, 42)}${bread(172, 46)}`,
+  () => `${bg()}${baker(212, 26, 1, 'smile')}${counter()}${apple(212, 104)}${cat(30, 78, 0.95, 'normal')}`,
+  () => `${bg()}${counter()}${apple(250, 104)}${cat(110, 56, 1.2, 'shock')}<text x="66" y="74" font-size="44" font-weight="800" fill="#D7263D" font-family="sans-serif">?!</text>`,
+  () => `${bg()}${baker(222, 26, 1, 'laugh')}${counter()}${milk(270, 104)}<ellipse cx="128" cy="174" rx="20" ry="6" fill="#FFFFFF" stroke="#C9CED6"/>${cat(24, 78, 0.95, 'happy')}<text x="112" y="70" font-size="22" fill="#E8707E" font-family="sans-serif">♥ ♥</text>`,
+];
+const PANELS = [
+  { art: 0, caption: 'Berlin, 7 in the morning. A hungry cat walks into a bakery.', lines: [0] },
+  { art: 1, lines: [1] },
+  { art: 2, lines: [2] },
+  { art: 3, lines: [3] },
+  { art: 4, lines: [4] },
+  { art: 5, caption: 'Frau Becker laughs. Karl gets his milk.', lines: [5, 6] },
+];
+const panelOfLine = (i) => PANELS.find((p) => p.lines.includes(i));
+const svg = (artIdx, cls = '') => `<svg class="${cls}" viewBox="0 0 360 200" role="img" aria-label="Comic drawing">${ART_PANELS[artIdx]()}</svg>`;
 
 // ---------- helpers ----------
 const $ = (id) => document.getElementById(id);
-const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-function segText(s) { return typeof s === 'string' ? s : (s.t || ITEMS[s.i].de); }
-function flashHint(msg) { $('hint').textContent = msg; }
+const isWord = (t) => t.length > 1;
+const germanOf = (line) => line.toks.map((t) => (isWord(t) ? ' ' + t[1] : t[0])).join('').trim();
+const bridgeOf = (line) => line.toks.map((t) => (isWord(t) ? ' ' + t[0] : t[0])).join('').trim();
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ---------- rendering ----------
-function wordButton(seg, stufe) {
-  const it = seg.i ? ITEMS[seg.i] : null;
-  const b = el('button', 'de');
-  b.type = 'button';
-  b.textContent = segText(seg);
-  if (seg.br) { b.classList.add('br'); b.dataset.br = seg.br; }
-  else b.classList.add('g-' + (it ? it.g : 'x'));
-  if (seg.c && stufe >= 3) {
-    const r = el('span', 'role', ROLE[seg.c].icon);
-    r.setAttribute('aria-hidden', 'true');
-    b.append(r);
-  }
-  b.addEventListener('click', () => {
-    openSheet(seg);
-    if (seg.br) {
-      const p = b.closest('p');
-      p.querySelectorAll('.br').forEach((x) => x.classList.toggle('lit', x.dataset.br === String(seg.br)));
-    }
-  });
-  return b;
+let unlocked = load('karl-codes', []);
+let built = load('karl-built', []);
+function load(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
+function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+const synth = window.speechSynthesis;
+function say(text, lang = 'de') {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang === 'de' ? 'de-DE' : 'en-US';
+  const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().startsWith(lang));
+  if (v) u.voice = v;
+  u.rate = lang === 'de' ? 0.85 : 1;
+  synth.speak(u);
 }
 
-function renderStory() {
-  const box = $('story');
+function unlock(codes) {
+  let fresh = null;
+  for (const c of codes || []) if (!unlocked.includes(c)) { unlocked.push(c); fresh = fresh || c; }
+  if (fresh) { store('karl-codes', unlocked); renderCodes(); }
+  return fresh;
+}
+
+function renderCodes() {
+  const box = $('codes');
   box.textContent = '';
-  gaps = [];
-  const stufe = mode === 'time' ? timeStufe : 1;
-  for (const sentence of STORY[stufe]) {
-    const p = el('p');
-    for (const seg of sentence.segs) {
-      if (typeof seg === 'string') { p.append(seg); continue; }
-      if ((mode === 'choose' || mode === 'recall') && seg.i) {
-        const it = ITEMS[seg.i];
-        const g = el('button', 'gap g-' + it.g, mode === 'recall' ? it.de[0] + '…' : '?');
-        g.type = 'button';
-        if (mode === 'recall') g.classList.add('hinted');
-        const idx = gaps.length;
-        g.addEventListener('click', () => { if (!g.classList.contains('done')) { gapIdx = idx; activate(); } });
-        gaps.push({ item: seg.i, el: g });
-        p.append(g);
-      } else {
-        p.append(wordButton(seg, stufe));
-      }
-    }
-    if (sentence.gloss) p.append(el('span', 'gloss', sentence.gloss));
-    box.append(p);
-  }
-  if (mode === 'mirror') {
-    Object.keys(ITEMS).forEach((id) => { if (!(id in mastery)) mastery[id] = 0; });
-    save();
-    renderBank();
-  }
-}
-
-function renderPanel() {
-  const panel = $('panel');
-  panel.textContent = '';
-  if (mode === 'mirror') { panel.hidden = true; return; }
-  panel.hidden = false;
-
-  if (mode === 'time') {
-    panel.append(el('h3', null, 'Pick a Stufe'));
-    const row = el('div', 'stufen');
-    for (const [s, label] of [[1, 'Stufe 1 · now'], [3, 'Stufe 3 · ~2 months'], [5, 'Stufe 5 · ~6 months']]) {
-      const c = el('button', 'chip', label);
-      c.type = 'button';
-      c.setAttribute('aria-pressed', String(s === timeStufe));
-      c.addEventListener('click', () => { timeStufe = s; render(); });
-      row.append(c);
-    }
-    panel.append(row);
-    const notes = {
-      1: 'German nouns woven into English. Only gender is shown.',
-      3: 'Short German sentences appear. 🎭 marks the actor of the sentence.',
-      5: 'Mostly German. 🎯 marks the target. Amber words are a verb bracket: tap one to light up its partner.',
-    };
-    panel.append(el('p', 'hint', notes[timeStufe]));
-    return;
-  }
-
-  score = 0; gapIdx = 0;
-  panel.append(el('h3', null, ''), el('div', 'chips'), el('p', 'feedback'));
-  if (mode === 'recall') {
-    const row = el('div', 'recall');
-    const input = el('input');
-    input.id = 'recall-input';
-    input.placeholder = 'Type the German word';
-    input.autocomplete = 'off';
-    input.setAttribute('autocapitalize', 'words');
-    input.setAttribute('aria-label', 'German word');
-    const go = el('button', 'btn', 'Check');
-    go.type = 'button';
-    go.addEventListener('click', checkRecall);
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkRecall(); });
-    row.append(input, go);
-    panel.append(row);
-  }
-  activate();
-}
-
-function activate() {
-  const panel = $('panel');
-  gaps.forEach((g, i) => g.el.classList.toggle('active', i === gapIdx));
-  const g = gaps[gapIdx];
-  if (!g) return finish();
-  const it = ITEMS[g.item];
-  const chips = panel.querySelector('.chips');
-  chips.textContent = '';
-  panel.querySelector('.feedback').textContent = '';
-  panel.querySelector('.feedback').className = 'feedback';
-  pickedArticle = null;
-
-  if (mode === 'choose') {
-    panel.querySelector('h3').textContent = `Gap ${gapIdx + 1} of ${gaps.length}: which word fits?`;
-    const others = Object.keys(ITEMS).filter((k) => k !== g.item).map((k) => ITEMS[k].de);
-    const pool = [...new Set([...others, ...DISTRACTORS])].sort(() => Math.random() - 0.5).slice(0, 2);
-    const options = [it.de, ...pool].sort(() => Math.random() - 0.5);
-    for (const o of options) {
-      const c = el('button', 'chip', o);
-      c.type = 'button';
-      c.addEventListener('click', () => answerChoose(o));
-      chips.append(c);
-    }
-  } else {
-    panel.querySelector('h3').textContent = `Gap ${gapIdx + 1} of ${gaps.length}: it starts with “${it.de[0]}” and means “${it.en}”.`;
-    for (const a of ['der', 'die', 'das']) {
-      const c = el('button', 'chip', a);
-      c.type = 'button';
-      c.setAttribute('aria-pressed', 'false');
-      c.addEventListener('click', () => {
-        pickedArticle = a;
-        chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
-      });
-      chips.append(c);
-    }
-    const input = $('recall-input');
-    input.value = '';
-    input.focus({ preventScroll: true });
-  }
-}
-
-function fill(g, ok) {
-  const it = ITEMS[g.item];
-  g.el.textContent = it.de;
-  g.el.classList.add('done');
-  g.el.classList.remove('active');
-  if (ok) score++;
-}
-
-function next(delay) {
-  setTimeout(() => {
-    gapIdx = gaps.findIndex((x) => !x.el.classList.contains('done'));
-    if (gapIdx === -1) finish(); else activate();
-  }, delay);
-}
-
-function answerChoose(choice) {
-  const g = gaps[gapIdx];
-  const it = ITEMS[g.item];
-  const fb = $('panel').querySelector('.feedback');
-  const ok = choice === it.de;
-  fb.className = 'feedback ' + (ok ? 'ok' : 'no');
-  fb.textContent = ok ? `Richtig! ${ART[it.g]} ${it.de} means ${it.en}.` : `Not quite. This gap is ${ART[it.g]} ${it.de}, the ${it.en}.`;
-  if (ok) raise(g.item, 1);
-  say([[it.de, 'de']]);
-  fill(g, ok);
-  next(ok ? 900 : 1800);
-}
-
-function checkRecall() {
-  const g = gaps[gapIdx];
-  if (!g) return;
-  const it = ITEMS[g.item];
-  const fb = $('panel').querySelector('.feedback');
-  const raw = $('recall-input').value.trim();
-  if (!raw) { fb.className = 'feedback no'; fb.textContent = 'Type the word first.'; return; }
-  const words = raw.toLowerCase().split(/\s+/);
-  const typedArticle = ['der', 'die', 'das'].includes(words[0]) && words.length > 1 ? words.shift() : null;
-  const article = typedArticle || pickedArticle;
-  const wordOk = words.join(' ') === it.de.toLowerCase();
-  const artOk = article === ART[it.g];
-  let msg;
-  if (wordOk && artOk) msg = `Perfekt! ${ART[it.g]} ${it.de}.`;
-  else if (wordOk && !article) msg = `Right word! Next time pick the article too: it's ${ART[it.g]} ${it.de}.`;
-  else if (wordOk) msg = `Right word. ${it.de} is ${GENDER_NAME[it.g]}, so it's ${ART[it.g]} ${it.de}.`;
-  else msg = `Almost. The word is ${ART[it.g]} ${it.de}.`;
-  fb.className = 'feedback ' + (wordOk ? 'ok' : 'no');
-  fb.textContent = msg;
-  if (wordOk && artOk) raise(g.item, 2);
-  else if (wordOk) raise(g.item, 1);
-  say([[`${ART[it.g]} ${it.de}`, 'de']]);
-  fill(g, wordOk && artOk);
-  next(wordOk && artOk ? 1000 : 2200);
-}
-
-function finish() {
-  const panel = $('panel');
-  panel.textContent = '';
-  const total = gaps.length;
-  panel.append(el('p', 'result', `${score} of ${total} ${mode === 'recall' ? 'perfect' : 'right'}`));
-  const msg = score === total ? 'Sehr gut! Every gap filled.' : 'Good work. The words you missed will come back sooner.';
-  panel.append(el('p', 'hint', msg));
-  const row = el('div', 'chips');
-  const again = el('button', 'btn ghost', 'Try again');
-  again.type = 'button';
-  again.addEventListener('click', render);
-  row.append(again);
-  if (mode === 'choose') {
-    const on = el('button', 'btn', 'Go to day 3 →');
-    on.type = 'button';
-    on.addEventListener('click', () => setMode('recall'));
-    row.append(on);
-  } else {
-    const on = el('button', 'btn', 'Open the time machine →');
-    on.type = 'button';
-    on.addEventListener('click', () => setMode('time'));
-    row.append(on);
-  }
-  panel.append(row);
-}
-
-function renderBank() {
-  const ul = $('bank');
-  ul.textContent = '';
-  for (const [id, it] of Object.entries(ITEMS)) {
-    const li = el('li');
-    const w = el('span', 'w', `${ART[it.g]} ${it.de}`);
-    w.style.color = `var(--${ART[it.g]})`;
-    const dots = el('span', 'dots');
-    dots.setAttribute('aria-label', `mastery ${mastery[id] || 0} of 5`);
-    for (let i = 1; i <= 5; i++) dots.append(el('i', i <= (mastery[id] || 0) ? 'on' : ''));
-    li.append(w, dots, el('span', 'e', `${it.en} · plural ${it.pl}`));
-    ul.append(li);
+  for (const [id, r] of Object.entries(RULES)) {
+    const open = unlocked.includes(id);
+    const d = document.createElement('div');
+    d.className = 'code ' + (open ? 'open' : 'locked');
+    d.innerHTML = `<span class="rule">${open ? `${r.from} → ${r.to}` : '🔒 ? → ?'}</span><span class="ex">${r.ex}</span>`;
+    box.append(d);
   }
 }
 
 // ---------- word sheet ----------
-function openSheet(seg) {
-  const it = seg.i ? ITEMS[seg.i] : null;
-  const big = $('sh-word');
-  big.className = 'big ' + (seg.br ? 'br' : 'g-' + (it ? it.g : 'x'));
-  const shown = seg.t || (it ? `${ART[it.g]} ${it.de}` : '');
-  big.textContent = shown;
-  $('sh-en').textContent = seg.en ? `“${seg.en}”` : `“${it.en}”`;
-  const extra = [];
-  if (it) extra.push(`${ART[it.g]} ${it.de} · ${GENDER_NAME[it.g]} · plural ${it.pl}`);
-  if (seg.c) extra.push(`${ROLE[seg.c].icon} ${ROLE[seg.c].name}`);
-  if (seg.br) extra.push('Part of a verb bracket. Its partner is lit up in the sentence.');
-  $('sh-extra').textContent = extra.join('  ·  ');
-  lastWord = shown;
+let sheetWord = '';
+function openSheet(tok) {
+  const [en, de, info = {}] = tok;
+  sheetWord = info.g ? `${ART[info.g]} ${de}` : de;
+  $('sh-pair').innerHTML = `${de} <span>← ${en.toLowerCase()}</span>`;
+  const meta = [];
+  if (info.g) meta.push(`${ART[info.g]} ${de}`);
+  for (const c of info.code || []) meta.push(`🔑 code ${RULES[c].from} → ${RULES[c].to}`);
+  if (info.note) meta.push(info.note);
+  $('sh-meta').textContent = meta.join(' · ') || 'Tap Hear to listen.';
   $('sheet').hidden = false;
-  say([[shown, 'de']]);
+  say(sheetWord);
 }
-$('sh-say').addEventListener('click', () => lastWord && say([[lastWord, 'de']]));
+$('sh-say').addEventListener('click', () => say(sheetWord));
 $('sh-close').addEventListener('click', () => { $('sheet').hidden = true; });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('sheet').hidden = true; });
 
-// ---------- listen ----------
-$('listen').addEventListener('click', () => {
-  const stufe = mode === 'time' ? timeStufe : 1;
-  const parts = [];
-  for (const s of STORY[stufe]) {
-    for (const seg of s.segs) {
-      const text = segText(seg).trim();
-      if (!text) continue;
-      const german = typeof seg !== 'string' || stufe >= 5;
-      parts.push([text, german ? 'de' : 'en']);
+// ---------- READ ----------
+function renderRead() {
+  const strip = document.createElement('div');
+  strip.className = 'strip';
+  for (const p of PANELS) {
+    const art = document.createElement('article');
+    art.className = 'panel';
+    art.innerHTML = svg(p.art) + (p.caption ? `<p class="caption">${p.caption}</p>` : '');
+    const bubbles = document.createElement('div');
+    bubbles.className = 'bubbles';
+    for (const i of p.lines) {
+      const line = LINES[i];
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      b.innerHTML = `<span class="who ${line.who}">${NAMES[line.who]}</span>`;
+      const de = document.createElement('div');
+      de.className = 'de-line';
+      line.toks.forEach((t, k) => {
+        if (!isWord(t)) { de.append(t[0]); return; }
+        if (k > 0) de.append(' ');
+        const w = document.createElement('button');
+        w.type = 'button';
+        w.className = 'w' + (t[2]?.g ? ' g-' + t[2].g : '') + (t[2]?.code ? ' coded' : '');
+        w.textContent = t[1];
+        w.addEventListener('click', () => openSheet(t));
+        de.append(w);
+      });
+      const enEl = document.createElement('div');
+      enEl.className = 'en-line';
+      enEl.textContent = line.en;
+      const play = document.createElement('button');
+      play.type = 'button';
+      play.className = 'play';
+      play.textContent = '🔊';
+      play.setAttribute('aria-label', 'Hear this line in German');
+      play.addEventListener('click', () => say(germanOf(line)));
+      b.append(de, play, enEl);
+      bubbles.append(b);
     }
+    art.append(bubbles);
+    strip.append(art);
   }
-  say(parts);
-});
+  return strip;
+}
+
+// ---------- MORPH ----------
+let morphIdx = 0;
+function renderMorph() {
+  const line = LINES[morphIdx];
+  const card = document.createElement('section');
+  card.className = 'work';
+  card.innerHTML = `
+    <div class="work-head"><span class="who ${line.who}">${NAMES[line.who]}</span><span class="step-count">Line ${morphIdx + 1} of ${LINES.length}</span></div>
+    ${svg(panelOfLine(morphIdx).art, 'thumb')}
+    <p class="label">1 · What they mean</p>
+    <p class="big-en">${line.en}</p>
+    <p class="label">2 · Say it the German way, still in English</p>
+    <p class="big-en" style="color: var(--muted)">“${bridgeOf(line)}”</p>
+    <p class="label">3 · Tap each word to turn it German</p>`;
+  const row = document.createElement('div');
+  row.className = 'row';
+  const pop = document.createElement('p');
+  pop.className = 'code-pop';
+  pop.hidden = true;
+  const nav = document.createElement('div');
+  nav.className = 'row';
+  const hear = Object.assign(document.createElement('button'), { className: 'btn ghost', type: 'button', textContent: '🔊 Hear it', disabled: true });
+  hear.addEventListener('click', () => say(germanOf(line)));
+  const next = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', disabled: true,
+    textContent: morphIdx < LINES.length - 1 ? 'Next line →' : 'Now build it yourself →' });
+  next.addEventListener('click', () => {
+    if (morphIdx < LINES.length - 1) { morphIdx++; render(); } else { setMode('build'); }
+  });
+  nav.append(hear, next);
+
+  let left = line.toks.filter(isWord).length;
+  for (const t of line.toks) {
+    if (!isWord(t)) { const s = document.createElement('span'); s.className = 'punct'; s.textContent = t[0]; row.append(s); continue; }
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tok todo';
+    b.textContent = t[0];
+    b.addEventListener('click', () => {
+      if (b.classList.contains('done')) { openSheet(t); return; }
+      b.classList.remove('todo');
+      b.classList.add('done');
+      if (t[2]?.g) b.classList.add('g-' + t[2].g);
+      morph(b, t[0], t[1], () => {
+        say(t[1]);
+        const fresh = unlock(t[2]?.code);
+        if (t[2]?.code) {
+          const r = RULES[t[2].code[0]];
+          pop.hidden = false;
+          pop.innerHTML = `${fresh ? '🎉 New code unlocked! ' : '🔑 '}<b>${r.from} → ${r.to}</b>: ${t[0].toLowerCase()} → ${t[1]}`;
+        } else if (t[2]?.note) {
+          pop.hidden = false;
+          pop.textContent = '💡 ' + t[2].note;
+        }
+        if (--left === 0) { hear.disabled = false; next.disabled = false; setTimeout(() => say(germanOf(line)), 700); }
+      });
+    });
+    row.append(b);
+  }
+  card.append(row, pop, nav);
+  return card;
+}
+function morph(btn, from, to, done) {
+  if (reduceMotion) { btn.textContent = to; done(); return; }
+  const steps = Math.max(from.length, to.length);
+  let i = 0;
+  const timer = setInterval(() => {
+    i++;
+    btn.innerHTML = '';
+    const n = document.createElement('span');
+    n.className = 'new';
+    n.textContent = to.slice(0, i);
+    btn.append(n, from.slice(i));
+    if (i >= steps) { clearInterval(timer); btn.textContent = to; done(); }
+  }, 90);
+}
+
+// ---------- BUILD ----------
+let buildIdx = 0;
+let buildScore = 0;
+function renderBuild() {
+  const card = document.createElement('section');
+  card.className = 'work';
+  if (buildIdx >= LINES.length) {
+    card.innerHTML = `<div class="done-card"><p class="score">${buildScore} / ${LINES.length}</p>
+      <p>${buildScore === LINES.length ? 'Sehr gut! You built the whole comic in German.' : 'Gut gemacht! Try again and the lines will stick even better.'}</p></div>`;
+    const again = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', textContent: 'Build again' });
+    again.addEventListener('click', () => { buildIdx = 0; buildScore = 0; render(); });
+    card.querySelector('.done-card').append(again);
+    return card;
+  }
+  const line = LINES[buildIdx];
+  const words = line.toks.filter(isWord).map((t) => t[1]);
+  const shuffled = words.map((w, k) => ({ w, k, r: Math.random() })).sort((a, b) => a.r - b.r);
+  if (words.length > 1 && shuffled.every((s, k) => s.k === k)) shuffled.reverse();
+
+  card.innerHTML = `
+    <div class="work-head"><span class="who ${line.who}">${NAMES[line.who]}</span><span class="step-count">Line ${buildIdx + 1} of ${LINES.length}</span></div>
+    ${svg(panelOfLine(buildIdx).art, 'thumb')}
+    <p class="label">Say this in German</p>
+    <p class="big-en">${line.en}</p>`;
+  const slot = document.createElement('div');
+  slot.className = 'slot';
+  const pool = document.createElement('div');
+  pool.className = 'row';
+  const fb = document.createElement('p');
+  fb.className = 'feedback';
+  const nav = document.createElement('div');
+  nav.className = 'row';
+  const hint = Object.assign(document.createElement('button'), { className: 'btn ghost', type: 'button', textContent: '💡 Bridge hint' });
+  hint.addEventListener('click', () => { fb.className = 'feedback'; fb.textContent = `German order: “${bridgeOf(line)}”`; });
+  const check = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', textContent: 'Check', disabled: true });
+  nav.append(hint, check);
+
+  for (const s of shuffled) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tok';
+    b.textContent = s.w;
+    b.addEventListener('click', () => {
+      if (check.dataset.finished) return;
+      (b.parentElement === pool ? slot : pool).append(b);
+      check.disabled = slot.children.length !== words.length;
+    });
+    pool.append(b);
+  }
+  check.addEventListener('click', () => {
+    if (check.dataset.finished) { buildIdx++; render(); return; }
+    const got = [...slot.children].map((c) => c.textContent);
+    const ok = got.join(' ') === words.join(' ');
+    fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+    fb.textContent = ok ? `Richtig! ${germanOf(line)}` : `Almost! It goes: ${germanOf(line)}`;
+    if (ok) { buildScore++; if (!built.includes(buildIdx)) { built.push(buildIdx); store('karl-built', built); } }
+    say(germanOf(line));
+    check.dataset.finished = '1';
+    check.textContent = 'Next →';
+    hint.hidden = true;
+  });
+  card.append(slot, pool, fb, nav);
+  return card;
+}
 
 // ---------- modes ----------
+const INTROS = {
+  read: 'Read the comic. German is big, English is small. Tap any German word to hear it and see the English word it grew from. 🔑 marks a word with a secret code.',
+  morph: 'Make the German yourself. First see the English, then the same words in German order, then tap each word and watch it turn German.',
+  build: 'Now no help. Read the English and put the German words in order. Stuck? Use the bridge hint.',
+};
+let mode = 'read';
 function setMode(m) {
   mode = m;
   document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === m)));
   render();
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 }
 document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
-
 function render() {
   $('sheet').hidden = true;
   if (synth) synth.cancel();
-  flashHint(HINTS[mode]);
-  renderStory();
-  renderPanel();
+  $('intro').textContent = INTROS[mode];
+  const main = $('main');
+  main.textContent = '';
+  main.append(mode === 'read' ? renderRead() : mode === 'morph' ? renderMorph() : renderBuild());
 }
-
-$('reset').addEventListener('click', () => {
-  for (const k of Object.keys(mastery)) delete mastery[k];
-  save(); renderBank();
-});
-
 render();
-renderBank();
+renderCodes();
 </script>
