@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Forecast Engine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#020C1B;--surface:#0A1A2F;--surface2:#0F2340;--line:#1C3354;--ink:#E8EEF7;--muted:#8C9DB5;--primary:#4FD1A5;--accent:#F5A524;--bad:#FF6B6B;--warn:#F5C04A;--on:#02130D}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Montserrat,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;padding:16mm 17mm 14mm;position:relative;overflow:hidden;page-break-after:always;display:flex;flex-direction:column;gap:5.2mm;font-size:9.6pt;line-height:1.55}
+.page:last-child{page-break-after:auto}
+.foot{position:absolute;left:17mm;right:17mm;bottom:8mm;display:flex;justify-content:space-between;font-size:7pt;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+h1{font-size:29pt;font-weight:800;line-height:1.08;margin:0;letter-spacing:-.02em}
+h2{font-size:16pt;font-weight:800;margin:0;line-height:1.2;letter-spacing:-.01em}
+h3{font-size:11pt;font-weight:700;margin:0}
+p{margin:0}
+.label{font-size:7pt;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+.g{color:var(--primary);font-weight:700}.a{color:var(--accent);font-weight:700}.r{color:var(--bad);font-weight:700}
+.sec{display:flex;flex-direction:column;gap:2.4mm}
+.sechead{display:flex;align-items:center;gap:3mm;border-top:1px solid var(--line);padding-top:4mm}
+.no{display:inline-flex;align-items:center;justify-content:center;width:8mm;height:8mm;border-radius:50%;background:var(--primary);color:var(--on);font-weight:800;font-size:9pt;flex:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:2mm;padding:4mm 4.5mm;display:flex;flex-direction:column;gap:2mm}
+.card.hl{border-color:var(--primary)}
+.card.warnc{border-color:var(--accent)}
+.formula{background:var(--bg);border:1px solid var(--line);border-radius:1.5mm;padding:3mm 4mm;font-weight:600;font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:1mm}
+.formula span{color:var(--muted);font-weight:400}
+.quote{border-left:3px solid var(--primary);padding:1mm 0 1mm 4mm;font-size:12pt;font-weight:700;line-height:1.35}
+table{width:100%;border-collapse:collapse;font-size:8.6pt}
+th{text-align:left;font-size:6.8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:1.6mm 2mm 1.6mm 0;border-bottom:1px solid var(--line)}
+td{padding:2mm 2mm 2mm 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700}
+.months td,.months th{text-align:center;padding:1.5mm 0;font-variant-numeric:tabular-nums}
+.months td:first-child{font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3.5mm}
+ul{margin:0;padding-left:4.5mm;display:flex;flex-direction:column;gap:1mm}
+.steps{display:flex;flex-direction:column;gap:3mm}
+.step{display:grid;grid-template-columns:22mm 1fr;gap:4mm}
+.step .k{font-size:7pt;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);padding-top:.6mm}
+svg text{font-family:Montserrat,Arial,sans-serif}
+.cover{background:linear-gradient(180deg,#06182F 0%,var(--bg) 100%);margin:-16mm -17mm 0;padding:16mm 17mm 8mm;display:flex;flex-direction:column;gap:5mm;border-bottom:1px solid var(--line)}
+.brand{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:11pt}
+.brand i{display:inline-block;width:3.2mm;height:3.2mm;border-radius:.8mm;background:var(--primary);box-shadow:1.6mm 1.6mm 0 var(--accent);margin-right:3mm;vertical-align:-.3mm}
+.pill{font-size:6.8pt;font-weight:700;letter-spacing:.12em;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:1mm 3mm}
+.toc{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5mm 5mm;font-size:8.2pt;color:var(--muted)}
+.toc b{color:var(--primary);margin-right:2mm}
+</style></head><body>
+
+<!-- PAGE 1 -->
+<section class="page">
+  <div class="cover">
+    <div class="brand"><span><i></i>Landed</span><span class="pill">FREIGHT PREDICTOR · GUIDE</span></div>
+    <p class="label" style="margin-top:4mm">Engine B</p>
+    <h1>The Forecast Engine:<br>how it works and how to build the best one</h1>
+    <p class="muted" style="font-size:10.5pt;max-width:150mm">From the demo on the concept page to a real predictor for China → Algeria freight that you can measure, trust and sell.</p>
+    <div class="toc">
+      <span><b>1</b>The demo, step by step</span><span><b>2</b>What moves freight prices</span><span><b>3</b>Building it in 4 levels</span>
+      <span><b>4</b>Measuring the best one</span><span><b>5</b>A better decision rule</span><span><b>6</b>What to start this week</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sechead"><span class="no">1</span><h2>What the demo does, step by step</h2></div>
+    <p class="muted">Worked example: <b style="color:var(--ink)">Shanghai → Algiers, 40' container, shipping in 3 weeks (around 21 Nov).</b></p>
+  </div>
+
+  <div class="steps">
+    <div class="step"><span class="k">Step 1<br>Base price</span>
+      <div class="card"><h3>Every route starts from a base price</h3>
+        <div class="formula"><div>3,450 USD <span>(40' base)</span> × 1.00 <span>(Shanghai)</span> × 1.00 <span>(Algiers)</span> = <span class="g">3,450 USD</span></div></div>
+        <p class="muted">Each port has a small factor. Qingdao is ×1.03 (slightly further). Annaba is ×1.08 (fewer ships call there).</p></div></div>
+
+    <div class="step"><span class="k">Step 2<br>Month factor</span>
+      <div class="card"><h3>Every month has a number for how expensive freight usually is</h3>
+        <svg viewBox="0 0 520 150" width="100%" role="img" aria-label="Month factors">
+          <line x1="30" x2="515" y1="62.5" y2="62.5" stroke="#8C9DB5" stroke-dasharray="3 3" stroke-width="1"/>
+          <text x="26" y="65.5" text-anchor="end" font-size="9" fill="#8C9DB5">1.00</text>
+          <g font-size="9" text-anchor="middle">
+          <!-- scale: value v -> height (v-0.8)*312.5 ; baseline y=125 -->
+          <rect x="38" y="25" width="28" height="100" rx="2" fill="#F5A524"/><text x="52" y="20" fill="#E8EEF7">1.12</text><text x="52" y="139" fill="#8C9DB5">Jan</text>
+          <rect x="78" y="68.75" width="28" height="56.25" rx="2" fill="#4FD1A5"/><text x="92" y="63.75" fill="#E8EEF7">0.98</text><text x="92" y="139" fill="#8C9DB5">Feb</text>
+          <rect x="118" y="100" width="28" height="25" rx="2" fill="#4FD1A5"/><text x="132" y="95" fill="#E8EEF7">0.88</text><text x="132" y="139" fill="#8C9DB5">Mar</text>
+          <rect x="158" y="93.75" width="28" height="31.25" rx="2" fill="#4FD1A5"/><text x="172" y="88.75" fill="#E8EEF7">0.90</text><text x="172" y="139" fill="#8C9DB5">Apr</text>
+          <rect x="198" y="78.1" width="28" height="46.9" rx="2" fill="#4FD1A5"/><text x="212" y="73.1" fill="#E8EEF7">0.95</text><text x="212" y="139" fill="#8C9DB5">May</text>
+          <rect x="238" y="62.5" width="28" height="62.5" rx="2" fill="#4FD1A5"/><text x="252" y="57.5" fill="#E8EEF7">1.00</text><text x="252" y="139" fill="#8C9DB5">Jun</text>
+          <rect x="278" y="37.5" width="28" height="87.5" rx="2" fill="#F5A524"/><text x="292" y="32.5" fill="#E8EEF7">1.08</text><text x="292" y="139" fill="#8C9DB5">Jul</text>
+          <rect x="318" y="25" width="28" height="100" rx="2" fill="#F5A524"/><text x="332" y="20" fill="#E8EEF7">1.12</text><text x="332" y="139" fill="#8C9DB5">Aug</text>
+          <rect x="358" y="43.75" width="28" height="81.25" rx="2" fill="#F5A524"/><text x="372" y="38.75" fill="#E8EEF7">1.06</text><text x="372" y="139" fill="#8C9DB5">Sep</text>
+          <rect x="398" y="68.75" width="28" height="56.25" rx="2" fill="#4FD1A5"/><text x="412" y="63.75" fill="#E8EEF7">0.98</text><text x="412" y="139" fill="#8C9DB5">Oct</text>
+          <rect x="438" y="87.5" width="28" height="37.5" rx="2" fill="#4FD1A5"/><text x="452" y="82.5" fill="#E8EEF7">0.92</text><text x="452" y="139" fill="#8C9DB5">Nov</text>
+          <rect x="478" y="62.5" width="28" height="62.5" rx="2" fill="#4FD1A5"/><text x="492" y="57.5" fill="#E8EEF7">1.00</text><text x="492" y="139" fill="#8C9DB5">Dec</text>
+          </g>
+        </svg>
+        <ul class="muted">
+          <li><b style="color:var(--ink)">January is high</b>: everyone ships before Chinese New Year.</li>
+          <li><b style="color:var(--ink)">March is low</b>: factories are restarting after the holiday.</li>
+          <li><b style="color:var(--ink)">July to September</b> is peak season.</li>
+        </ul>
+        <div class="formula"><div>21 Nov sits between Nov (0.92) and Dec (1.00) → blended factor <span class="g">0.973</span></div><div>3,450 × 0.973 = <span class="g">3,358 USD</span></div></div>
+      </div></div>
+  </div>
+  <div class="foot"><span>Landed · Forecast Engine guide</span><span>1 / 6</span></div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="page">
+  <div class="steps">
+    <div class="step"><span class="k">Step 3<br>Wiggle</span>
+      <div class="card warnc"><h3>A small random movement each week</h3>
+        <p class="muted">Added so the line looks like a real market. <b class="a">This part is fake.</b> It's there to make the picture look realistic, and it predicts nothing.</p></div></div>
+
+    <div class="step"><span class="k">Step 4<br>The range</span>
+      <div class="card"><h3>The shaded area: where the price will probably land</h3>
+        <div class="formula"><div>Range = expected price ± (9% + 1.2% per week ahead)</div><div>3 weeks out: ±12.6% → <span class="g">about 2,900 to 3,740 USD</span></div></div>
+        <svg viewBox="0 0 520 150" width="100%" role="img" aria-label="Range widening over 12 weeks">
+          <g stroke="#1C3354" stroke-width="1"><line x1="40" x2="510" y1="20" y2="20"/><line x1="40" x2="510" y1="60" y2="60"/><line x1="40" x2="510" y1="100" y2="100"/><line x1="40" x2="510" y1="125" y2="125"/></g>
+          <polygon points="40,57 157,52 275,45 392,38 510,30 510,110 392,100 275,92 157,85 40,79" fill="#4FD1A5" fill-opacity=".18"/>
+          <polyline points="40,68 157,69 275,69 392,69 510,70" fill="none" stroke="#4FD1A5" stroke-width="2.5"/>
+          <line x1="118" x2="118" y1="20" y2="125" stroke="#E8EEF7" stroke-opacity=".5" stroke-dasharray="2 3"/>
+          <circle cx="118" cy="68.5" r="5" fill="#4FD1A5" stroke="#0A1A2F" stroke-width="2"/>
+          <g font-size="9" fill="#8C9DB5"><text x="40" y="140">Now</text><text x="118" y="140" text-anchor="middle">Week 3</text><text x="275" y="140" text-anchor="middle">Week 6</text><text x="510" y="140" text-anchor="end">Week 12</text></g>
+          <text x="420" y="24" font-size="9" fill="#E8EEF7">range gets wider</text>
+          <text x="126" y="64" font-size="9" fill="#E8EEF7">your week</text>
+        </svg>
+        <p class="muted">Nobody knows the price 12 weeks from now as well as next week's, so the range widens the further out you look.</p></div></div>
+
+    <div class="step"><span class="k">Step 5<br>The signal</span>
+      <div class="card"><h3>Compare your week with 2 weeks later</h3>
+        <table><thead><tr><th>Price 2 weeks after your date</th><th>Signal</th></tr></thead><tbody>
+          <tr><td>More than 3% higher</td><td class="r">Book now</td></tr>
+          <tr><td>More than 3% lower</td><td class="g">Wait</td></tr>
+          <tr><td>Anything in between</td><td class="a">Stable</td></tr></tbody></table></div></div>
+  </div>
+
+  <div class="card hl">
+    <p class="label" style="color:var(--primary)">The honest summary</p>
+    <p style="font-size:10.5pt"><b>The demo is a toy.</b> I estimated the month factors, the wiggle is random, and the 9% range is a guess. It shows what the engine does, not how a real one does it. The rest of this guide is how to build the real one.</p>
+  </div>
+  <div class="foot"><span>Landed · Forecast Engine guide</span><span>2 / 6</span></div>
+</section>
+
+<!-- PAGE 3 -->
+<section class="page">
+  <div class="sec">
+    <div class="sechead"><span class="no">2</span><h2>What actually moves freight prices</h2></div>
+    <p class="muted">To predict a price, you need to know what pushes it up and down.</p>
+  </div>
+  <table>
+    <thead><tr><th style="width:30%">Driver</th><th style="width:40%">Effect</th><th>How far ahead you can see it</th></tr></thead>
+    <tbody>
+      <tr><td>Season<br><span class="muted" style="font-weight:400">Chinese New Year, peak season, Golden Week (early October)</span></td><td>Repeats every year</td><td>Months ahead</td></tr>
+      <tr><td>Carrier announcements<br><span class="muted" style="font-weight:400">GRI (general rate increase), PSS (peak season surcharge)</span></td><td>Carriers announce price rises in advance</td><td><span class="g">2–4 weeks ahead.</span> Your strongest short-term signal.</td></tr>
+      <tr><td>Blank sailings</td><td>Carriers cancel voyages to reduce space and push prices up</td><td>2–6 weeks ahead</td></tr>
+      <tr><td>Fuel price</td><td>Feeds the BAF (fuel surcharge). Rises and falls with oil.</td><td>Weeks</td></tr>
+      <tr><td>Disruptions<br><span class="muted" style="font-weight:400">Red Sea / Suez, strikes, port congestion</span></td><td>Sudden jumps. When ships avoided the Red Sea in 2024, voyages got 10–14 days longer and prices multiplied.</td><td>Not predictable. Only detectable fast.</td></tr>
+      <tr><td>Algeria-specific</td><td>Transshipment through Med hubs, port congestion, import rules. Algeria pays a premium on top of the main Mediterranean price.</td><td>Measured from real quotes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2">
+    <div class="card"><p class="label" style="color:var(--primary)">Predictable</p><p>Season, announced GRIs and PSS, blank sailings. <b>The engine uses these to forecast.</b></p></div>
+    <div class="card warnc"><p class="label">Not predictable</p><p>Wars, canal closures, strikes. <b>The engine can't forecast these.</b> It can detect them quickly and widen the range.</p></div>
+  </div>
+
+  <div class="card" style="margin-top:2mm">
+    <h3>Key vocabulary</h3>
+    <table><tbody>
+      <tr><td style="width:28%">Index</td><td class="muted">A published weekly average freight price for a main route (SCFI, Drewry WCI, Freightos FBX).</td></tr>
+      <tr><td>Spot rate</td><td class="muted">The price for a shipment booked now, as opposed to a long-term contract price.</td></tr>
+      <tr><td>Lane premium</td><td class="muted">How much more (or less) your exact route costs than the main index route. Algiers vs Genoa, for example.</td></tr>
+      <tr><td>Backtest</td><td class="muted">Testing a forecast method on past weeks to see how accurate it would have been.</td></tr>
+    </tbody></table>
+  </div>
+  <div class="foot"><span>Landed · Forecast Engine guide</span><span>3 / 6</span></div>
+</section>
+
+<!-- PAGE 4 -->
+<section class="page">
+  <div class="sec">
+    <div class="sechead"><span class="no">3</span><h2>How to build the real one, in 4 levels</h2></div>
+  </div>
+
+  <div class="card hl">
+    <p class="label" style="color:var(--primary)">Level 1 · Start from today's real price</p>
+    <p class="quote">The best simple prediction of next week's price is this week's price.</p>
+    <p class="muted">Professionals call this the <b style="color:var(--ink)">naive forecast</b>. It's surprisingly hard to beat. So the real engine starts from the latest real price and only adjusts it:</p>
+    <div class="formula">
+      <div>Forecast (target week) =</div>
+      <div>&nbsp;&nbsp;Today's index price</div>
+      <div>&nbsp;&nbsp;× Season change <span>(target week vs this week)</span></div>
+      <div>&nbsp;&nbsp;× Algeria premium</div>
+    </div>
+    <div class="grid3" style="margin-top:1mm">
+      <div><h3 style="font-size:9.5pt">Weekly index</h3><p class="muted" style="font-size:8.4pt">SCFI (Shanghai–Mediterranean, every Friday), Drewry WCI (Shanghai–Genoa), Freightos FBX (China–Med). Headline numbers are public. Check how much past data is free, because some sources charge for full history.</p></div>
+      <div><h3 style="font-size:9.5pt">Algeria premium</h3><p class="muted" style="font-size:8.4pt">No index covers Algeria. Compare real Algiers quotes with the Med index for the same week.<br><b style="color:var(--ink)">Premium = Algiers quote ÷ Med index</b><br>1.18 = Algiers costs 18% more.</p></div>
+      <div><h3 style="font-size:9.5pt">Real season factors</h3><p class="muted" style="font-size:8.4pt">Calculate from 5+ years of history instead of guessing. Leave out 2020–2022 (COVID chaos). Use medians so one crazy year doesn't distort everything.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label" style="color:var(--primary)">Level 2 · Add the early-warning signals</p>
+    <p>Collect every week: <b>announced GRIs and PSS</b> (on carriers' websites and customer notices), <b>blank sailings</b>, <b>fuel price</b>, and a <b>disruption flag</b> (Red Sea status, strikes).</p>
+    <p>Then train a model to predict <b class="g">the % change</b> in the next 2, 4 and 8 weeks, not the price itself. Predicting the change works better because prices jump between very different levels over the years.</p>
+    <ul class="muted">
+      <li><b style="color:var(--ink)">Start with a simple regression</b>, because you can explain it to clients.</li>
+      <li><b style="color:var(--ink)">Later, try a tree model like LightGBM</b>, which is good at "if this and that" patterns.</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Landed · Forecast Engine guide</span><span>4 / 6</span></div>
+</section>
+
+<!-- PAGE 5 -->
+<section class="page">
+  <div class="card">
+    <p class="label" style="color:var(--primary)">Level 3 · Your own data, which is your moat</p>
+    <p>Every user of the free calculator can enter their real quote. After a few hundred quotes you'll know:</p>
+    <ul class="muted">
+      <li>the real Algeria premium <b style="color:var(--ink)">per port</b> (Algiers vs Oran vs Djen Djen), updated weekly</li>
+      <li>which freight forwarders charge above the market</li>
+    </ul>
+    <p><b class="a">Nobody else has this data for North African routes.</b> A competitor can copy your formulas but can't copy your data.</p>
+  </div>
+
+  <div class="card">
+    <p class="label" style="color:var(--primary)">Level 4 · An honest range, based on your real past errors</p>
+    <p>Instead of guessing "±9%", you measure it by <b>backtesting</b>:</p>
+    <svg viewBox="0 0 520 140" width="100%" role="img" aria-label="Backtesting">
+      <line x1="20" x2="500" y1="70" y2="70" stroke="#1C3354" stroke-width="2"/>
+      <rect x="20" y="62" width="220" height="16" rx="3" fill="#4FD1A5" fill-opacity=".25"/>
+      <text x="130" y="55" text-anchor="middle" font-size="9.5" fill="#E8EEF7">data you'd have had that day</text>
+      <line x1="240" x2="240" y1="35" y2="105" stroke="#F5A524" stroke-width="2"/>
+      <text x="240" y="28" text-anchor="middle" font-size="9.5" font-weight="700" fill="#F5A524">"Pretend today" (e.g. March 2024)</text>
+      <circle cx="380" cy="55" r="6" fill="#4FD1A5"/><text x="392" y="48" font-size="9.5" fill="#4FD1A5" font-weight="700">forecast</text>
+      <circle cx="380" cy="92" r="6" fill="#FF6B6B"/><text x="392" y="104" font-size="9.5" fill="#FF6B6B" font-weight="700">what really happened</text>
+      <line x1="380" x2="380" y1="61" y2="86" stroke="#E8EEF7" stroke-dasharray="2 2"/>
+      <text x="372" y="77" text-anchor="end" font-size="9.5" fill="#E8EEF7">error</text>
+      <path d="M246 70 Q310 40 372 55" fill="none" stroke="#4FD1A5" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="20" y="130" font-size="9" fill="#8C9DB5">Repeat for every past week → you get hundreds of real errors.</text>
+    </svg>
+    <ol style="margin:0;padding-left:5mm;display:flex;flex-direction:column;gap:1mm">
+      <li>Pretend it's a past week. Using only the data you'd have had that day, make your forecast.</li>
+      <li>Compare it with what the price actually did.</li>
+      <li>Repeat for every week of history.</li>
+      <li>Look at all those errors. If 80% of them fall within ±11% at 3 weeks out, then <b class="g">your range at 3 weeks is ±11%</b>.</li>
+    </ol>
+    <p class="muted">The range is then based on what actually happened, not on a guess.</p>
+  </div>
+
+  <div class="card">
+    <h3>The 4 levels at a glance</h3>
+    <table><thead><tr><th>Level</th><th>What it adds</th><th>Needs</th></tr></thead><tbody>
+      <tr><td>1</td><td class="muted">Real current price + real seasons + Algeria premium</td><td class="muted">Weekly index, a few real quotes</td></tr>
+      <tr><td>2</td><td class="muted">Early-warning signals, % change model</td><td class="muted">GRI/PSS, blank sailings, fuel, disruptions</td></tr>
+      <tr><td>3</td><td class="muted">Premium per port, forwarder benchmark</td><td class="muted">Quotes from calculator users</td></tr>
+      <tr><td>4</td><td class="muted">Honest range from real past errors</td><td class="muted">History + backtest</td></tr>
+    </tbody></table>
+  </div>
+  <div class="foot"><span>Landed · Forecast Engine guide</span><span>5 / 6</span></div>
+</section>
+
+<!-- PAGE 6 -->
+<section class="page">
+  <div class="sec">
+    <div class="sechead"><span class="no">4</span><h2>How to know you have the best one</h2></div>
+    <p class="muted">Measure these three things on your backtest.</p>
+  </div>
+  <table>
+    <thead><tr><th style="width:24%">Metric</th><th style="width:44%">Question it answers</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Average % error</td><td class="muted">How far off is the expected price, on average?</td><td>Lower than the naive forecast</td></tr>
+      <tr><td>Direction hit rate</td><td class="muted">When it says "up", does the price go up?</td><td>Well above 50%. <span class="g">The one that matters for Book now / Wait.</span></td></tr>
+      <tr><td>Range check</td><td class="muted">Does the 80% range really contain 80% of real prices?</td><td>75–85%</td></tr>
+    </tbody>
+  </table>
+  <div class="grid2">
+    <div class="card hl"><p class="label" style="color:var(--primary)">Golden rule</p><p>If your model can't beat <b>"next week = this week"</b>, don't ship it. Use the naive forecast plus seasonality instead.</p></div>
+    <div class="card warnc"><p class="label">Marketing bonus</p><p>Publish your accuracy: <b>"Last 12 weeks: direction right 9 times out of 12."</b> No competitor shows this. Skeptical buyers trust it more than any slogan.</p></div>
+  </div>
+
+  <div class="sec">
+    <div class="sechead"><span class="no">5</span><h2>A better decision rule</h2></div>
+    <p class="muted">"+3% in 2 weeks" is simplistic. A real rule asks three questions:</p>
+  </div>
+  <div class="grid3">
+    <div class="card"><h3>1 · How likely?</h3><p class="muted">Say "Wait" only if the chance of a drop is above 60%.</p></div>
+    <div class="card"><h3>2 · How much?</h3><p class="muted">Compare the possible saving with the risk of the price rising instead.</p></div>
+    <div class="card"><h3>3 · Can you wait?</h3><p class="muted">If the goods must arrive by a fixed date, it's "Book now" whatever the market does.</p></div>
+  </div>
+  <p class="muted" style="font-size:8.6pt">Forwarder quotes are usually valid for about 2 weeks. "Wait" only helps if you can come back for a new quote in time.</p>
+
+  <div class="sec">
+    <div class="sechead"><span class="no">6</span><h2>What you can start this week, for free</h2></div>
+    <p class="muted">A 10-minute routine every Friday, in a Google Sheet:</p>
+  </div>
+  <table>
+    <thead><tr><th>Date</th><th>SCFI Med</th><th>WCI Shanghai–Genoa</th><th>Your Algiers quote</th><th>GRI announced?</th><th>Note</th></tr></thead>
+    <tbody><tr><td style="font-weight:500" class="muted">Fri 6 Nov</td><td class="muted">…</td><td class="muted">…</td><td class="muted">if any</td><td class="muted">yes / no</td><td class="muted">Red Sea, strike…</td></tr></tbody>
+  </table>
+  <p><b>After 8–12 weeks:</b> <span class="muted">your own Algeria premium.</span> &nbsp; <b>After 6 months:</b> <span class="muted">enough for a backtest, then the Level 1 model in Python (Colab).</span></p>
+  <p class="muted" style="font-size:7.6pt">Numbers in the demo examples are illustrative, not quotes. Verify index availability and data licensing before using any source commercially.</p>
+  <div class="foot"><span>Landed · Forecast Engine guide</span><span>6 / 6</span></div>
+</section>
+</body></html>
