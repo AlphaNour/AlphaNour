@@ -1,0 +1,467 @@
+<title>Landed Cost Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one working instrument up top (inputs | readout), then the build ladder and the market gap as plain document sections. */
+:root{
+  --bg:#F5F4F0; --surface:#FFFFFF; --ink:#131311; --muted:#5B5A52; --line:#E2E0D8;
+  --primary:#0A4D34; --primary-2:#1A7A54; --accent:#B85C00; --on-primary:#FFFFFF;
+  --good:#1A7A54; --warn:#9A6A00; --bad:#B3261E;
+  --good-bg:#1A7A5414; --warn-bg:#C8900018; --bad-bg:#B3261E12;
+  --band:#0A4D341C;
+  --f-display:"IBM Plex Sans Condensed","IBM Plex Sans","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1311; --surface:#151C19; --ink:#ECEBE6; --muted:#A3A198; --line:#29322E;
+  --primary:#4FB38A; --primary-2:#6CC9A1; --accent:#E5913A; --on-primary:#06120D;
+  --good:#5CC08F; --warn:#E0B040; --bad:#F07167;
+  --good-bg:#5CC08F1C; --warn-bg:#E0B0401C; --bad-bg:#F071671C;
+  --band:#4FB38A26; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1311; --surface:#151C19; --ink:#ECEBE6; --muted:#A3A198; --line:#29322E;
+  --primary:#4FB38A; --primary-2:#6CC9A1; --accent:#E5913A; --on-primary:#06120D;
+  --good:#5CC08F; --warn:#E0B040; --bad:#F07167;
+  --good-bg:#5CC08F1C; --warn-bg:#E0B0401C; --bad-bg:#F071671C;
+  --band:#4FB38A26; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:600}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mark{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1.25rem}
+.mark svg{display:block}
+.tag{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);border:1px solid currentColor;border-radius:var(--r);padding:3px 8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px;align-items:end}
+.hero p.lead{font-size:1.1rem;max-width:56ch;margin-top:14px;color:var(--muted)}
+.hero .q{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--primary);padding-left:18px}
+.hero .q div{display:flex;gap:10px;align-items:baseline}
+.hero .q b{font-family:var(--f-mono);font-size:.8rem;color:var(--primary);min-width:22px}
+@media (max-width:820px){.hero{grid-template-columns:1fr;gap:24px}}
+
+/* instrument */
+.tool{display:grid;grid-template-columns:340px minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (max-width:900px){.tool{grid-template-columns:1fr}}
+.inputs{padding:22px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:16px;background:var(--bg)}
+@media (max-width:900px){.inputs{border-right:0;border-bottom:1px solid var(--line)}}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:.78rem;font-weight:600;color:var(--muted)}
+select,input[type=number]{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px}
+input[type=number]{font-family:var(--f-mono)}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:.85rem;font-weight:500;border:0;background:transparent;color:var(--ink);padding:8px 4px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--primary);color:var(--on-primary)}
+input[type=range]{width:100%;accent-color:var(--primary)}
+.hint{font-size:.74rem;color:var(--muted)}
+.sample{font-size:.74rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+
+.out{padding:22px 24px;display:flex;flex-direction:column;gap:22px;min-width:0}
+.headline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:end}
+@media (max-width:620px){.headline{grid-template-columns:1fr 1fr}.headline .big{grid-column:1/-1}}
+.kpi{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:1.35rem;font-weight:600}
+.big .v{font-size:clamp(2rem,4vw,2.7rem);color:var(--primary);line-height:1.05}
+.kpi .s{font-size:.8rem;color:var(--muted)}
+
+.stack{display:flex;height:14px;border-radius:3px;overflow:hidden;gap:2px}
+.stack span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.78rem;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px}
+@media (max-width:1060px){.cols{grid-template-columns:1fr}}
+.panel{display:flex;flex-direction:column;gap:10px;min-width:0}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:left;padding:6px 0;border-bottom:1px solid var(--line)}
+td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;padding-left:18px;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td .who{font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:3px;margin-left:6px;white-space:nowrap}
+.who.you{background:var(--band);color:var(--primary)}
+.who.sup{background:transparent;border:1px solid var(--line);color:var(--muted)}
+tr.total td{font-weight:600;border-bottom:0;padding-top:10px}
+tr.vat td{color:var(--muted)}
+
+.chart svg{width:100%;height:auto;display:block}
+.signal{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--r);font-size:.88rem}
+.signal b{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.s-good{background:var(--good-bg)} .s-good b{color:var(--good)}
+.s-warn{background:var(--warn-bg)} .s-warn b{color:var(--warn)}
+.s-bad{background:var(--bad-bg)} .s-bad b{color:var(--bad)}
+
+.verdict{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-family:var(--f-mono);font-size:.74rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.p-good{background:var(--good-bg);color:var(--good)} .p-warn{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--bad-bg);color:var(--bad)}
+.flags{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.flags li{display:grid;grid-template-columns:4px 1fr;gap:12px;font-size:.86rem}
+.flags li::before{content:"";border-radius:2px}
+.flags li.good::before{background:var(--good)} .flags li.warn::before{background:var(--warn)} .flags li.bad::before{background:var(--bad)}
+.flags li strong{display:block;font-weight:600}
+
+.demo-note{font-size:.76rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+
+/* ladder */
+.sec-head{display:flex;flex-direction:column;gap:8px;max-width:70ch}
+.ladder{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+@media (max-width:900px){.ladder{grid-template-columns:1fr}}
+.step{padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.step+.step{border-left:1px solid var(--line)}
+@media (max-width:900px){.step+.step{border-left:0;border-top:1px solid var(--line)}}
+.step .lvl{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.step dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:.85rem}
+.step dt{font-family:var(--f-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-top:2px}
+.step dd{margin:0}
+.step.now{box-shadow:inset 0 3px 0 var(--accent)}
+.step .when{font-family:var(--f-mono);font-size:.74rem;color:var(--accent)}
+
+/* gap */
+.gap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px}
+@media (max-width:900px){.gap{grid-template-columns:1fr}}
+.vp{background:var(--primary);color:var(--on-primary);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:14px}
+.vp .eyebrow{color:inherit;opacity:.75}
+.vp p.big{font-family:var(--f-display);font-size:1.45rem;font-weight:600;line-height:1.25;text-wrap:balance}
+.vp ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+
+.next{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:820px){.next{grid-template-columns:1fr}}
+.next div{display:flex;flex-direction:column;gap:6px;border-top:2px solid var(--ink);padding-top:12px}
+.next .k{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.stack span{transition:flex-basis .35s ease}}
+</style>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="mark">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="24" height="24" rx="5" fill="none" stroke="var(--primary)" stroke-width="2"/><path d="M6 17h14M8 13h10M10 9h6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>
+      Landed
+    </div>
+    <span class="tag">CONCEPT · WORKING NAME · DEMO DATA</span>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Freight calculator + predictor for China → North Africa imports</p>
+      <h1 style="margin-top:10px">The real price of your PO, before you sign it.</h1>
+      <p class="lead">Freight, duty, VAT and delay risk in one number, in dinars. Plus when to book, whether your forwarder's quote is fair, and whether your Incoterm and payment terms protect you.</p>
+    </div>
+    <div class="q" aria-label="The four questions it answers">
+      <div><b>Q1</b><span>What will this shipment really cost me, door to warehouse?</span></div>
+      <div><b>Q2</b><span>Should I book freight now or wait?</span></div>
+      <div><b>Q3</b><span>Is the quote on my desk fair?</span></div>
+      <div><b>Q4</b><span>Is this deal structure safe?</span></div>
+    </div>
+  </section>
+
+  <!-- INSTRUMENT -->
+  <section class="tool" aria-label="Live prototype">
+    <form class="inputs" id="f" onsubmit="return false">
+      <p class="eyebrow">Shipment</p>
+      <div class="frow">
+        <div class="fgroup"><label for="orig">From</label>
+          <select id="orig"><option value="sha">Shanghai</option><option value="ngb">Ningbo</option><option value="szx">Shenzhen (Yantian)</option><option value="tao">Qingdao</option><option value="can">Guangzhou (Nansha)</option></select></div>
+        <div class="fgroup"><label for="dest">To</label>
+          <select id="dest"><option value="alg">Algiers</option><option value="orn">Oran</option><option value="bja">Béjaïa</option><option value="aae">Annaba</option><option value="skk">Skikda</option><option value="djn">Djen Djen</option></select></div>
+      </div>
+      <div class="fgroup"><span class="hint" style="font-weight:600;color:var(--muted);font-size:.78rem">Equipment</span>
+        <div class="seg" id="eq" role="group" aria-label="Equipment">
+          <button type="button" data-v="20" aria-pressed="false">20' FCL</button>
+          <button type="button" data-v="40" aria-pressed="true">40' FCL</button>
+          <button type="button" data-v="lcl" aria-pressed="false">LCL</button>
+        </div>
+      </div>
+      <div class="fgroup" id="cbmRow" hidden><label for="cbm">Volume (CBM)</label><input id="cbm" type="number" min="1" step="0.5" value="8"></div>
+      <div class="frow">
+        <div class="fgroup"><label for="val">Goods value, EXW (USD)</label><input id="val" type="number" min="0" step="500" value="42000"></div>
+        <div class="fgroup"><label for="units">Units</label><input id="units" type="number" min="1" step="1" value="1200"></div>
+      </div>
+      <div class="fgroup"><label for="duty">Product duty band</label>
+        <select id="duty">
+          <option value="0.05|0.19">Equipment, raw materials · 5%</option>
+          <option value="0.15|0.19" selected>Intermediate goods · 15%</option>
+          <option value="0.30|0.19">Finished consumer goods · 30%</option>
+          <option value="0.05|0.09">Medical devices (reduced VAT) · 5%</option>
+        </select>
+        <span class="hint">Illustrative bands. Production version maps your HS code to the tariff.</span></div>
+
+      <p class="eyebrow" style="margin-top:4px">Deal terms</p>
+      <div class="frow">
+        <div class="fgroup"><label for="inco">Incoterm</label>
+          <select id="inco"><option>EXW</option><option selected>FOB</option><option>CFR</option><option>CIF</option><option>DAP</option><option>DDP</option></select></div>
+        <div class="fgroup"><label for="pay">Payment</label>
+          <select id="pay"><option value="tt100">T/T 100% advance</option><option value="tt3070" selected>T/T 30/70 vs B/L copy</option><option value="lc">L/C at sight</option><option value="dp">D/P (remise doc.)</option><option value="oa">Open account</option></select></div>
+      </div>
+
+      <p class="eyebrow" style="margin-top:4px">Timing &amp; quote</p>
+      <div class="fgroup"><label for="wk">Ship in <span id="wkLbl" class="mono"></span></label>
+        <input id="wk" type="range" min="0" max="12" step="1" value="3"></div>
+      <div class="frow">
+        <div class="fgroup"><label for="quote">Forwarder quote (USD)</label><input id="quote" type="number" min="0" step="50" value="3550"></div>
+        <div class="fgroup"><label for="fx">USD → DA</label><input id="fx" type="number" min="1" step="0.5" value="133"></div>
+      </div>
+      <p class="sample">Pre-filled with an example shipment. Change anything; everything recalculates.</p>
+    </form>
+
+    <div class="out">
+      <div class="headline">
+        <div class="kpi big"><span class="eyebrow">Landed cost, ex-VAT</span><span class="v" id="kLanded">–</span><span class="s" id="kLandedUsd">–</span></div>
+        <div class="kpi"><span class="eyebrow">Per unit</span><span class="v" id="kUnit">–</span><span class="s" id="kUnitUsd">–</span></div>
+        <div class="kpi"><span class="eyebrow">Cost multiplier</span><span class="v" id="kMult">–</span><span class="s">every $1 of goods, delivered</span></div>
+      </div>
+
+      <div>
+        <div class="stack" id="stack" aria-hidden="true"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="cols">
+        <div class="panel">
+          <h3>Cost breakdown</h3>
+          <div class="tablewrap"><table>
+            <thead><tr><th>Line</th><th class="n">USD</th><th class="n">DA</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table></div>
+          <p class="hint">Tags show who pays under the Incoterm you picked. Supplier-paid lines are built into the price you are quoted, so they stay in the landed cost.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Freight outlook <span class="muted mono" style="font-size:.8rem;font-weight:400" id="laneLbl"></span></h3>
+          <div class="chart" id="chart"></div>
+          <div id="sigTiming"></div>
+          <div id="sigQuote"></div>
+
+          <div class="verdict" style="margin-top:8px"><h3>Deal structure</h3><span class="pill" id="verdict"></span></div>
+          <ul class="flags" id="flags"></ul>
+        </div>
+      </div>
+
+      <p class="demo-note">Demo model. Freight rates, seasonality, dwell risk and tariff bands here are illustrative so you can feel the product. The real version runs on weekly public indices (Drewry WCI, Freightos FBX, SCFI), quotes collected from users, and the official tariff. Treat no number on this page as a quote.</p>
+    </div>
+  </section>
+
+  <!-- LADDER -->
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <div class="sec-head">
+      <p class="eyebrow">What we can build</p>
+      <h2>Three levels. Each one sells on its own and funds the next.</h2>
+      <p class="muted">The prediction is the hard part, and it needs data we do not have yet. The calculator needs none. So we ship the calculator first and let it collect the data that powers the predictor.</p>
+    </div>
+    <div class="ladder">
+      <article class="step now">
+        <div class="lvl"><span class="eyebrow">Level 1</span><span class="when">Shippable in ~1 week</span></div>
+        <h3>Landed cost calculator</h3>
+        <p class="muted" style="font-size:.88rem">The top half of the prototype above: freight + duty + VAT + fees + delay reserve, in DA, with Incoterm/payment risk flags.</p>
+        <dl>
+          <dt>Data</dt><dd>Rate tables you maintain by hand, tariff bands, your own field knowledge.</dd>
+          <dt>Format</dt><dd>Web page with email gate (Webflow embed), plus an Excel version.</dd>
+          <dt>Money</dt><dd>Free lead magnet (DM "CALC"). Every user is a warm dashboard prospect.</dd>
+        </dl>
+      </article>
+      <article class="step">
+        <div class="lvl"><span class="eyebrow">Level 2</span><span class="when">4–8 weeks after L1</span></div>
+        <h3>Freight predictor</h3>
+        <p class="muted" style="font-size:.88rem">Rate band for the next 12 weeks, book-now-or-wait signal, quote fairness check.</p>
+        <dl>
+          <dt>Data</dt><dd>Weekly index history (public), Chinese New Year / peak-season patterns, quotes users submit.</dd>
+          <dt>Model</dt><dd>Seasonal baseline + trend, with an honest P10–P90 band. Not a black box.</dd>
+          <dt>Money</dt><dd>Paid tier, monthly. Bundled into the newsletter or dashboard.</dd>
+        </dl>
+      </article>
+      <article class="step">
+        <div class="lvl"><span class="eyebrow">Level 3</span><span class="when">Once ~200 quotes logged</span></div>
+        <h3>Quote benchmark network</h3>
+        <p class="muted" style="font-size:.88rem">"Importers on your lane paid $X last month." Forwarder scorecards, alerts when your lane moves.</p>
+        <dl>
+          <dt>Data</dt><dd>Real quotes from North African importers. Nobody else has this data.</dd>
+          <dt>Moat</dt><dd>Gets better with every user. Hard to copy.</dd>
+          <dt>Money</dt><dd>Team licences, corporate audits (your Layer 5).</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <!-- GAP -->
+  <section class="gap">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p class="eyebrow">Where the gap probably is</p>
+      <h2>Freight tools answer "what does the box cost?" Nobody answers "what does this deal cost me?"</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>What exists</th><th>What it misses for our buyer</th></tr></thead>
+        <tbody>
+          <tr><td>Freight marketplaces and rate lookups (Freightos, Searates type)</td><td>Freight only. No Algerian duty or VAT, no DA, no deal-structure risk.</td></tr>
+          <tr><td>Enterprise rate benchmarking (Xeneta type)</td><td>Priced and built for large shippers, not a 50–500 person importer.</td></tr>
+          <tr><td>Weekly indices (Drewry WCI, SCFI, FBX)</td><td>Main trade lanes only. A number, not a decision.</td></tr>
+          <tr><td>Your forwarder's quote</td><td>One-sided. You cannot tell if it is fair.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="hint">Hypothesis, to be confirmed or killed in the market research step.</p>
+    </div>
+    <div class="vp">
+      <p class="eyebrow">Draft value proposition</p>
+      <p class="big">For procurement managers importing from China into North Africa: the true landed cost of a PO, in dinars, in 60 seconds, with a warning when your Incoterm and payment terms leave you exposed.</p>
+      <ul>
+        <li>Built by a practitioner who reads B/Ls daily, not a software vendor.</li>
+        <li>The only tool that scores the combination (Incoterm + payment + B/L), not each part separately.</li>
+        <li>Your lanes, your ports, your currency, your tariff.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:20px">
+    <div class="sec-head"><p class="eyebrow">Next three moves</p><h2>From concept to something people pay for</h2></div>
+    <div class="next">
+      <div><span class="k">Move 1</span><h3>Market research</h3><p class="muted">Map every competitor, their prices and gaps on China → Maghreb lanes. Confirm or kill the value proposition above.</p></div>
+      <div><span class="k">Move 2</span><h3>Five real conversations</h3><p class="muted">Show this page to five procurement managers. Ask what they did last time a shipment cost more than planned. Don't pitch.</p></div>
+      <div><span class="k">Move 3</span><h3>Ship Level 1</h3><p class="muted">Real rate table for 6 ports, email gate, CALC lead magnet live on the site and on LinkedIn.</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+const ORIG={sha:{n:'Shanghai',f:1},ngb:{n:'Ningbo',f:1},szx:{n:'Shenzhen',f:.98},tao:{n:'Qingdao',f:1.03},can:{n:'Nansha',f:.99}};
+const DEST={alg:{n:'Algiers',f:1,t:0,p:.30},orn:{n:'Oran',f:1.02,t:2,p:.20},bja:{n:'Béjaïa',f:1.05,t:3,p:.22},aae:{n:'Annaba',f:1.08,t:4,p:.18},skk:{n:'Skikda',f:1.08,t:4,p:.18},djn:{n:'Djen Djen',f:1.06,t:3,p:.15}};
+const EQ={'20':{base:2150,orig:350,thc:260,inland:280,dem:60},'40':{base:3450,orig:450,thc:380,inland:340,dem:95},lcl:{base:98,orig:28,thc:32,inland:120,dem:3}};
+const SEASON=[1.12,.98,.88,.90,.95,1.00,1.08,1.12,1.06,.98,.92,1.00]; // ship-month index
+const $=id=>document.getElementById(id);
+let eq='40';
+
+function rng(seed){let h=1779033703^seed.length;for(let i=0;i<seed.length;i++){h=Math.imul(h^seed.charCodeAt(i),3432918353);h=h<<13|h>>>19}
+  return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);h^=h>>>16;return (h>>>0)/4294967296}}
+function season(d){const m=d.getMonth(),fr=(d.getDate()-1)/30,a=SEASON[m],b=SEASON[(m+1)%12];return a+(b-a)*fr}
+
+function series(o,de){
+  const r=rng(o+de+eq), now=new Date(); now.setHours(0,0,0,0);
+  const per=EQ[eq].base*ORIG[o].f*DEST[de].f; let walk=0; const out=[];
+  for(let w=0;w<=12;w++){const d=new Date(now.getTime()+w*7*864e5); if(w) walk+= (r()-.5)*.035;
+    const med=per*season(d)*(1+walk), sp=.09+.012*w; out.push({d,med,lo:med*(1-sp),hi:med*(1+sp)})}
+  return out}
+
+const fmt=(n,dp=0)=>n.toLocaleString('en-US',{maximumFractionDigits:dp,minimumFractionDigits:dp});
+const usd=n=>'$'+fmt(n);
+const da=n=>fmt(n)+' DA';
+const shortDA=n=>n>=1e6?fmt(n/1e6,2)+'M DA':fmt(n/1e3,0)+'k DA';
+const dLbl=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+
+function payFor(inco){ // who pays each line, by Incoterm
+  const sellerFreight=['CFR','CIF','DAP','DDP'].includes(inco);
+  return {orig:inco==='EXW'?'you':'sup',freight:sellerFreight?'sup':'you',ins:['CIF','DAP','DDP'].includes(inco)?'sup':'you',
+    thc:inco==='DDP'?'sup':'you',duty:inco==='DDP'?'sup':'you',broker:inco==='DDP'?'sup':'you',inland:['DAP','DDP'].includes(inco)?'sup':'you',reserve:'you'}}
+
+function flags(inco,pay,de){
+  const F=[];
+  if(inco==='EXW'&&pay==='tt100')F.push(['bad','You pay 100% before you control anything','EXW puts Chinese export clearance on your side, and the money is already gone. Worst combination on this screen.']);
+  else if(inco==='EXW')F.push(['warn','Export clearance in China is your problem','Under EXW your forwarder needs a licensed export agent in China. Most suppliers will quietly do it; legally it is on you.']);
+  if((inco==='CFR'||inco==='CIF')&&(pay==='tt100'||pay==='tt3070'))F.push(['bad','Supplier picks the carrier and holds the B/L','You have paid (or mostly paid) and the supplier controls freight. If the B/L is not consigned "to order" of your bank or you, release is out of your hands.']);
+  if(inco==='CIF')F.push(['warn','CIF insurance is the legal minimum','Incoterms 2020 only oblige ICC (C) cover under CIF. Read the certificate, or insure ICC (A) yourself.']);
+  if(inco==='DDP')F.push(['bad','DDP is rarely workable into Algeria','The seller would have to act as importer of record. Expect the price to hide a local agent and duties at a markup.']);
+  if(pay==='tt3070'&&inco!=='EXW')F.push(['warn','A B/L copy proves nothing','Pay the 70% against the original B/L or a confirmed telex release, not a scanned copy.']);
+  if(inco==='FOB'&&pay==='lc')F.push(['good','FOB + L/C at sight: the gold standard','You control freight and the carrier; the bank pays only against a clean on-board B/L.']);
+  if(inco==='FOB'&&pay==='dp')F.push(['good','FOB + D/P: strong control, low cost','Documents are released only against payment, without L/C fees. Your carrier, your timeline.']);
+  if(pay==='lc'&&(inco==='CFR'||inco==='CIF'))F.push(['good','L/C protects the payment','Make sure the L/C requires a full set of clean on-board B/Ls made out to order.']);
+  if(pay==='oa')F.push(['good','Open account: best for your cash flow','The risk sits with the supplier. Confirm your bank will domicile and transfer on these terms.']);
+  if(DEST[de].p>=.25)F.push(['warn',DEST[de].n+': higher dwell risk','Budget for detention beyond free time. A delay reserve is included in the landed cost.']);
+  if(!F.length)F.push(['good','No red flags on this combination','Still verify the B/L consignee and notify party before the vessel sails.']);
+  return F}
+
+function chart(s,wk,quote){
+  const W=560,H=200,L=52,R=12,T=12,B=26;
+  let lo=Math.min(...s.map(p=>p.lo)),hi=Math.max(...s.map(p=>p.hi));
+  if(quote>0){lo=Math.min(lo,quote);hi=Math.max(hi,quote)}
+  const step=eq==='lcl'?10:250; lo=Math.floor(lo/step)*step; hi=Math.ceil(hi/step)*step;
+  const x=i=>L+(W-L-R)*i/12, y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  const band=s.map((p,i)=>`${x(i)},${y(p.hi)}`).join(' ')+' '+s.slice().reverse().map((p,i)=>`${x(12-i)},${y(p.lo)}`).join(' ');
+  const line=s.map((p,i)=>`${x(i)},${y(p.med)}`).join(' ');
+  let g='';const ticks=4;
+  for(let k=0;k<=ticks;k++){const v=lo+(hi-lo)*k/ticks;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--f-mono)">${usd(v)}</text>`}
+  for(let i=0;i<=12;i+=3)g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--f-mono)">${i?dLbl(s[i].d):'Now'}</text>`;
+  let q='';if(quote>0)q=`<line x1="${L}" x2="${W-R}" y1="${y(quote)}" y2="${y(quote)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/><text x="${W-R}" y="${y(quote)-5}" text-anchor="end" font-size="10" fill="var(--accent)" font-family="var(--f-mono)">your quote</text>`;
+  const sel=s[wk];
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Freight rate forecast, next 12 weeks, with P10 to P90 band">${g}
+    <polygon points="${band}" fill="var(--band)"/>
+    <polyline points="${line}" fill="none" stroke="var(--primary)" stroke-width="2"/>
+    ${q}
+    <line x1="${x(wk)}" x2="${x(wk)}" y1="${T}" y2="${H-B}" stroke="var(--ink)" stroke-width="1" stroke-dasharray="2 3"/>
+    <circle cx="${x(wk)}" cy="${y(sel.med)}" r="4.5" fill="var(--primary)" stroke="var(--surface)" stroke-width="2"/>
+  </svg>`}
+
+function run(){
+  const o=$('orig').value,de=$('dest').value,val=+$('val').value||0,units=Math.max(1,+$('units').value||1),
+    [dr,vr]=$('duty').value.split('|').map(Number),inco=$('inco').value,pay=$('pay').value,wk=+$('wk').value,
+    quote=+$('quote').value||0,fx=+$('fx').value||1,cbm=Math.max(1,+$('cbm').value||1);
+  const E=EQ[eq],mult=eq==='lcl'?cbm:1,s=series(o,de),p=s[wk];
+  $('cbmRow').hidden=eq!=='lcl';
+  $('wkLbl').textContent=wk===0?'this week':`${wk} week${wk>1?'s':''} · ${dLbl(p.d)}`;
+  $('laneLbl').textContent=`${ORIG[o].n} → ${DEST[de].n} · ${eq==='lcl'?'per CBM':eq+"'"}`;
+
+  const freight=p.med*mult,orig=E.orig*mult,ins=.0035*1.1*(val+orig+freight),cif=val+orig+freight+ins,
+    duty=dr*cif,thc=E.thc*mult,broker=180,inland=E.inland,reserve=DEST[de].p*8*E.dem*(eq==='lcl'?cbm:1),
+    vat=vr*(cif+duty);
+  const lines=[['Goods (EXW)',val,'goods',null],['Origin charges',orig,'orig','orig'],['Ocean freight',freight,'freight','freight'],['Insurance',ins,'freight','ins'],
+    ['Customs duty ('+Math.round(dr*100)+'% of CIF)',duty,'tax','duty'],['Port THC',thc,'port','thc'],['Customs broker',broker,'port','broker'],['Inland to warehouse',inland,'port','inland'],['Delay reserve',reserve,'risk','reserve']];
+  const landed=lines.reduce((a,l)=>a+l[1],0);
+  const who=payFor(inco);
+  $('rows').innerHTML=lines.map(l=>`<tr><td>${l[0]}${l[3]?`<span class="who ${who[l[3]]}">${who[l[3]]==='you'?'YOU':'SUPPLIER'}</span>`:''}</td><td class="n">${usd(l[1])}</td><td class="n">${fmt(l[1]*fx)}</td></tr>`).join('')+
+    `<tr class="total"><td>Landed cost, ex-VAT</td><td class="n">${usd(landed)}</td><td class="n">${fmt(landed*fx)}</td></tr>`+
+    `<tr class="vat"><td>VAT at customs (${Math.round(vr*100)}%, usually recoverable)</td><td class="n">${usd(vat)}</td><td class="n">${fmt(vat*fx)}</td></tr>`+
+    `<tr class="vat"><td>Cash out at clearance</td><td class="n">${usd(landed+vat)}</td><td class="n">${fmt((landed+vat)*fx)}</td></tr>`;
+
+  $('kLanded').textContent=shortDA(landed*fx);
+  $('kLandedUsd').textContent=usd(landed)+' · range '+usd(landed-freight+p.lo*mult)+'–'+usd(landed-freight+p.hi*mult);
+  $('kUnit').textContent=fmt(landed*fx/units)+' DA';
+  $('kUnitUsd').textContent=usd(landed/units)+' vs '+usd(val/units)+' EXW';
+  $('kMult').textContent=val?'×'+fmt(landed/val,2):'–';
+
+  const cats=[['goods','Goods','var(--muted)'],['freight','Freight & insurance','var(--primary)'],['tax','Duty','var(--accent)'],['port','Port, broker, inland','var(--primary-2)'],['risk','Delay reserve','var(--bad)']];
+  const sums={};lines.forEach(l=>sums[l[2]]=(sums[l[2]]||0)+l[1]);
+  $('stack').innerHTML=cats.map(c=>`<span style="flex:0 0 calc(${(sums[c[0]]||0)/landed*100}% - 2px);background:${c[2]};opacity:${c[0]==='goods'?.35:1}"></span>`).join('');
+  $('legend').innerHTML=cats.map(c=>`<span><i style="background:${c[2]};opacity:${c[0]==='goods'?.35:1}"></i>${c[1]} ${Math.round((sums[c[0]]||0)/landed*100)}%</span>`).join('');
+
+  $('chart').innerHTML=chart(s,wk,quote);
+  const nx=s[Math.min(wk+2,12)].med,dl=(nx-p.med)/p.med;
+  let cls,tag,txt;
+  if(wk>=11){cls='s-warn';tag='Too far out';txt='Beyond 10 weeks the band is wide. Plan with P50, lock nearer the date.'}
+  else if(dl>.03){cls='s-bad';tag='Book now';txt=`Rates likely rise ~${Math.round(dl*100)}% over the following 2 weeks on this lane.`}
+  else if(dl<-.03){cls='s-good';tag='Wait';txt=`Rates likely ease ~${Math.round(-dl*100)}% in 2 weeks, if your deadline allows.`}
+  else{cls='s-warn';tag='Stable';txt=`Lock when a quote lands at or below P50 (${usd(p.med)}).`}
+  $('sigTiming').innerHTML=`<div class="signal ${cls}"><b>${tag}</b><span>${txt}</span></div>`;
+  if(quote>0){const qv=quote;let c2,t2,x2;
+    if(qv<p.lo){c2='s-warn';t2='Too cheap';x2='Below the P10 line. Ask what is excluded: BAF, PSS, destination charges.'}
+    else if(qv<=p.med){c2='s-good';t2='Fair quote';x2=`Between P10 and P50 for ${dLbl(p.d)}. Take it.`}
+    else if(qv<=p.hi){c2='s-warn';t2='Negotiable';x2=`${Math.round((qv/p.med-1)*100)}% above the median. Push back with ${usd(p.med)}.`}
+    else{c2='s-bad';t2='Overpriced';x2='Above P90 for this lane and week. Get two more quotes.'}
+    $('sigQuote').innerHTML=`<div class="signal ${c2}"><b>${t2}</b><span>${x2}</span></div>`}
+  else $('sigQuote').innerHTML='';
+
+  const F=flags(inco,pay,de),worst=F.some(f=>f[0]==='bad')?'bad':F.some(f=>f[0]==='warn')?'warn':'good';
+  const v=$('verdict');v.className='pill p-'+worst;v.textContent={bad:'Dangerous',warn:'Watch',good:'Safe'}[worst];
+  $('flags').innerHTML=F.map(f=>`<li class="${f[0]}"><span><strong>${f[1]}</strong><span class="muted">${f[2]}</span></span></li>`).join('');
+}
+
+document.querySelectorAll('#eq button').forEach(b=>b.addEventListener('click',()=>{
+  eq=b.dataset.v;document.querySelectorAll('#eq button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('quote').value=eq==='lcl'?105:eq==='20'?2250:3550;run()}));
+$('f').addEventListener('input',run);
+run();
+})();
+</script>
