@@ -4,89 +4,148 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap">
 <style>
-/* Layout: one phone-width column. A comic strip to read, then Morph and Build to turn English into German yourself, then the secret-code cards. */
+/* Layout: one phone-width column. A living comic that can play itself, then Morph and Build to turn English into German, then secret-code cards. Karl the cat reacts from the corner. */
 :root {
   --bg: #EDF0F5; --surface: #FFFFFF; --sunk: #E2E7EF; --ink: #161B27; --muted: #5A6375; --line: #D2D9E4;
-  --accent: #E39B26; --on-accent: #1E1404; --karl: #D9711A; --becker: #2F62A3;
-  --der: #2160E0; --die: #D52C44; --das: #11895A; --good: #11895A; --soft: #D52C44;
+  --accent: #E39B26; --on-accent: #1E1404; --karl: #D9711A; --becker: #2F62A3; --jonas: #6B4BA8;
+  --der: #2160E0; --die: #D52C44; --das: #11895A; --good: #11895A; --soft: #D52C44; --glow: rgb(227 155 38 / 0.35);
   --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0E121A; --surface: #171D29; --sunk: #202838; --ink: #E8ECF4; --muted: #98A2B5; --line: #2C3547;
-  --accent: #F2B544; --karl: #F5A14E; --becker: #7FAAF0;
-  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
+  --accent: #F2B544; --karl: #F5A14E; --becker: #7FAAF0; --jonas: #B79BF0;
+  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --good: #3DD68C; --soft: #FF6E80; --glow: rgb(242 181 68 / 0.3); color-scheme: dark;
 } }
 :root[data-theme="dark"] {
   --bg: #0E121A; --surface: #171D29; --sunk: #202838; --ink: #E8ECF4; --muted: #98A2B5; --line: #2C3547;
-  --accent: #F2B544; --karl: #F5A14E; --becker: #7FAAF0;
-  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --good: #3DD68C; --soft: #FF6E80; color-scheme: dark;
+  --accent: #F2B544; --karl: #F5A14E; --becker: #7FAAF0; --jonas: #B79BF0;
+  --der: #74A3FF; --die: #FF6E80; --das: #3DD68C; --good: #3DD68C; --soft: #FF6E80; --glow: rgb(242 181 68 / 0.3); color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font: 17px/1.55 var(--body); }
-.wrap { max-width: 620px; margin: 0 auto; padding-block: 20px 150px;
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 620px; margin: 0 auto; padding-block: 20px 160px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 20px; }
+  display: grid; gap: 18px; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, .actor:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 header h1 { font: 800 clamp(36px, 10vw, 52px)/1 var(--display); margin: 0; letter-spacing: -0.02em; }
+header h1 span { display: inline-block; }
 header .sub { margin: 6px 0 0; color: var(--muted); }
 header .sub b { color: var(--ink); }
 
-.tabs { display: flex; gap: 4px; background: var(--sunk); padding: 4px; border-radius: 12px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+/* Sticky bar: tabs + score + sound */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; display: grid; gap: 8px; padding-block: 6px; background: var(--bg); }
+.hud { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.score { display: inline-flex; align-items: center; gap: 6px; font: 800 18px var(--display); font-variant-numeric: tabular-nums; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px 4px 10px; }
+.score.bump { animation: bump 0.45s ease-out; }
+.sound { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 14px; }
+.tabs { display: flex; gap: 4px; background: var(--sunk); padding: 4px; border-radius: 12px; }
 .tabs button { flex: 1; border: 0; background: transparent; border-radius: 9px; padding: 9px 6px; font-size: 15px; color: var(--muted); }
 .tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 1px 2px rgb(0 0 0 / 0.14); }
 .intro { margin: 0; color: var(--muted); font-size: 15px; }
 
+/* Player controls */
+.player { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn { border: 0; border-radius: 999px; padding: 10px 18px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.btn.ghost { background: var(--sunk); color: var(--ink); }
+.btn.big { padding: 13px 22px; font-size: 18px; box-shadow: 0 6px 0 color-mix(in srgb, var(--accent) 60%, #000); transform: translateY(-3px); transition: transform 0.08s, box-shadow 0.08s; }
+.btn.big:active { transform: translateY(0); box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 60%, #000); }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+.tip { font-size: 14px; color: var(--muted); margin: 0; }
+
 /* Comic */
 .strip { display: grid; gap: 18px; }
-.panel { background: var(--surface); border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; }
+.panel { background: var(--surface); border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; transition: box-shadow 0.3s, transform 0.3s; }
+.panel.live { box-shadow: 0 0 0 5px var(--glow); transform: scale(1.01); }
 .panel svg { display: block; width: 100%; height: auto; aspect-ratio: 360 / 200; max-width: 100%; border-bottom: 2px solid var(--ink); }
 .caption { margin: 0; padding: 8px 14px; background: #FFE9A8; color: #3A2A05; font-size: 14px; font-style: italic; border-bottom: 2px solid var(--ink); }
 .bubbles { display: grid; gap: 10px; padding: 14px; }
-.bubble { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: start; }
+.bubble { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: start; border-radius: 10px; padding: 4px 6px; margin: -4px -6px; transition: background 0.2s; }
+.bubble.speaking { background: var(--sunk); }
+.panel.seen .bubble { animation: pop 0.4s cubic-bezier(.2,1.4,.4,1) both; }
+.panel.seen .bubble + .bubble { animation-delay: 0.12s; }
 .who { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .who.karl { color: var(--karl); } .who.becker { color: var(--becker); }
 .de-line { font: 700 22px/1.45 var(--body); min-width: 0; }
 .en-line { grid-column: 1; color: var(--muted); font-size: 16px; }
-.w { border: 0; background: none; padding: 0 1px; border-radius: 4px; font-weight: 700; }
+.w { border: 0; background: none; padding: 0 2px; border-radius: 5px; font-weight: 700; transition: background 0.15s, transform 0.15s; }
 .w:hover { background: var(--sunk); }
+.w.lit { background: var(--accent); color: var(--on-accent); transform: translateY(-2px); }
 .w.g-m { box-shadow: inset 0 -3px var(--der); } .w.g-f { box-shadow: inset 0 -3px var(--die); } .w.g-n { box-shadow: inset 0 -3px var(--das); }
 .w.coded::after { content: "🔑"; font-size: 0.5em; vertical-align: super; }
 .play { border: 0; background: var(--sunk); border-radius: 999px; width: 42px; height: 42px; font-size: 18px; grid-row: 2; grid-column: 2; }
 
-/* Morph and Build cards */
+/* Living drawings */
+.actor { cursor: pointer; }
+.tail, .blink, .breathe, .bob, .jumper, .steam path, .float, .shake, .thought { transform-box: fill-box; }
+@media (prefers-reduced-motion: no-preference) {
+  .tail { transform-origin: 0% 100%; animation: wag 1.8s ease-in-out infinite; }
+  .breathe { transform-origin: 50% 100%; animation: breathe 3.2s ease-in-out infinite; }
+  .blink { transform-origin: 50% 50%; animation: blink 4.6s infinite; }
+  .bob { animation: bob 3.6s ease-in-out infinite; }
+  .bob.b2 { animation-duration: 4.2s; animation-delay: -1.3s; }
+  .steam path { animation: steam 2.4s ease-in infinite; opacity: 0; }
+  .steam path:nth-child(2) { animation-delay: 0.8s; } .steam path:nth-child(3) { animation-delay: 1.6s; }
+  .float { animation: float 2.2s ease-in-out infinite; }
+  .shake { transform-origin: 50% 50%; animation: shake 0.9s ease-in-out infinite; }
+  .thought { animation: bob 2.8s ease-in-out infinite; }
+  .jumper.jump { animation: jump 0.55s cubic-bezier(.3,1.6,.5,1); transform-origin: 50% 100%; }
+  .say-pop { animation: saypop 1.4s ease-out forwards; transform-box: fill-box; transform-origin: 50% 100%; }
+  .tok .new { display: inline-block; animation: letter 0.25s ease-out; }
+  .tok.shake-x { animation: shakex 0.4s; }
+  .code.just { animation: flip 0.7s ease-out; }
+  header h1 span { animation: wave 2.6s ease-in-out infinite; animation-delay: calc(var(--i) * 0.08s); }
+}
+@keyframes wag { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-14deg); } }
+@keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 1.035); } }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes steam { 0% { opacity: 0; transform: translateY(4px); } 30% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(-16px); } }
+@keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.15); } }
+@keyframes shake { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-10deg); } 40% { transform: rotate(9deg); } 60% { transform: rotate(-5deg); } 80% { transform: rotate(3deg); } }
+@keyframes jump { 0% { transform: translateY(0) scale(1, 1); } 25% { transform: translateY(0) scale(1.08, 0.9); } 55% { transform: translateY(-22px) scale(0.95, 1.06); } 100% { transform: translateY(0) scale(1, 1); } }
+@keyframes saypop { 0% { opacity: 0; transform: scale(0.4); } 15% { opacity: 1; transform: scale(1.1); } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+@keyframes pop { from { transform: scale(0.94); } to { transform: scale(1); } }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes letter { from { transform: translateY(-8px) scale(1.4); } to { transform: none; } }
+@keyframes shakex { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes flip { 0% { transform: rotateY(90deg); } 100% { transform: rotateY(0); } }
+@keyframes wave { 0%, 100% { transform: translateY(0); } 15% { transform: translateY(-5px); } 30% { transform: translateY(0); } }
+
+/* Morph and Build */
 .work { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
 .work-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
-.step-count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress { flex: 1 1 120px; height: 8px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s; }
 .thumb { width: 100%; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px; display: block; aspect-ratio: 360 / 200; height: auto; }
 .label { margin: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .big-en { margin: 0; font: 700 22px/1.35 var(--body); }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.tok { border: 2px solid var(--line); background: var(--bg); border-radius: 10px; padding: 6px 12px; font: 700 19px/1.3 var(--body); min-width: 2.5em; }
+.tok { border: 2px solid var(--line); background: var(--bg); border-radius: 10px; padding: 6px 12px; font: 700 19px/1.3 var(--body); min-width: 2.5em; position: relative; }
 .tok.todo { border-style: dashed; border-color: var(--accent); }
+.tok.todo:hover { transform: translateY(-2px); }
 .tok.done { background: var(--surface); }
 .tok.done.g-m { border-color: var(--der); } .tok.done.g-f { border-color: var(--die); } .tok.done.g-n { border-color: var(--das); }
 .tok .new { color: var(--accent); }
 .punct { font: 700 19px var(--body); color: var(--muted); }
 .code-pop { margin: 0; padding: 10px 14px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); font-size: 15px; }
 .code-pop b { font-family: var(--display); }
-.btn { border: 0; border-radius: 999px; padding: 10px 18px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
-.btn.ghost { background: var(--sunk); color: var(--ink); }
-.btn[disabled] { opacity: 0.45; cursor: default; }
-.slot { min-height: 52px; border: 2px dashed var(--line); border-radius: 12px; padding: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.slot { min-height: 56px; border: 2px dashed var(--line); border-radius: 12px; padding: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; transition: border-color 0.2s, background 0.2s; }
+.slot.right { border-color: var(--good); border-style: solid; background: color-mix(in srgb, var(--good) 10%, transparent); }
 .slot:empty::before { content: "Tap the German words in the right order"; color: var(--muted); font-size: 14px; padding: 0 6px; }
 .feedback { margin: 0; min-height: 1.5em; font-size: 16px; }
 .feedback.ok { color: var(--good); } .feedback.no { color: var(--soft); }
 .done-card { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 10px 0; }
 .done-card p { margin: 0; }
-.done-card .score { font: 800 30px var(--display); }
+.done-card .final { font: 800 34px var(--display); }
 
 /* Secret codes */
 .codes h2 { font: 800 24px/1.2 var(--display); margin: 0; }
 .codes > p { margin: 4px 0 12px; color: var(--muted); font-size: 15px; }
-.code-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.code-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; perspective: 600px; }
 .code { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 4px; }
 .code .rule { font: 800 24px/1.1 var(--display); }
 .code .ex { font-size: 14px; color: var(--muted); }
@@ -102,19 +161,34 @@ header .sub b { color: var(--ink); }
 .sheet .pair span { color: var(--muted); font-weight: 500; }
 .sheet .meta { margin: 0; color: var(--muted); font-size: 15px; grid-column: 1; }
 .sheet .acts { grid-row: 1 / span 2; grid-column: 2; display: grid; gap: 6px; }
-@media (prefers-reduced-motion: no-preference) { .sheet { animation: up 0.18s ease-out; } @keyframes up { from { transform: translateY(100%); } } }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: up 0.2s ease-out; } @keyframes up { from { transform: translateY(100%); } } }
+
+/* Karl in the corner */
+.buddy { position: fixed; z-index: 15; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: flex-end; gap: 6px; pointer-events: none; }
+.buddy svg { width: 76px; height: 76px; pointer-events: auto; cursor: pointer; filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.2)); }
+.buddy .talk { background: var(--surface); color: var(--ink); border: 2px solid var(--ink); border-radius: 14px 14px 2px 14px; padding: 6px 12px; font-weight: 700; max-width: 200px; margin-bottom: 46px; opacity: 0; transform: translateY(6px); transition: opacity 0.2s, transform 0.2s; }
+.buddy .talk.show { opacity: 1; transform: none; }
+.sheet:not([hidden]) ~ .buddy { display: none; }
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
 </style>
 
 <div class="wrap">
   <header>
-    <h1>Karl und das Brot</h1>
-    <p class="sub"><b>Karl and the bread.</b> A hungry cat walks into a Berlin bakery. A comic in German and English.</p>
+    <h1 id="title" aria-label="Karl und das Brot">Karl und das Brot</h1>
+    <p class="sub"><b>Karl and the bread.</b> A hungry cat walks into a Berlin bakery. Tap the people in the pictures, they talk back.</p>
   </header>
 
-  <div class="tabs" role="tablist" aria-label="Mode">
-    <button role="tab" id="tab-read" data-mode="read" aria-selected="true" type="button">📖 Read</button>
-    <button role="tab" id="tab-morph" data-mode="morph" aria-selected="false" type="button">✨ Morph</button>
-    <button role="tab" id="tab-build" data-mode="build" aria-selected="false" type="button">🧩 Build</button>
+  <div class="bar">
+    <div class="hud">
+      <span class="score" id="score" title="Brezel points">🥨 <span id="points">0</span></span>
+      <button class="sound" id="sound" type="button">🔊 Sound on</button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button role="tab" id="tab-read" data-mode="read" aria-selected="true" type="button">📖 Read</button>
+      <button role="tab" id="tab-morph" data-mode="morph" aria-selected="false" type="button">✨ Morph</button>
+      <button role="tab" id="tab-build" data-mode="build" aria-selected="false" type="button">🧩 Build</button>
+    </div>
   </div>
   <p class="intro" id="intro"></p>
 
@@ -138,10 +212,15 @@ header .sub b { color: var(--ink); }
   </div>
 </div>
 
+<div class="buddy" aria-live="polite">
+  <div class="talk" id="buddy-talk"></div>
+  <svg viewBox="-4 0 108 104" id="buddy" role="button" tabindex="0" aria-label="Karl the cat. Tap him."></svg>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
 <script>
 // ---------- story data ----------
 // A token is [english, german, info?] for a word, or [punctuation] alone.
-// info: { g: gender, code: [rule ids], note }
 const RULES = {
   'd-t':  { from: 'd', to: 't',   ex: 'good → gut · bread → Brot · day → Tag' },
   'th-d': { from: 'th', to: 'd',  ex: 'that → das · thanks → danke · thou → du' },
@@ -150,7 +229,6 @@ const RULES = {
   't-z':  { from: 't', to: 'z / s', ex: 'cat → Katze · that → das · water → Wasser' },
 };
 const ART = { m: 'der', f: 'die', n: 'das' };
-
 const LINES = [
   { who: 'karl', en: 'Hello! I am Karl.',
     toks: [['Hello', 'Hallo'], ['!'], ['I', 'Ich'], ['am', 'bin'], ['Karl', 'Karl'], ['.']] },
@@ -170,8 +248,15 @@ const LINES = [
     toks: [['Thanks', 'Danke', { code: ['th-d'] }], ['!'], ['That', 'Das', { code: ['th-d', 't-z'] }], ['is', 'ist'], ['good', 'gut', { code: ['d-t'] }], ['.']] },
 ];
 const NAMES = { karl: 'Karl, the cat', becker: 'Frau Becker, the baker' };
+// What each character says when tapped in a picture.
+const VOICES = {
+  karl:   [['Miau!', 'meow'], ['Ich bin Karl!', 'I am Karl!'], ['Hunger!', 'hungry!']],
+  becker: [['Guten Tag!', 'good day!'], ['Brot ist gut!', 'bread is good!'], ['Bitte schön!', 'here you go!']],
+  jonas:  [['Lecker!', 'yummy!'], ['Kaffee ist gut.', 'coffee is good.'], ['Hallo, Katze!', 'hello, cat!']],
+};
 
 const PEOPLE = {"becker-smile": "<g><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z\" fill=\"#edb98a\"/><path d=\"m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z\" fill=\"#ffffff\"/><path d=\"M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z\" fill=\"#000\"/></g><g transform=\"matrix(.99789 0 0 1 156 62)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M428.9 194.6C409.2 75.4 258.7 54 160.7 79c-1.8-22.9-16.3-43.1-34.3-56.5-76.6-55-167.2 38.5-149 119 3.2 24.5 22.7 52.4 50 48.2-34.3 65-47.7 196 28 236.5 7.2 5.2 8.4 15.7 14 22.5 9.2 10.9 48.1 24.8 69.2 13.6 6.6 6.1 14.2 12 23.2 14.1 46.1 37 113.5 45.3 169.7 30 34.6-5.8 70.5-21.4 88.3-53.3 15.1-24.3 8.2-52.8 1.2-78.4-3-14.2-4.9-28.4-6-42.8 2.4-2.9 2.5-6.8 3.1-10.5 2.7-12.8 8.5-24.7 11.4-37.5a215 215 0 0 0-.6-89.3\" fill=\"#edb98a\"/><path d=\"M1 65.5a88.2 88.2 0 0 1 83.8-48.2c34.2 2.5 60.3 26 66.3 64l.2 1.2.4 2.5-.4.1.2.3.3.5 1.3 2 .8 1 2.5 3.7.2.2.6.8 1-.4a246.5 246.5 0 0 1 166.4 1.4l1.6.6 1.5.6.8.2a126.1 126.1 0 0 1 76.6 59.1l.6 1 .5.9c16.3 28 24.7 62.6 24.1 97.3v1.3l-.1 1a98 98 0 0 1-7.2 27.2l-.6 1.4-.8 2.2-2.7 6.8-.7 1.7-7.7 20.1 1.5-20.2.3-7.2v-.6l.2-8.6v-1.9l.1-2.4v-1.2l.2-1.8v-.8A58.5 58.5 0 0 0 395 237l-.5-.5-.5-.5-.7-.7c-7.5-7.3-15-12.9-30.7-23.2l-.7-.4-9-6-3.5-2.2c-7.5-5-12.1-8.1-17-11.9l-1-.8-.8-.6a101 101 0 0 1-20-20.2l-.5-.7-1-1.4.8-1.5v-.8a32.4 32.4 0 0 0 .4-3.5v-1l-.2.5c-9.7 28-32.7 51.5-65.2 68.7l-1 .6-1 .5c-32 16.6-71.2 26-105.1 26.4h-2.1l-1-.7c-3-2.6-8.8.6-7.7 5.2 9.6 42.2 11.6 86 5.8 128.1l-.3 1.5v.1l-.2 1.2-.6 3.4-.3 2-1.2 8.3-.6 3.5-.2 1.4a66 66 0 0 1-9.5 27.1l-.5.7-.4.4-.5.5c-1 1-1.5 1.8-1.8 2.3v.2c1.5.6 4.6.5 7.2-.2l.3-.1.3-.1 2.1-.7 1.5 2 .4.6 2.7 3.6 1.2 1.6 2.9 3.7-2.6 1.8c-8.9 6-21.2 4.9-34.3-.8l-.5-.3h-.2a51.6 51.6 0 0 1-17-15.9l-.9-1-3-3.8-1.1-1.5-2.2-2.6-.2-.2-.8-1-.2-.3c-3.3-6.6-8-11-16.2-15.8l-1.2-.7-.8-.5c-20.9-14.5-33.3-37.4-38.5-67.1a266 266 0 0 1 .1-78.7l.2-1.4.2-1.5a201 201 0 0 1 21.8-68.7l.5-1.1.6-1-2.7-2-1-.9A36 36 0 0 0 33 187l-.3-.2-.3-.2v.1l-2-.2c-8.5-.9-16.8-4.5-23.6-10.1l-.6-.5-.5-.6a73.4 73.4 0 0 1-19.5-52.8A122 122 0 0 1 0 67.2l.5-.8.5-1Z\" fill=\"#6b3a1f\"/><path d=\"M427.3 255.3c-1.1 14.4-7.2 27.3-12.3 40.7.5-8 .3-16.2.8-24.4-6-51.5-76-65-103.2-104 1-2.2 1.4-21.9-2.6-16.3-15.8 68.8-109.3 103.3-173.3 103.5-4.8-4-14.4.2-12.6 8.2 9.5 42 11.6 85.8 5.5 128.5-3 15-3.4 33.2-12.4 46.1-9.6 9.2 2 9.9 8.3 7.8 1.7 2.5 3.6 5 5.5 7.3-9.2 6.3-22.5 2.9-31.9-1.3-10.5-5.6-16.5-16.3-24-25a40.9 40.9 0 0 0-18.6-17.6C11.5 378.2 12.6 311 19 262.5c18.8-144.4 179-214 307.7-163.9 69.4 17.8 102 89.6 100.5 156.7Zm-419-81.7C-19 146.2-13.4 98.4 3.8 66.9 38.3.9 136.6 3 148.4 82.9A214.4 214.4 0 0 0 30.8 183.5a42 42 0 0 1-22.4-9.8Zm420.6 21C409.2 75.5 258.7 54 160.7 79.1c-1.8-23-16.3-43.2-34.3-56.5-76.6-55.1-167.2 38.4-149 119 3.2 24.4 22.7 52.3 50 48.1-34.3 65-47.7 196 28 236.5 7.2 5.2 8.4 15.7 14 22.5 9.2 10.9 48.1 24.8 69.2 13.7 5 6 33.4 24.8 31.4 6.5-2.1-5-8.6-6.3-12.9-8.7-9-5-17-12-23-20.3 19.3-54.7 17.8-115.6 7-171.9 65-3.3 141.3-31.7 170-94.2 19.3 45.5 79.3 51.3 94.5 102.2 1 26.7-4.8 53-.6 79.7 1.2 26.2 15 52.2 7 78.2-22.3 56.7-102.8 65-156 62.6-12.6-1-23-7.8-33.4-14.3-6.2-3-13.6 3.2-9.8 9.8 14.5 20.3 44.5 22 67.4 21.4 59.7-3.6 145.9-21.2 149-94.9-2-29.1-13.4-57-14.3-86.6 2.5-2.8 2.6-6.8 3.2-10.4 2.7-12.9 8.5-24.8 11.4-37.6a215 215 0 0 0-.6-89.3Z\" fill=\"#000\"/></g></g><g transform=\"translate(315 248)\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M146.6 241a40.7 40.7 0 0 1-17.1-13.2c-1.5-2-2-4.2-1.6-6.2a8.9 8.9 0 0 1 9.6-7.2c1.9.3 3.7 1.3 5.2 3.5l.3.4a27 27 0 0 0 10 8.3c3.6 1.8 7.8 2.6 12.1 2.1 8.3-1 14-5.4 20-11.4l2.2-2.3c.5-.8 1.1-1.2 1.9-1.5a4 4 0 0 1 4.6 1.6c.4.7.7 1.5.6 2.5a25.7 25.7 0 0 1-8.5 16.2c-5.1 4.9-12 8.2-18.4 9.4-7.1 1.3-14.4.4-21-2.3Zm24.2-96.6c7.6 4.6 19 15.3 11 26.6-9.6 10-23.4-1.4-30.2-6.6-6.3-4-13.3 6.3-7.5 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4ZM83 102c.8-10.3 16.6-12.7 18.1-2.4a42 42 0 0 1-4.3 25.9c-4 7.9-14 4.2-14.7-3-1-9.7.3-14 .9-20.5Zm120-4.5c2.2-3 5.4-4.9 9.2-3.8 11.9 3.5 8.4 20.4 4.2 28.6-2.3 4.4-9.6 5.6-12.9 1.6-5.4-6.4-8-19.1-1.1-25.5l.6-1ZM96.6 56.8l1.9-.3c5.8-1 13-2 17.1 2.7 2.2 2.5 3 7 0 9.4-5.1 4.2-10.8 2.6-17 3-5.1.2-10 1-14.9 2.5C73 77 64.2 82.8 55 88.9c-1.2.8-2.4-.7-1.9-1.8a59.3 59.3 0 0 1 26-24.1 64 64 0 0 1 17.5-6.2Zm95.6-4.6 1.4.3c15.7 3.2 36 9.8 43.4 25.1.3 2.2 0 2.7-.3 3-.2.3-.4.7-1.4 1A36 36 0 0 1 226 78l-2.8-1.4a77.7 77.7 0 0 0-10.1-4.3c-7.5-2.4-15.1-4.1-23-5a9.4 9.4 0 0 1-4.5-1.8 7 7 0 0 1-2.6-4 7 7 0 0 1 .8-5.8 7.4 7.4 0 0 1 3.6-3.1c1.5-.6 3.2-.8 4.9-.4Z\" fill=\"#000\"/></g><g transform=\"translate(279 400)\"></g><g transform=\"translate(179 343)\"></g><g transform=\"translate(203 303)\"></g></g>", "becker-explain": "<g><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z\" fill=\"#edb98a\"/><path d=\"m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z\" fill=\"#ffffff\"/><path d=\"M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z\" fill=\"#000\"/></g><g transform=\"matrix(.99789 0 0 1 156 62)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M428.9 194.6C409.2 75.4 258.7 54 160.7 79c-1.8-22.9-16.3-43.1-34.3-56.5-76.6-55-167.2 38.5-149 119 3.2 24.5 22.7 52.4 50 48.2-34.3 65-47.7 196 28 236.5 7.2 5.2 8.4 15.7 14 22.5 9.2 10.9 48.1 24.8 69.2 13.6 6.6 6.1 14.2 12 23.2 14.1 46.1 37 113.5 45.3 169.7 30 34.6-5.8 70.5-21.4 88.3-53.3 15.1-24.3 8.2-52.8 1.2-78.4-3-14.2-4.9-28.4-6-42.8 2.4-2.9 2.5-6.8 3.1-10.5 2.7-12.8 8.5-24.7 11.4-37.5a215 215 0 0 0-.6-89.3\" fill=\"#edb98a\"/><path d=\"M1 65.5a88.2 88.2 0 0 1 83.8-48.2c34.2 2.5 60.3 26 66.3 64l.2 1.2.4 2.5-.4.1.2.3.3.5 1.3 2 .8 1 2.5 3.7.2.2.6.8 1-.4a246.5 246.5 0 0 1 166.4 1.4l1.6.6 1.5.6.8.2a126.1 126.1 0 0 1 76.6 59.1l.6 1 .5.9c16.3 28 24.7 62.6 24.1 97.3v1.3l-.1 1a98 98 0 0 1-7.2 27.2l-.6 1.4-.8 2.2-2.7 6.8-.7 1.7-7.7 20.1 1.5-20.2.3-7.2v-.6l.2-8.6v-1.9l.1-2.4v-1.2l.2-1.8v-.8A58.5 58.5 0 0 0 395 237l-.5-.5-.5-.5-.7-.7c-7.5-7.3-15-12.9-30.7-23.2l-.7-.4-9-6-3.5-2.2c-7.5-5-12.1-8.1-17-11.9l-1-.8-.8-.6a101 101 0 0 1-20-20.2l-.5-.7-1-1.4.8-1.5v-.8a32.4 32.4 0 0 0 .4-3.5v-1l-.2.5c-9.7 28-32.7 51.5-65.2 68.7l-1 .6-1 .5c-32 16.6-71.2 26-105.1 26.4h-2.1l-1-.7c-3-2.6-8.8.6-7.7 5.2 9.6 42.2 11.6 86 5.8 128.1l-.3 1.5v.1l-.2 1.2-.6 3.4-.3 2-1.2 8.3-.6 3.5-.2 1.4a66 66 0 0 1-9.5 27.1l-.5.7-.4.4-.5.5c-1 1-1.5 1.8-1.8 2.3v.2c1.5.6 4.6.5 7.2-.2l.3-.1.3-.1 2.1-.7 1.5 2 .4.6 2.7 3.6 1.2 1.6 2.9 3.7-2.6 1.8c-8.9 6-21.2 4.9-34.3-.8l-.5-.3h-.2a51.6 51.6 0 0 1-17-15.9l-.9-1-3-3.8-1.1-1.5-2.2-2.6-.2-.2-.8-1-.2-.3c-3.3-6.6-8-11-16.2-15.8l-1.2-.7-.8-.5c-20.9-14.5-33.3-37.4-38.5-67.1a266 266 0 0 1 .1-78.7l.2-1.4.2-1.5a201 201 0 0 1 21.8-68.7l.5-1.1.6-1-2.7-2-1-.9A36 36 0 0 0 33 187l-.3-.2-.3-.2v.1l-2-.2c-8.5-.9-16.8-4.5-23.6-10.1l-.6-.5-.5-.6a73.4 73.4 0 0 1-19.5-52.8A122 122 0 0 1 0 67.2l.5-.8.5-1Z\" fill=\"#6b3a1f\"/><path d=\"M427.3 255.3c-1.1 14.4-7.2 27.3-12.3 40.7.5-8 .3-16.2.8-24.4-6-51.5-76-65-103.2-104 1-2.2 1.4-21.9-2.6-16.3-15.8 68.8-109.3 103.3-173.3 103.5-4.8-4-14.4.2-12.6 8.2 9.5 42 11.6 85.8 5.5 128.5-3 15-3.4 33.2-12.4 46.1-9.6 9.2 2 9.9 8.3 7.8 1.7 2.5 3.6 5 5.5 7.3-9.2 6.3-22.5 2.9-31.9-1.3-10.5-5.6-16.5-16.3-24-25a40.9 40.9 0 0 0-18.6-17.6C11.5 378.2 12.6 311 19 262.5c18.8-144.4 179-214 307.7-163.9 69.4 17.8 102 89.6 100.5 156.7Zm-419-81.7C-19 146.2-13.4 98.4 3.8 66.9 38.3.9 136.6 3 148.4 82.9A214.4 214.4 0 0 0 30.8 183.5a42 42 0 0 1-22.4-9.8Zm420.6 21C409.2 75.5 258.7 54 160.7 79.1c-1.8-23-16.3-43.2-34.3-56.5-76.6-55.1-167.2 38.4-149 119 3.2 24.4 22.7 52.3 50 48.1-34.3 65-47.7 196 28 236.5 7.2 5.2 8.4 15.7 14 22.5 9.2 10.9 48.1 24.8 69.2 13.7 5 6 33.4 24.8 31.4 6.5-2.1-5-8.6-6.3-12.9-8.7-9-5-17-12-23-20.3 19.3-54.7 17.8-115.6 7-171.9 65-3.3 141.3-31.7 170-94.2 19.3 45.5 79.3 51.3 94.5 102.2 1 26.7-4.8 53-.6 79.7 1.2 26.2 15 52.2 7 78.2-22.3 56.7-102.8 65-156 62.6-12.6-1-23-7.8-33.4-14.3-6.2-3-13.6 3.2-9.8 9.8 14.5 20.3 44.5 22 67.4 21.4 59.7-3.6 145.9-21.2 149-94.9-2-29.1-13.4-57-14.3-86.6 2.5-2.8 2.6-6.8 3.2-10.4 2.7-12.9 8.5-24.8 11.4-37.6a215 215 0 0 0-.6-89.3Z\" fill=\"#000\"/></g></g><g transform=\"translate(315 248)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M93.8 224.8c8-16 81.4-8.9 81.4-8.9l6.2 51s-35.4 11.3-56.5 9c-21-2.5-39-35.1-31-51.1Z\" fill=\"#fff\"/><path d=\"M99 251.5c-2.5-5.5 50-20.2 66.2-10.1 16.2 10 11.1 23.9 11.1 23.9S108 280.8 99 251.5Z\" fill=\"#FF8181\"/><path d=\"M89.3 215.3c12.2-14.2 32.9-15.2 50-11.7 11 2.3 21.6 6.1 32.7 7.5 5.2.7 10.5.9 15.7.8 5.2-.1 10.3-1.1 15.4-1 .8 0 1.1 1.1.4 1.5-7 4.4-16.5 5.7-24.8 6.6a93 93 0 0 1 .7 5.8l1.3 9.2c.8 6 1 12.3 2.5 18.2l.3 1a9 9 0 0 1 .3 3.4l.3-.1 1.1-.5.7-.4c2.6-1.2 5-2 8-1.7 2.3.2 4.2 1.7 4.2 4.2 0 11-14.7 14.5-23.1 16.6l-2.5.6c-10.8 2.6-21.7 4.9-32.8 5.4-17.7 1-37.7-4-49.3-18.4-10.8-13.4-12.8-33.4-1.1-47Zm80.6 46c-2-16.5-22.2-17.4-28-7-2.6-14.5-40.9-1.2-37.9 1.7 11.4 11 28.6 12 43.4 10 7.5-1 15-2.8 22.5-4.7Zm-22.5-43.2-5.1-.7-2-.3c-12.7-1.7-26.9-2.6-37.3 5.5a18 18 0 0 0-6.7 11A552 552 0 0 1 126 230l2.7-.3 18.6-1.7 4.3-.5 4.4-.4c1.6-.2 12-.7 14-.4.2-1.7.4-5.5.9-7.3-7.4.3-14.8-.3-22.1-1.2l-1.3-.2Zm23.4-73.7c7.6 4.6 19 15.3 11 26.6-9.6 10-23.4-1.4-30.2-6.6-6.3-4-13.3 6.3-7.5 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4Zm13.5 19.3.4-.2h.1c.2-.2 0-.2-.4 0l-.4.1v.3l.3-.2ZM87.6 123v-.2c0-6.4 3.7-21 13-21 5.7 0 9.1 10 9.7 20.2v.4c.3 6.4-1.4 20.2-9.8 20.2S87.7 129.4 87.6 123Zm135.2-2v-.2c0-6.4-3.8-21-13-21-5.5 0-9 9.5-9.7 19.4v.8c-.4 6.1 1.2 20.6 9.8 20.6 8.4 0 12.8-13.1 12.9-19.6Zm-130-62.6c7.5-1.2 17.5 1 21 8.6 1.5 3.4-.3 7.2-4.2 7.4-9.5.4-18-1.7-26.4 4.5a42 42 0 0 0-9 10l-1 1.4-.8 1.1c-1.7 2.5-3.4 5.3-3.1 8.3 0 1-.9 1.8-1.7 1.7-5.5-.2-6-7-5.4-11.1 1.4-7.7 5-14.8 10.2-20.6 5.4-6 12.4-10 20.5-11.3ZM196 67.5a29.3 29.3 0 0 1 17.9-4c12 .9 32 11 29.3 25.6-.8 4.5-7 6.9-10.8 4.4-4-2.7-4.9-6.9-7.8-10.4a28.5 28.5 0 0 0-8.6-6.5 28.3 28.3 0 0 0-10.3-3.1h-.6c-2.2-.3-13-.2-11.4 3.8.3.8-.9 1.5-1.4.9-3.4-3.7.4-8.5 3.7-10.7Z\" fill=\"#000\"/></g></g><g transform=\"translate(279 400)\"></g><g transform=\"translate(179 343)\"></g><g transform=\"translate(203 303)\"></g></g>", "becker-lol": "<g><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z\" fill=\"#edb98a\"/><path d=\"m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z\" fill=\"#ffffff\"/><path d=\"M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z\" fill=\"#000\"/></g><g transform=\"matrix(.99789 0 0 1 156 62)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M428.9 194.6C409.2 75.4 258.7 54 160.7 79c-1.8-22.9-16.3-43.1-34.3-56.5-76.6-55-167.2 38.5-149 119 3.2 24.5 22.7 52.4 50 48.2-34.3 65-47.7 196 28 236.5 7.2 5.2 8.4 15.7 14 22.5 9.2 10.9 48.1 24.8 69.2 13.6 6.6 6.1 14.2 12 23.2 14.1 46.1 37 113.5 45.3 169.7 30 34.6-5.8 70.5-21.4 88.3-53.3 15.1-24.3 8.2-52.8 1.2-78.4-3-14.2-4.9-28.4-6-42.8 2.4-2.9 2.5-6.8 3.1-10.5 2.7-12.8 8.5-24.7 11.4-37.5a215 215 0 0 0-.6-89.3\" fill=\"#edb98a\"/><path d=\"M1 65.5a88.2 88.2 0 0 1 83.8-48.2c34.2 2.5 60.3 26 66.3 64l.2 1.2.4 2.5-.4.1.2.3.3.5 1.3 2 .8 1 2.5 3.7.2.2.6.8 1-.4a246.5 246.5 0 0 1 166.4 1.4l1.6.6 1.5.6.8.2a126.1 126.1 0 0 1 76.6 59.1l.6 1 .5.9c16.3 28 24.7 62.6 24.1 97.3v1.3l-.1 1a98 98 0 0 1-7.2 27.2l-.6 1.4-.8 2.2-2.7 6.8-.7 1.7-7.7 20.1 1.5-20.2.3-7.2v-.6l.2-8.6v-1.9l.1-2.4v-1.2l.2-1.8v-.8A58.5 58.5 0 0 0 395 237l-.5-.5-.5-.5-.7-.7c-7.5-7.3-15-12.9-30.7-23.2l-.7-.4-9-6-3.5-2.2c-7.5-5-12.1-8.1-17-11.9l-1-.8-.8-.6a101 101 0 0 1-20-20.2l-.5-.7-1-1.4.8-1.5v-.8a32.4 32.4 0 0 0 .4-3.5v-1l-.2.5c-9.7 28-32.7 51.5-65.2 68.7l-1 .6-1 .5c-32 16.6-71.2 26-105.1 26.4h-2.1l-1-.7c-3-2.6-8.8.6-7.7 5.2 9.6 42.2 11.6 86 5.8 128.1l-.3 1.5v.1l-.2 1.2-.6 3.4-.3 2-1.2 8.3-.6 3.5-.2 1.4a66 66 0 0 1-9.5 27.1l-.5.7-.4.4-.5.5c-1 1-1.5 1.8-1.8 2.3v.2c1.5.6 4.6.5 7.2-.2l.3-.1.3-.1 2.1-.7 1.5 2 .4.6 2.7 3.6 1.2 1.6 2.9 3.7-2.6 1.8c-8.9 6-21.2 4.9-34.3-.8l-.5-.3h-.2a51.6 51.6 0 0 1-17-15.9l-.9-1-3-3.8-1.1-1.5-2.2-2.6-.2-.2-.8-1-.2-.3c-3.3-6.6-8-11-16.2-15.8l-1.2-.7-.8-.5c-20.9-14.5-33.3-37.4-38.5-67.1a266 266 0 0 1 .1-78.7l.2-1.4.2-1.5a201 201 0 0 1 21.8-68.7l.5-1.1.6-1-2.7-2-1-.9A36 36 0 0 0 33 187l-.3-.2-.3-.2v.1l-2-.2c-8.5-.9-16.8-4.5-23.6-10.1l-.6-.5-.5-.6a73.4 73.4 0 0 1-19.5-52.8A122 122 0 0 1 0 67.2l.5-.8.5-1Z\" fill=\"#6b3a1f\"/><path d=\"M427.3 255.3c-1.1 14.4-7.2 27.3-12.3 40.7.5-8 .3-16.2.8-24.4-6-51.5-76-65-103.2-104 1-2.2 1.4-21.9-2.6-16.3-15.8 68.8-109.3 103.3-173.3 103.5-4.8-4-14.4.2-12.6 8.2 9.5 42 11.6 85.8 5.5 128.5-3 15-3.4 33.2-12.4 46.1-9.6 9.2 2 9.9 8.3 7.8 1.7 2.5 3.6 5 5.5 7.3-9.2 6.3-22.5 2.9-31.9-1.3-10.5-5.6-16.5-16.3-24-25a40.9 40.9 0 0 0-18.6-17.6C11.5 378.2 12.6 311 19 262.5c18.8-144.4 179-214 307.7-163.9 69.4 17.8 102 89.6 100.5 156.7Zm-419-81.7C-19 146.2-13.4 98.4 3.8 66.9 38.3.9 136.6 3 148.4 82.9A214.4 214.4 0 0 0 30.8 183.5a42 42 0 0 1-22.4-9.8Zm420.6 21C409.2 75.5 258.7 54 160.7 79.1c-1.8-23-16.3-43.2-34.3-56.5-76.6-55.1-167.2 38.4-149 119 3.2 24.4 22.7 52.3 50 48.1-34.3 65-47.7 196 28 236.5 7.2 5.2 8.4 15.7 14 22.5 9.2 10.9 48.1 24.8 69.2 13.7 5 6 33.4 24.8 31.4 6.5-2.1-5-8.6-6.3-12.9-8.7-9-5-17-12-23-20.3 19.3-54.7 17.8-115.6 7-171.9 65-3.3 141.3-31.7 170-94.2 19.3 45.5 79.3 51.3 94.5 102.2 1 26.7-4.8 53-.6 79.7 1.2 26.2 15 52.2 7 78.2-22.3 56.7-102.8 65-156 62.6-12.6-1-23-7.8-33.4-14.3-6.2-3-13.6 3.2-9.8 9.8 14.5 20.3 44.5 22 67.4 21.4 59.7-3.6 145.9-21.2 149-94.9-2-29.1-13.4-57-14.3-86.6 2.5-2.8 2.6-6.8 3.2-10.4 2.7-12.9 8.5-24.8 11.4-37.6a215 215 0 0 0-.6-89.3Z\" fill=\"#000\"/></g></g><g transform=\"translate(315 248)\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M55.6 167.6c3.5-7.8 19.1-20 19.1-20s4.8 27 1.1 35.3c-3 6.8-14 19.2-22 15.7s-4-18 1.8-31ZM250.2 160.5c-2.8-6.6-15.7-17-15.7-17s-3.9 22.9-.9 30c2.5 5.7 11.5 16.2 18.1 13.2 6.6-3 3.2-15.3-1.5-26.2ZM117 199.2h87.8l5.2 14.5s-65.5 15.3-88.5 5.5l-4.5-20Z\" fill=\"#fff\"/><g fill=\"#000\"><path d=\"M181.7 171c8.2-11.3-3.3-22-10.9-26.6-2-1.5-.4-6.2 3.8-5.4 38.4 6.6 18.5 72.7-30.5 36.4-5.8-4.7 1.2-15 7.5-11l1 .7c7.1 5.5 20 15.5 29.1 6ZM104.5 56.5l-2 .3c-6 1-12 3.4-17.5 6.2a59.3 59.3 0 0 0-25.9 24c-.5 1.2.7 2.7 2 2 9-6.2 17.8-11.8 28.6-15a67.7 67.7 0 0 1 19.5-2.5c4.4.2 8.6.3 12.4-2.9 3-2.3 2.2-7 0-9.4-4.1-4.7-11.3-3.7-17.1-2.7ZM204.6 52.5l-1.4-.3a8.5 8.5 0 0 0-4.9.4 7.4 7.4 0 0 0-3.6 3.1 7 7 0 0 0-.8 5.9 7 7 0 0 0 2.6 4c1.2.9 2.9 1.5 4.6 1.7 7.8.9 15.4 2.6 22.9 5 3.5 1.2 6.8 2.7 10 4.3L237 78a45 45 0 0 0 9.4 3.6c.9-.3 1.1-.6 1.3-.8v-.1l.1-.1c.3-.3.6-.8.3-3-7.4-15.3-27.7-21.9-43.4-25.1ZM123.3 128c-3 1.8-6.3 1-8.9-1.1-1.6-1.3-2.8-3-4-4.6-1.5-1.9-2.9-3.8-5-5.1-3.2-2.2-7.5-2.3-11.2-1.7-5.6 1-10.4 3.6-15.3 6.2a86 86 0 0 1-8.3 4.2c-1.1.5-1.8-1-1.4-1.8a38 38 0 0 1 27-22.5 29 29 0 0 1 30.4 18.2c1.1 3-.7 6.7-3.3 8.2ZM242.6 115.4c.2 0 .5-.2.4-.5-3.2-10.3-15.1-14.7-25.2-13.8-6.2.5-11.9 2.8-16.6 7-4.5 4-8 11.4-4 16.9 4.3 5.6 12.8 3.8 13.3-3.6.4-4.8 8.6-7.8 12.8-8.5 6.5-1.2 13.2.2 19.3 2.5Z\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M176.1 195.5c11.6-.1 25.6-.3 35.6.3 3.6.2 5.3 5.3 5.6 7.8 2.3 22.4-15.6 40.4-35.4 47.3-18.4 6.5-42.7 7.7-59.2-4.3a50.2 50.2 0 0 1-16-20.6 56.8 56.8 0 0 1-4.3-15c-.6-3.3-1.3-7.3-.2-10.4 1.7-4.4 6-4.5 10.1-4.5h1l5-.2 12.8-.2 27.7-.2H176Zm-49.8 19a253 253 0 0 0 42.5 1.5c10-.4 36-6.5 36-9 0-2.7-1.1-5-2-5-4 .5-34.7.8-56.4 1a3011.2 3011.2 0 0 0-24.7.3c-1 3.2 1.7 10 4.6 11.1ZM82.3 146.6c-.3-2-2-3.2-4-2.2a7.5 7.5 0 0 0-2.6 2.2l.1-.2c0-.2 0-.4-.2-.4-4.4-.7-10.1 5.4-13.2 8.8l-.7.7a61.8 61.8 0 0 0-11 16c-3.5 7.5-7.2 18.9-2.5 26.6 6.6 10.9 20.5 2.7 25.7-4.8a39.9 39.9 0 0 0 7-21.5c0-2.2 0-4.4-.2-6.7 0-2-.2-4.2 0-6.3 0-1.8.4-3.6.8-5.3.5-2.3 1-4.6.8-6.9Zm-9.9 32.5c-1.5 5.8-4.6 12.5-10 15.6-2.9 1.7-7.1 2.3-8.8-1.1-3-6.5 1.3-16.4 3.9-22.2a63 63 0 0 1 17.2-23 29 29 0 0 0-1.6 11.2l.2 5.4c.2 4.7.3 9.5-.9 14.1ZM253.3 157.5A65.2 65.2 0 0 1 262 175c3 11.9-7.2 20.5-18.5 18-11.9-2.7-16.3-16.4-16-27.2 0-5 1-10 2.1-14.9l.4-2 .7-4.1c.3-2 .5-4 1-5.9-.5-1.5-.9-3-.8-4.6 0-2.5 2.6-3.8 4.7-2.7 3 1.5 4.7 4.3 6.3 7.2l1 1.8 3.6 6 3.5 6 3.2 5Zm-13 25.5c3.1 2.8 8.5 3.9 12 1.2 4.9-3.6.8-10-1.9-14.2l-.7-1.2a1574 1574 0 0 1-13-21.3l-.8 4.9-.7 3.6c-1.3 8.8-2.2 20.3 5.1 27Z\"/></g></g><g transform=\"translate(279 400)\"></g><g transform=\"translate(179 343)\"></g><g transform=\"translate(203 303)\"></g></g>", "jonas-calm": "<g><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z\" fill=\"#ae5d29\"/><path d=\"m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z\" fill=\"#2F62A3\"/><path d=\"M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z\" fill=\"#000\"/></g><g transform=\"matrix(.99789 0 0 1 156 62)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M405.3 225.3c11.3-8.2-5.6-35-11.4-43l-15-31.4c.6-8.5-7.8-16.1-16-13.5-7.2-5.2-19.3-2.7-23 5.4-79.4-34.6-216.8-20.2-224 86.5-15.3 30.4-30.5 61-44.2 92.3-18.9 1-28 24-16.8 38.9 1.5 24 16.8 26 37.2 25 8.2 2 16.7 3.2 22.9 9.6a68.5 68.5 0 0 1 10.9 16.7 204.4 204.4 0 0 0 56.4 69.3c38 28.3 89.2 48.7 136.4 34.9 101.6-39.9 121.6-199.3 86.6-290.7Z\" fill=\"#ae5d29\"/><path d=\"M193.3 70c66.4-15.4 141 5.3 187 56.2a8 8 0 0 1 0 11.3l4 3.3c1.3 1.1 1.1 3.5 0 4.7-1.2 1.2-3.7 1.4-4.8 0l-1.6-2-2.4-3.2-2.8 1c14 9.4 25.8 21.8 33.8 36.8a183.9 183.9 0 0 1 17.9 51.4c6.4 32 7.3 64.9 6.5 97.4v1.8c-1.2 39.3-5 79.2-21.6 115.3-13.2 29-36.8 55.5-66.4 68.2-17 7.3-35.4 10.4-54 9.1-9.7-.7-19.4-2.2-28.9-4.6l-2.3-.5a79 79 0 0 1-25-9.7c-7.6-5-2.5-15.2 5.9-14 10 1.6 19.7 5.8 29.6 8 9.8 2 19.7 3.2 29.7 3 17.7-.6 33.9-6 48.5-16 56-37.7 62.8-113.7 64.2-175 .7-30-.4-60.5-7.3-89.8-6.6-28.2-18-56-34.2-80a42.2 42.2 0 0 1-10.9 2.8c-6.7 4-14.8 4.2-22.6 4.2h-1a275 275 0 0 1-24.4-1.2c-28.6-2.6-58-9-86.9-5l-1.1.3c-11.9 1.7-26.6 5.5-35.3 14-9.4 9.2-3 26.6 4.4 32.1 4.8 3.6 6.3 11.7 0 15-12.5 6.4-42.7 2.8-46 6.4-4.1 4.2-3.8 10.7-4 16.2v.4c-.4 15.7 0 31.4 1.3 47 1.3 15.2 4.2 30.4 4.9 45.6.2 5-5.9 6.5-9.2 3.8-.6-.6-1.3-1-2-1.5-6-4.3-12.8-6-20.1-7.2-.4 0-.7-.3-1-.5v-.1l-.8.6c1.5 1.9 2.8 4 3.9 6.4.2.5-.3 1.1-.8.8a44.9 44.9 0 0 0-32.9-6.2c-10.5 2.2-20 8.9-23 19.6a33.3 33.3 0 0 0 5.6 29.1c9.3 12 24.6 11 38.3 11.5 2.7 0 5.6 1.4 6.9 4 1.5 3 1.4 5 0 8a5 5 0 0 1-.7 1.2l3.3 3 3.6 3.7a277.3 277.3 0 0 1 26.6 31.1l.6.8c7.1 9.7 14.5 23.8 26.9 27 4.2 1 8.2 3 9.4 7.6 1.3 4.6-1.7 9-5.7 11-7 3.3-15.7-.6-21.4-4.8-12.3-9-20.3-23.9-28-37l-2-3.5c-3.9-6.7-7.7-13.5-11-20.6-1.8-4-3.8-8-5.5-12a42 42 0 0 1-1.4-3.7l-1.6.2c-16.5 1-35.5-1.5-47.5-14-16.4-17.3-18.4-48.2.3-64.7a36 36 0 0 1 6.6-4.6 73.3 73.3 0 0 1-7.2-18.3c-2.3-9-3.7-18.2-4.3-27.4a183 183 0 0 1 5.4-56.5c16.5-66.5 67-121.6 134.5-137.3ZM73.7 346c-3.2-19 34.7-5 43-3.6h.2c9.5 1.3 4.2 18-5.1 13l-.3-.2c-5-2.9-10.6-5-16-7.4l-1-.5c-4.3-2-18.2-11-19.7-1.3 0 .5-1 .5-1 0Z\" fill=\"#000\"/></g></g><g transform=\"translate(315 248)\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M171 240.2a40.7 40.7 0 0 1-22.7 0c-6.9-2-13.8-6.3-18.9-12.1a27.4 27.4 0 0 1-7.2-18.2c0-.8.3-1.4.7-2a3.3 3.3 0 0 1 3.9-.8 174.4 174.4 0 0 0 3.7 4.3c6.1 7.7 12.1 13.4 21.4 15.4 5 1.2 10.1.7 14.8-1 5-1.8 9.4-5 13-9.1a7 7 0 0 1 5.2-2.6c2 0 4.1 1 5.7 2.4a8.8 8.8 0 0 1 2.6 5.8c0 1.9-.5 3.8-2.2 5.6a44.3 44.3 0 0 1-20 12.3Zm-.2-95.8c7.6 4.6 19 15.3 11 26.6-9.6 10-23.4-1.4-30.2-6.6-6.3-4-13.3 6.3-7.5 11 49 36.3 69-29.8 30.5-36.4-4.2-.8-5.8 4-3.8 5.4Zm-70.6-20.2a8.4 8.4 0 0 0-8.5-.7 27.5 27.5 0 0 0-9.8 9.8c-2 3.4-3.5 7.4-3.2 11.5 0 1-.3 1.6-.9 2.2-.4.4-1 .7-1.8.8-.6 0-1.3 0-2-.2-1-.4-1.6-1-1.8-1.6a23.8 23.8 0 0 1 1.2-17.6c3.2-7.6 9-14 12.8-16a21.4 21.4 0 0 1 20.7-.1c5.5 3 9 8 12.4 13l2.2 3.2c1.6 2 1.7 4.1 1.1 5.9-.6 2-2.3 3.6-4.3 4.5-2 .8-4.2 1-6.1 0-1.7-.6-3.2-2-4.1-4.3a23.1 23.1 0 0 0-8-10.4Zm123.2 8.6c-1.6.9-3 1.1-4.8.6-1-.3-2-1-2.8-1.7a5.6 5.6 0 0 1-1.5-2.8c-.6-2.7-2-5.2-4.1-6.8a8.2 8.2 0 0 0-6.5-1.7c-2.7.4-5.3 2.2-7 4.2-.6.7-1 1.4-1.5 2.2-.9 1.4-1.7 2.8-3 3.8-.4.4-1 .7-1.7.7l-.8-.1c-2.7-2.7-3.2-4.8-3.1-6.8 0-2 1-4.2 2.2-6.2 3.2-4.7 9.2-8.5 13.2-9.4 5.6-1.2 11 .2 15.5 3.3a22 22 0 0 1 9 13.7c.2 1.4 0 2.8-.4 4a5.6 5.6 0 0 1-2.7 3Zm-111-58.5c-3.3 3.2-7.3 3.7-11.2 4.1a53 53 0 0 0-37 20.4 74.6 74.6 0 0 0-3.2 4 28 28 0 0 1-1.5 2.7c-.5.9-.8 1.1-1 1.3l-1.3.2a2 2 0 0 1-1-.5c-1.7-1.5-2.2-3.8-2.2-6.3 0-3.9 1.5-8 2.8-10.7 3-6 7.2-12.3 12.2-16.8 5.7-5.1 12-9 19.2-11.7a39 39 0 0 1 14.6-3c3.5.2 6.8 1.2 9.6 3.8A8.4 8.4 0 0 1 115 68c0 2.3-.8 4.6-2.5 6.3Zm117.8 29.6c-.2.4-.5.6-.8.7a2 2 0 0 1-2-.3c-.4-.2-.6-.6-.7-1-2.2-9.7-6.4-16.9-15.6-21.5a66 66 0 0 0-14.6-5l-4.4-.7c-4.8-.7-9.5-1.5-12.6-5.3a10.2 10.2 0 0 1-2.2-8c.4-2.5 1.9-4.9 4.6-6.3 6.7-3.5 15 0 21.9 2.9l1.4.6A51 51 0 0 1 223 71.8c4 4.2 7.7 10.4 9.1 16.8 1.3 5.3 1 10.8-1.8 15.3Z\" fill=\"#000\"/></g><g transform=\"translate(279 400)\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M279.5 190.9c2 1.9 6.4 6 10.6 8h4l2.4-.7c1.1-2.6 1.3-5.7.8-8.8-3-17-5.6-34.3-4.2-51.6 1.3-16.4 6-32.7 4.8-49.2-1.8-39-39.4-66-72.4-58-4.2.3-8.4 1.5-12 3.7-51.5-21.6-115 14.8-103 74.4 2.3 16.1 6 31.4 4.8 47.8a199 199 0 0 1-3.2 23.4c-1.1 5.8-4 13-1.4 18.7 10.8 6.8 22-7.4 29.2-19.5 3.8-10.2 6.9-20.6 10.4-30.9 6.4-18.5 7.9-28.7 28.9-33.7a72 72 0 0 0 24-13.7c5.4-2.5 8.4-7.6 10.2-12.8 1 2.5-.3 5.6-.5 8.3 15.2 20.2 34 16.3 40.8 30.4 5.2 13.2 8.1 27.3 12 41 .6 1.8 10.7 20.2 13.8 23.2\" fill=\"#000\"/></g><g transform=\"translate(179 343)\"></g><g transform=\"translate(203 303)\"></g></g>", "jonas-awe": "<g><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z\" fill=\"#ae5d29\"/><path d=\"m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z\" fill=\"#2F62A3\"/><path d=\"M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z\" fill=\"#000\"/></g><g transform=\"matrix(.99789 0 0 1 156 62)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M405.3 225.3c11.3-8.2-5.6-35-11.4-43l-15-31.4c.6-8.5-7.8-16.1-16-13.5-7.2-5.2-19.3-2.7-23 5.4-79.4-34.6-216.8-20.2-224 86.5-15.3 30.4-30.5 61-44.2 92.3-18.9 1-28 24-16.8 38.9 1.5 24 16.8 26 37.2 25 8.2 2 16.7 3.2 22.9 9.6a68.5 68.5 0 0 1 10.9 16.7 204.4 204.4 0 0 0 56.4 69.3c38 28.3 89.2 48.7 136.4 34.9 101.6-39.9 121.6-199.3 86.6-290.7Z\" fill=\"#ae5d29\"/><path d=\"M193.3 70c66.4-15.4 141 5.3 187 56.2a8 8 0 0 1 0 11.3l4 3.3c1.3 1.1 1.1 3.5 0 4.7-1.2 1.2-3.7 1.4-4.8 0l-1.6-2-2.4-3.2-2.8 1c14 9.4 25.8 21.8 33.8 36.8a183.9 183.9 0 0 1 17.9 51.4c6.4 32 7.3 64.9 6.5 97.4v1.8c-1.2 39.3-5 79.2-21.6 115.3-13.2 29-36.8 55.5-66.4 68.2-17 7.3-35.4 10.4-54 9.1-9.7-.7-19.4-2.2-28.9-4.6l-2.3-.5a79 79 0 0 1-25-9.7c-7.6-5-2.5-15.2 5.9-14 10 1.6 19.7 5.8 29.6 8 9.8 2 19.7 3.2 29.7 3 17.7-.6 33.9-6 48.5-16 56-37.7 62.8-113.7 64.2-175 .7-30-.4-60.5-7.3-89.8-6.6-28.2-18-56-34.2-80a42.2 42.2 0 0 1-10.9 2.8c-6.7 4-14.8 4.2-22.6 4.2h-1a275 275 0 0 1-24.4-1.2c-28.6-2.6-58-9-86.9-5l-1.1.3c-11.9 1.7-26.6 5.5-35.3 14-9.4 9.2-3 26.6 4.4 32.1 4.8 3.6 6.3 11.7 0 15-12.5 6.4-42.7 2.8-46 6.4-4.1 4.2-3.8 10.7-4 16.2v.4c-.4 15.7 0 31.4 1.3 47 1.3 15.2 4.2 30.4 4.9 45.6.2 5-5.9 6.5-9.2 3.8-.6-.6-1.3-1-2-1.5-6-4.3-12.8-6-20.1-7.2-.4 0-.7-.3-1-.5v-.1l-.8.6c1.5 1.9 2.8 4 3.9 6.4.2.5-.3 1.1-.8.8a44.9 44.9 0 0 0-32.9-6.2c-10.5 2.2-20 8.9-23 19.6a33.3 33.3 0 0 0 5.6 29.1c9.3 12 24.6 11 38.3 11.5 2.7 0 5.6 1.4 6.9 4 1.5 3 1.4 5 0 8a5 5 0 0 1-.7 1.2l3.3 3 3.6 3.7a277.3 277.3 0 0 1 26.6 31.1l.6.8c7.1 9.7 14.5 23.8 26.9 27 4.2 1 8.2 3 9.4 7.6 1.3 4.6-1.7 9-5.7 11-7 3.3-15.7-.6-21.4-4.8-12.3-9-20.3-23.9-28-37l-2-3.5c-3.9-6.7-7.7-13.5-11-20.6-1.8-4-3.8-8-5.5-12a42 42 0 0 1-1.4-3.7l-1.6.2c-16.5 1-35.5-1.5-47.5-14-16.4-17.3-18.4-48.2.3-64.7a36 36 0 0 1 6.6-4.6 73.3 73.3 0 0 1-7.2-18.3c-2.3-9-3.7-18.2-4.3-27.4a183 183 0 0 1 5.4-56.5c16.5-66.5 67-121.6 134.5-137.3ZM73.7 346c-3.2-19 34.7-5 43-3.6h.2c9.5 1.3 4.2 18-5.1 13l-.3-.2c-5-2.9-10.6-5-16-7.4l-1-.5c-4.3-2-18.2-11-19.7-1.3 0 .5-1 .5-1 0Z\" fill=\"#000\"/></g></g><g transform=\"translate(315 248)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M95 163c26.5 0 48-18.8 48-42s-21.5-42-48-42-55.2 18-55.2 41.2c0 9.9 7.8 27 14.2 34.2 8.8 9.8 25.7 8.6 41 8.6ZM209.3 155c20.2 0 36.7-17 36.7-38s-16.5-38-36.7-38C189 79 167 95.3 167 116.3c0 8.9 6 24.4 10.9 31 6.7 8.7 19.7 7.7 31.4 7.7Z\" fill=\"#fff\"/><path d=\"M94.3 189c.2-.1.6-.2.8 0 4.4 2.7 4.9 12 5 17.2l5.1 1.4 10.7 2.2 2.7.5c9 2 18 3.3 27.1 4 8.8.7 18 1 26.7-.2 3.8-.5 7.6-1.3 11.2-2.4 4.3-1.3 7.8-3.4 11.8-5.3 10-4.7 18.5 9 8.8 15a68 68 0 0 1-29.2 8 157.6 157.6 0 0 1-59.9-9.6 107 107 0 0 1-12.2-5.7l-1.1-.6-2-1a70 70 0 0 1-5.5 19.1 8.5 8.5 0 0 1-11.7 5.6c-6-2.5-6.4-9-3-13.8l.2-.2c4-5.2 6.7-11.8 8.9-18 1.1-3.1 2.2-6.4 3-9.7.8-2.3.8-4.7 2.6-6.4Zm153.9-52.7a34.7 34.7 0 0 1-22 22.6 68.2 68.2 0 0 1-33.4.3l-7.2-1.4c2 1.2 3.7 3 5.3 4.7 2.5 2.7 4.7 5.6 5.4 9 .7 3.3-.4 5.8-2.3 7.7-3 3-7.8 4.6-11.8 5.4a63 63 0 0 1-27.3-.3 6.9 6.9 0 0 1-4.8-3.4 9 9 0 0 1-.5-6.6 9 9 0 0 1 3.8-5.4c1.6-1 3.6-1.2 5.8-.5a46.6 46.6 0 0 0 23.3 2 84.6 84.6 0 0 1-9.3-16 84.3 84.3 0 0 1-1.5-3.8l-.4-.4a26.7 26.7 0 0 1-7-9.3 52.4 52.4 0 0 1-1-33.7A42.6 42.6 0 0 1 177 85.4a22 22 0 0 1 2.8-4c3.8-3.9 9-6.5 14.1-8.1 11.5-3.6 24-1 33.6 5.8 9 6.3 16 15.8 19.7 26.3 3.6 10 4.3 20.8 1 31Zm-155.7-65a64.8 64.8 0 0 1 38.5 12c10.5 7.6 18.8 19 18.8 32.5 0 13.1-7 26-14.9 36.3a41.6 41.6 0 0 1-34.5 17c-7.5.1-15-.6-22.5-1.5l-4-.5c-5.4-.7-11-1.5-16.2-3.4-24.7-9-25.5-41.4-16.3-62 7-16 25-31.6 42.8-29.8 2.7-.3 5.5-.5 8.3-.6Zm23 15.3a65.1 65.1 0 0 0-54.2 2.8A56.8 56.8 0 0 0 48 113.7c-2 8.9-1.7 18.3 1.4 26.9 3.8 10.4 13 13 23.2 14.6l3.9.6 1.6.3a92.6 92.6 0 0 0 30.2.7c10.6-2 17.4-10.6 22.7-19.4l.2-.4c5.5-9.2 10.1-20.4 5.5-30.9-4-9-12.5-15.6-21.2-19.5Zm100.4 2.6a23 23 0 0 0-26.1 2.5l-1 .7c-2.7 2.1-5.3 3.2-7.4 6.1l-.3.4c-1 1.6-3 2.2-4.6 2-2 5.4-2.8 11.3-2.8 17v1.6c.1 6.8 1.3 15.1 6.7 19.7 4.9 4.2 12.3 5.2 19 5.8l5 .4h1.4c7 .6 14.6.4 20.4-3.7 5.1-3.6 7.5-9.7 8.1-15.7A38.4 38.4 0 0 0 216 89.2ZM88.8 90.5a27.3 27.3 0 0 1 28.6 2.4 8 8 0 0 0-2.1.7c-1.8 1-3 2.7-3.4 4.6-.5 2.2.7 4.3 2.8 5 1.9.6 4.1.8 5.8-.3 1-.6 1.6-1.4 2-2.4v-.1l.1-.1a12 12 0 0 0 .3-.8l.3-.3c1.5 2.2 2.6 4.8 3.3 7.5 4.6 18-14.3 36.5-31.2 38.4-6.4.7-12.2-.9-17-3.9v-.1c2 .3 4.3-.5 5-2.7 1.9-5.5 0-12-6-13.8-3.9-1.2-7.9.1-10.6 2.8-2.1-5.2-2.9-11-1.9-16.7a24.9 24.9 0 0 1 14-19c3.7-1.6 7-2 10-1.2Zm98.7 11 .3-.4c2.9-4.4 8.4-9.9 14.1-8.4.8.2 1.6.6 2.3 1a14 14 0 0 1 9.2 2v.2c-.3 1.1-.2 2.1.3 3.1.6 1.1 1.3 2.1 2.4 2.7.7.5 1.6.7 2.4.7 1.2 0 2.3-.6 3.2-1.4.5-.5.8-1.1 1-1.8l1.3 1.4a24.4 24.4 0 0 1-2 30.6l-1 1c-3.2 4.3-8.1 7.2-14 7.8a21 21 0 0 1-15-4.3l1-.7a9.8 9.8 0 0 0 2-3.4l.1-.3.2-.6v-.2c.8-1.9.5-4-1.3-5.2h-.2a4 4 0 0 0-2-.6c-1.8-2.2-4.5-2.7-7-2v-.8l-.1-.3c-2-6.5-1-13.9 2.8-20Zm-86.8-65.2h.6c5-.8 8.3 0 11.5 4.2 1.5 2 1 5 0 7-3.4 6.7-12.8 5.3-19 6.6a90.4 90.4 0 0 0-34.9 14.7c-4.8 3.2-9.2 8-14.8 9.8-.2 0-.5-.2-.5-.4.4-6.3 5.7-12.1 9.7-16.6A76.5 76.5 0 0 1 69.8 48a89.3 89.3 0 0 1 30.9-11.8Zm74.8 8.6c6.1-9 21.5-7.3 30.6-4.9 11.3 3 23.7 9.2 31.6 18 7.2 8-3.5 18.3-11.5 11.6l-2.2-1.8-1.4-1.1c-6.1-5-12.2-9.6-19.7-13-8.8-3.9-17.8-5.8-27-8-.4 0-.7-.5-.4-.8Z\" fill=\"#000\"/></g></g><g transform=\"translate(279 400)\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M279.5 190.9c2 1.9 6.4 6 10.6 8h4l2.4-.7c1.1-2.6 1.3-5.7.8-8.8-3-17-5.6-34.3-4.2-51.6 1.3-16.4 6-32.7 4.8-49.2-1.8-39-39.4-66-72.4-58-4.2.3-8.4 1.5-12 3.7-51.5-21.6-115 14.8-103 74.4 2.3 16.1 6 31.4 4.8 47.8a199 199 0 0 1-3.2 23.4c-1.1 5.8-4 13-1.4 18.7 10.8 6.8 22-7.4 29.2-19.5 3.8-10.2 6.9-20.6 10.4-30.9 6.4-18.5 7.9-28.7 28.9-33.7a72 72 0 0 0 24-13.7c5.4-2.5 8.4-7.6 10.2-12.8 1 2.5-.3 5.6-.5 8.3 15.2 20.2 34 16.3 40.8 30.4 5.2 13.2 8.1 27.3 12 41 .6 1.8 10.7 20.2 13.8 23.2\" fill=\"#000\"/></g><g transform=\"translate(179 343)\"></g><g transform=\"translate(203 303)\"></g></g>", "jonas-lol": "<g><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M705.3 1074a2351.1 2351.1 0 0 1-15.6-101c-1-7.7-2.5-16.4 2.7-22 7.3-8 14-14.8 14.8-26.2.8-10.7-2.8-22.4-5-32.8a809.4 809.4 0 0 0-17.3-64.7c-6.6-21.7-13.9-43.2-21.3-64.6-6.9-20-13.5-40.3-22.5-59.5-17-36.5-46-63.5-81.6-81.6-9-4.5-27-20.5-36.3-24-8.5-3.4-8.5 6.3-16.9 2.6-6.7-2.9-13-6.7-16.7-13.2-4-7-14.3-16.9-15.9-25-3.3-17.4.3-32.2-12-45.3a90 90 0 0 0-41.1-23.8c-33.7-9.3-78.5-2.8-98.8 28.5-9.7 14.9-13 33-26.2 45.1-11.4 10.7-8.8 18-23.6 23.4-.9.3-23.6-4.5-24.4-4.2-16.2-3.5-31.7 6.2-46.5 11.8a325.4 325.4 0 0 0-63 32.3 399.2 399.2 0 0 0-102.3 98.5 482.5 482.5 0 0 0-76.4 161c-1.7 6.4-3.5 13-1.5 19.4 1.7 5.3 5.4 9.2 9.8 12.4 6 4.3 18 7 17.7 15.7-.1 6.6-2.4 13.5-3.5 20-1.3 7.7-2.3 15.5-3.4 23.2-4.8 35.4-8.6 71-10.3 106.6a920 920 0 0 0-.5 106c.1 2.3.8 4.5 2 6.2-1 .4-1.2 2.4.1 2.7l2.7.5a12 12 0 0 0 7 2.4l5.5.2c19.3 4 38.6 7.9 58.1 10.8 23.8 3.5 47.6 6.3 71.5 8.7 49.2 4.8 98 3.2 147.1.6a1877 1877 0 0 1 147.4-2c49.2 1.4 98.4 3.5 147.6 4.4 55 1 110-.5 164.8-5 7.5-.5 12.2-6.5 10.7-14-8.9-44.7-19-89.1-27-134Z\" fill=\"#ae5d29\"/><path d=\"m201 597.5 1.2-.4c14.5-5.7 29.6-14.8 45.4-11.4.5-.2 10.8 1.9 17.9 3.2l-6.7 7L247 598c40.7 67.1 88.8 100.7 144.3 100.7 55.5 0 97.7-33.6 126.4-100.7l4-1c.4 0 1 .2 1.5.4 9.3 3.6 27.4 19.6 36.3 24.1 35.6 18 64.5 45 81.6 81.6 8.7 18.6 15.2 38 21.8 57.5l.7 2c7.4 21.4 14.7 43 21.3 64.6 6.3 20.4 12 41 16.6 61.8l.7 2.9c2.2 10.4 5.8 22 5 32.8a29 29 0 0 1-3 10.7l-80.4 29 38.4 261.3c-35.1 1.5-70.3 2-105.5 1.3-49.2-.9-98.4-3-147.6-4.3-47.7-1.2-95.3-.7-143 1.7l-12 .6a946.3 946.3 0 0 1-139.5-1l-3.1-.3v-38.3l16.3-212.9-83-15.6-81.3-39.5a21.7 21.7 0 0 1-5.6-8.8c-1.9-6-.5-12 1-18l.5-1.3a492.8 492.8 0 0 1 76.4-161A399.3 399.3 0 0 1 138 629.7c19.8-13 40.9-23.9 63-32.3Z\" fill=\"#2F62A3\"/><path d=\"M232.2 584.6c5.1-.3 10.3.6 15.4 1 .4.1.6.8 0 .9-9 1.9-18 4.5-26.9 7.1l-3.8 1.2c-10 3-19.8 6-29.6 10-19.4 7.9-37.8 18.5-54.8 30.8C67.2 682.8 20 754.3-9.9 828.3a526 526 0 0 0-24.3 77c-.4 1.6-2 5.4-1 7 .7 1.3 3.6 2.1 5 2.9l4.5 2.3 25.2 12.9 2.3 1.1c38 18.6 78.4 34.4 121 35.5l.4-3.7a342 342 0 0 1 9.9-60c.3-1 1.6-.6 1.7.3 3 23.1 2 46.4 1 69.7-1.8 41-4.3 82.2-6.5 123.3-1.2 20.6-2.6 41-3.9 61.7-1.3 20.5-1.7 41.6-4.7 62-.6 4.6-6 7-10 6.6-4.4-.5-7.9-4.5-8-9 0-11.9 1.5-24 2.4-35.8l2.5-33.8c3.1-41.1 6.8-82.2 10.2-123.3a4771 4771 0 0 1 3.8-43.7C76.4 979.8 34.2 963-6.1 943.5c-.6 13.2-2 26.5-3.4 39.6-3.8 36.8-7.1 73.6-9.6 110.5a2254.2 2254.2 0 0 0-4.2 92.7l-.2 7c0 4.4-.5 8.5-4.3 11.7-3.7 3.3-8.9 3.5-12.6 0-5-4.6-4.2-10.9-4-17.1a1675.6 1675.6 0 0 1 1.8-47.2 1321 1321 0 0 1 10.5-109.5l2-14c3.5-26 7.5-52.7 15.5-77.9-3.1-1.5-6.2-3-9.3-4.7-5.5-2.7-11.2-5.4-16.6-8.4-4.2-2.5-7.9-5.8-9-10.8-1.4-5.5.6-11.5 2-16.9v-.4a502 502 0 0 1 26.6-80 523.2 523.2 0 0 1 67.8-117 353.8 353.8 0 0 1 88.7-83.3 239 239 0 0 1 53.8-25.7 142.6 142.6 0 0 1 42.8-7.5Zm90.1-66c6-6.5 18.1.2 15.2 8.8a108.2 108.2 0 0 1-34.7 52A79.4 79.4 0 0 1 247 598l1.7 2.4a321.1 321.1 0 0 0 46.1 52.6c36 31.2 84.8 48 132 36 37.1-9.4 69.8-38.8 79.4-76.2-1.3.6-3 .9-4.8.5-7.7-1.7-15.3-9.8-20.3-15.6-5.3-6.3-9.5-13-12.6-20.7-5.6-14-7.4-32.1.3-45.7 1-1.7 3-.7 3.3 1l.3 2.5c1.5 12.7 3.3 25 9.3 36.6a76 76 0 0 0 18.2 23.1c2.6 2 5.8 3.6 8.1 6l.5.4c.6-5 4.1-7.3 7.6-7.2 3.3.2 7.3 1.6 8.8 2.3l.1.1a341 341 0 0 1 65.1 42 259 259 0 0 1 88.4 129c7.5 25.3 11.8 51.4 16.3 77.4l2.8 16c4.2 23.9 8.9 48.4 18.4 70.7 2.5 5.7.6 11.1-5.5 13.4A1493 1493 0 0 1 688 953c3.7 16 6 32.5 8.7 48.5 6 34.1 13.2 68 19.4 102 3.2 17.5 6.1 35 9.3 52.3l4.7 25.2 2.4 13.6.1.7c.5 2.4 1 4.9.4 7.3-.8 2.7-2.9 4.6-4.8 6.6-1.6 1.6-3.8 1.6-5.7.7l-.7-.3c-3.4-1.6-6-3.2-7.3-7-.7-2.5-1-5.2-1.5-7.7a3535.6 3535.6 0 0 1-7.8-43.6l-1.6-9.1c-5.2-31.4-10.2-62.9-12.8-94.5-1-14-2.3-28.1-3.5-42.2l-.9-10.5c-1.1-13.3-2.5-27-2.7-40.5l-4.5 1.6L657 964c-5.5 2-12.5 6-18.4 5.2-2.9-.3-5-1.2-6.8-2.9 2 28.8 4.8 57.4 8.5 86a1965.7 1965.7 0 0 0 22 135c.6 3.2 1.4 6.4 1.9 9.6.5 3.7-.5 5.9-2.5 9-1.7 2.4-5 3.7-7.8 2-3.6-2.3-5.5-4.3-6.5-8.4-1-3.7-1.6-7.6-2.3-11.4a1654.2 1654.2 0 0 1-11.4-65.2c-7.8-52-12.7-104.4-15.2-156.8a1388 1388 0 0 1-1.4-77.8c0-13.3.5-26.6 1.4-39.9 1-13.4 3-26.5 4.8-39.8 0-.5.7-.5.7 0 .8 14.9 2.1 29.8 2.8 44.7.6 14.3.9 28.5 1.4 42.8.6 18.7 1.5 37.5 2.7 56.2a9.6 9.6 0 0 1 8.5-3.1c4.7-1 9.7-3.4 14.1-5l16.8-5.5 26.4-8.7a679 679 0 0 1-18-80.8l-2-12.3c-4-24.2-8.5-48.5-15.8-72a229.8 229.8 0 0 0-34.8-68.2 370.2 370.2 0 0 0-52.7-55.3C557 627 539.7 614 523 600c.1.9.2 2 0 3-3.5 25.9-17 50-35.8 67.9-37.7 36-93.6 43.4-142 26.5-46.7-16.3-88-55-102.6-102.8-.3-.8.8-1 1.3-.5l2.4 3.3c0-.4.2-.9.7-1a129 129 0 0 0 46.6-29.2 100.2 100.2 0 0 0 21.3-33.3l.4-1c1.7-5 3.2-10.2 7-14.2Z\" fill=\"#000\"/></g><g transform=\"matrix(.99789 0 0 1 156 62)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M405.3 225.3c11.3-8.2-5.6-35-11.4-43l-15-31.4c.6-8.5-7.8-16.1-16-13.5-7.2-5.2-19.3-2.7-23 5.4-79.4-34.6-216.8-20.2-224 86.5-15.3 30.4-30.5 61-44.2 92.3-18.9 1-28 24-16.8 38.9 1.5 24 16.8 26 37.2 25 8.2 2 16.7 3.2 22.9 9.6a68.5 68.5 0 0 1 10.9 16.7 204.4 204.4 0 0 0 56.4 69.3c38 28.3 89.2 48.7 136.4 34.9 101.6-39.9 121.6-199.3 86.6-290.7Z\" fill=\"#ae5d29\"/><path d=\"M193.3 70c66.4-15.4 141 5.3 187 56.2a8 8 0 0 1 0 11.3l4 3.3c1.3 1.1 1.1 3.5 0 4.7-1.2 1.2-3.7 1.4-4.8 0l-1.6-2-2.4-3.2-2.8 1c14 9.4 25.8 21.8 33.8 36.8a183.9 183.9 0 0 1 17.9 51.4c6.4 32 7.3 64.9 6.5 97.4v1.8c-1.2 39.3-5 79.2-21.6 115.3-13.2 29-36.8 55.5-66.4 68.2-17 7.3-35.4 10.4-54 9.1-9.7-.7-19.4-2.2-28.9-4.6l-2.3-.5a79 79 0 0 1-25-9.7c-7.6-5-2.5-15.2 5.9-14 10 1.6 19.7 5.8 29.6 8 9.8 2 19.7 3.2 29.7 3 17.7-.6 33.9-6 48.5-16 56-37.7 62.8-113.7 64.2-175 .7-30-.4-60.5-7.3-89.8-6.6-28.2-18-56-34.2-80a42.2 42.2 0 0 1-10.9 2.8c-6.7 4-14.8 4.2-22.6 4.2h-1a275 275 0 0 1-24.4-1.2c-28.6-2.6-58-9-86.9-5l-1.1.3c-11.9 1.7-26.6 5.5-35.3 14-9.4 9.2-3 26.6 4.4 32.1 4.8 3.6 6.3 11.7 0 15-12.5 6.4-42.7 2.8-46 6.4-4.1 4.2-3.8 10.7-4 16.2v.4c-.4 15.7 0 31.4 1.3 47 1.3 15.2 4.2 30.4 4.9 45.6.2 5-5.9 6.5-9.2 3.8-.6-.6-1.3-1-2-1.5-6-4.3-12.8-6-20.1-7.2-.4 0-.7-.3-1-.5v-.1l-.8.6c1.5 1.9 2.8 4 3.9 6.4.2.5-.3 1.1-.8.8a44.9 44.9 0 0 0-32.9-6.2c-10.5 2.2-20 8.9-23 19.6a33.3 33.3 0 0 0 5.6 29.1c9.3 12 24.6 11 38.3 11.5 2.7 0 5.6 1.4 6.9 4 1.5 3 1.4 5 0 8a5 5 0 0 1-.7 1.2l3.3 3 3.6 3.7a277.3 277.3 0 0 1 26.6 31.1l.6.8c7.1 9.7 14.5 23.8 26.9 27 4.2 1 8.2 3 9.4 7.6 1.3 4.6-1.7 9-5.7 11-7 3.3-15.7-.6-21.4-4.8-12.3-9-20.3-23.9-28-37l-2-3.5c-3.9-6.7-7.7-13.5-11-20.6-1.8-4-3.8-8-5.5-12a42 42 0 0 1-1.4-3.7l-1.6.2c-16.5 1-35.5-1.5-47.5-14-16.4-17.3-18.4-48.2.3-64.7a36 36 0 0 1 6.6-4.6 73.3 73.3 0 0 1-7.2-18.3c-2.3-9-3.7-18.2-4.3-27.4a183 183 0 0 1 5.4-56.5c16.5-66.5 67-121.6 134.5-137.3ZM73.7 346c-3.2-19 34.7-5 43-3.6h.2c9.5 1.3 4.2 18-5.1 13l-.3-.2c-5-2.9-10.6-5-16-7.4l-1-.5c-4.3-2-18.2-11-19.7-1.3 0 .5-1 .5-1 0Z\" fill=\"#000\"/></g></g><g transform=\"translate(315 248)\"><g fill-rule=\"evenodd\" clip-rule=\"evenodd\"><path d=\"M79.2 197.8c11-6.6 51.7-1.8 83.8 0 25.5 1.4 43.7-1.4 49.5 2.5 13.1 8.9 6.8 51.7-16 57.6-22.6 5.8-106.6 14-121 0-14.6-14-15.9-48.3 3.7-60.1Z\" fill=\"#fff\"/><path d=\"M93.3 186.5c17.2-2.1 33.8 3.1 50.6 5.8a236.6 236.6 0 0 0 32 3c.2-1.6 1-3 3-4 4-1.7 7.1-2.5 11.4-2.4 4 .2 8 .6 11.9 1.3a37 37 0 0 1 19.4 9.4c12 11.8 10.1 30.9.9 43.8-19.2 26.7-54.1 28-84 27.6h-2.8c-27.3-.5-66.3 3.6-78.7-27.4a43.6 43.6 0 0 1 1.7-35.6c6.6-13 20.6-19.8 34.6-21.5Zm85.2 44.4h-.2c-12.6.5-25.2.8-37.8 1a500.6 500.6 0 0 0 2.3 17.3c.2 1.1.8 2.8.6 3.8v.4a3.8 3.8 0 0 1 2 2.2c9.8 0 20.3-.1 30.2-1.9v-.2c.2-1.3.8-2.1 1.5-2.7.7-4 .6-8.4.9-12.4l.5-7.5Zm-47.6 1.2c-9 .2-18 .3-27.1.2h-4.2c1 4.6 1.9 9.2 2.6 14 .9 4.8-3.4 8-7.2 7.8l1.3.2c11.6 1.6 23.7 1.2 35.5 1.2-.6-3.7-.4-8-.5-11v-.5l-.4-11.9Zm-61.5-.8c.3 2.4 1 4.8 1.8 7 4 9.3 12.8 13.6 22.2 15.5-1.7-.6-3-2-3.3-4.2A128 128 0 0 1 89 232c-6.6 0-13.1-.2-19.6-.8Zm143.2-2c-4.7 1-10 .6-14.6.8l-12.9.5.6 8.8c.3 3.7.3 7.7 1 11.5 8.7-3 16.4-7.7 22.2-15.2 1.4-1.9 2.7-4 3.7-6.4ZM91.4 201.8c-7.8 1.8-15 5.7-19 12.8a27 27 0 0 0-3.2 14c6.5-.7 13.2-1 19.8-1.2l.1-3.6.1-3c.2-5.9.3-13.2 2.2-19Zm40 .7-3.3-.4c-9.5-1-19-2.2-28.4-1.6l-4.2.5c1.7 6 1.5 13.1 2.2 19.1l1 6.9h1.7c10.1-.6 20.3-1 30.5-1.4V218c.2-4.8-.1-10.3.6-15.4Zm47.6-.8a190.6 190.6 0 0 1-41.5 1.4l.5 6.2 1.3 12.4.5 3.6 37.5-1.9h1.7l.5-7c.4-4.6.7-9.2 1.3-13.8l-.4-.1-1.4-.8Zm4.4 1.7 1.2 19.6 8.2-.4 4.2-.2c5.3-.3 12.2-2 17.5-.4.4-4.8-1-9.5-5.3-12.7-7.7-5.7-17.3-3.7-25.8-5.9Zm-28.2-58.3c12.3-7 43-14.2 45 7.9 1 10.1-6.6 18.6-15.5 22.3l-.3.1c-8.3 3.4-23 7.3-30.1 0-6-6.2 2-17.2 9.3-12.2 3.9 2.6 11.9.7 16.1-.6h.3c4.6-1.4 10.7-5.7 8.8-11.3-1.7-5-8.8-6-13.3-6-6.7-.3-13.2 1.2-19.8 1.7-1 0-1.3-1.4-.5-2Zm50.8-35.5c16.7-.8 27 17.4 23.2 32.3-.6 2.6-3.5 5-6.3 4.8h-.7l-1-.2c-2.7-.8-5-3.5-4.8-6.4v-.8c.4-7-.4-15.1-8.7-16.8-7.1-1.5-11 5.3-11.2 11.6 0 1.1-1.2 2-2.2 1.3-5.2-3-6-9.3-4-14.6a17.2 17.2 0 0 1 15.7-11.2Zm-123.6 3.9c12.2-4 25.2 2.4 31.1 13.1 2 .6 4.1 2.2 3.8 4.6-.4 3.5-1 5.7-3.4 8.4-3.8 4.1-11 2-12.5-3.1v-.2c-1.9-6.6-9.1-11-15.7-8.7-7.8 2.7-7.5 10.9-13 15.6-.6.6-1.4.7-2.1.3-5.8-2.8-4.8-11.1-2.7-16 2.7-6.2 8-11.8 14.5-14ZM66 76.7c9.8-10 35.5-19.7 42.2-1.2 1.3 3.5-1.5 8.2-5.1 9-6 1.2-11.4-1.4-17.3-1a26 26 0 0 0-13.8 5c-10.7 8.3-13 22.3-20.5 32.9-.4.5-1 .3-1.1-.3a58.4 58.4 0 0 1 15.6-44.4ZM194 66.8a33 33 0 0 1 20.5 0 39.7 39.7 0 0 1 23 18.6c.8 1.5 1.7 4.4 2.6 6.2 5.1 3 7.3 9.7 2.7 14.5l-.2.3-.6.6a9.9 9.9 0 0 1-9.6 2.5c-7.5-2.2-8.4-8.1-11-14.4a25.8 25.8 0 0 0-8.3-10.6 39.8 39.8 0 0 0-32.6-5.4c-.5.1-1.1-.6-.8-1 2-2.6 3-4.6 5.7-6.6 2.6-2 5.5-3.6 8.6-4.7Z\" fill=\"#000\"/></g></g><g transform=\"translate(279 400)\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M279.5 190.9c2 1.9 6.4 6 10.6 8h4l2.4-.7c1.1-2.6 1.3-5.7.8-8.8-3-17-5.6-34.3-4.2-51.6 1.3-16.4 6-32.7 4.8-49.2-1.8-39-39.4-66-72.4-58-4.2.3-8.4 1.5-12 3.7-51.5-21.6-115 14.8-103 74.4 2.3 16.1 6 31.4 4.8 47.8a199 199 0 0 1-3.2 23.4c-1.1 5.8-4 13-1.4 18.7 10.8 6.8 22-7.4 29.2-19.5 3.8-10.2 6.9-20.6 10.4-30.9 6.4-18.5 7.9-28.7 28.9-33.7a72 72 0 0 0 24-13.7c5.4-2.5 8.4-7.6 10.2-12.8 1 2.5-.3 5.6-.5 8.3 15.2 20.2 34 16.3 40.8 30.4 5.2 13.2 8.1 27.3 12 41 .6 1.8 10.7 20.2 13.8 23.2\" fill=\"#000\"/></g><g transform=\"translate(179 343)\"></g><g transform=\"translate(203 303)\"></g></g>"};
+
 // ---------- drawings ----------
 // People are Open Peeps by Pablo Stanley (CC0, openpeeps.com), rendered with DiceBear.
 // Karl and the bakery are drawn in the same ink-outline style.
@@ -184,8 +269,8 @@ const INK = '#1E1A16';
   holder.innerHTML = Object.entries(PEOPLE).map(([id, inner]) => `<symbol id="${id}" viewBox="0 0 704 704">${inner}</symbol>`).join('');
   document.body.prepend(holder);
 })();
-const person = (id, x, y, size, flip = false) =>
-  `<use href="#${id}" x="${flip ? -x - size : x}" y="${y}" width="${size}" height="${size}"${flip ? ' transform="scale(-1 1)"' : ''}/>`;
+const person = (id, x, y, size, delay = '') =>
+  `<g class="actor" data-who="${id.split('-')[0]}" tabindex="0" role="button" aria-label="Tap to hear ${id.startsWith('becker') ? 'Frau Becker' : 'Jonas'}"><g class="jumper"><g class="bob ${delay}"><use href="#${id}" x="${x}" y="${y}" width="${size}" height="${size}"/></g></g></g>`;
 
 function bg() {
   const loaf = (x) => `<ellipse cx="${x}" cy="33" rx="13" ry="7.5" fill="#C27A38" stroke="${INK}" stroke-width="2"/><path d="M${x - 6} 29 l3 6 M${x} 28 l3 6 M${x + 6} 29 l3 6" stroke="#7E4A1C" stroke-width="1.6" stroke-linecap="round"/>`;
@@ -205,13 +290,16 @@ const counter = () => `<rect x="190" y="138" width="172" height="40" fill="#8A58
   <path d="M220 146 v26 M262 146 v26 M304 146 v26" stroke="#6B4225" stroke-width="2"/>`;
 const table = (x) => `<rect x="${x}" y="152" width="120" height="9" rx="3" fill="#FFFFFF" stroke="${INK}" stroke-width="2.5"/>
   <path d="M${x + 60} 161 v14" stroke="${INK}" stroke-width="4"/>
-  <path d="M${x + 84} 144 h14 v8 h-14 z" fill="#FFFFFF" stroke="${INK}" stroke-width="2"/><path d="M${x + 98} 146 q5 2 0 5" fill="none" stroke="${INK}" stroke-width="2"/>`;
+  <path d="M${x + 84} 144 h14 v8 h-14 z" fill="#FFFFFF" stroke="${INK}" stroke-width="2"/><path d="M${x + 98} 146 q5 2 0 5" fill="none" stroke="${INK}" stroke-width="2"/>
+  <g class="steam" fill="none" stroke="#9AA3B2" stroke-width="2" stroke-linecap="round">
+    <path d="M${x + 87} 140 q-3 -4 0 -8 q3 -4 0 -8"/><path d="M${x + 91} 140 q-3 -4 0 -8 q3 -4 0 -8"/><path d="M${x + 95} 140 q-3 -4 0 -8 q3 -4 0 -8"/>
+  </g>`;
 const door = () => `<rect x="262" y="58" width="76" height="118" rx="4" fill="#7A4A2A" stroke="${INK}" stroke-width="2.5"/>
   <rect x="273" y="70" width="54" height="42" rx="3" fill="#BFE0F5" stroke="${INK}" stroke-width="2"/>
   <path d="M276 106 l14 -30 M290 108 l14 -30" stroke="#FFFFFF" stroke-width="3" opacity="0.7"/>
   <circle cx="328" cy="128" r="4" fill="#E3B474" stroke="${INK}" stroke-width="1.5"/>`;
 
-function cat(x, y, s, mood = 'normal') {
+function catBody(mood = 'normal') {
   const o = '#F28C28', st = `stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"`;
   const eyes = {
     normal: `<ellipse cx="41" cy="42" rx="3.8" ry="4.6" fill="${INK}"/><ellipse cx="59" cy="42" rx="3.8" ry="4.6" fill="${INK}"/><circle cx="42.3" cy="40.4" r="1.4" fill="#fff"/><circle cx="60.3" cy="40.4" r="1.4" fill="#fff"/>`,
@@ -219,15 +307,16 @@ function cat(x, y, s, mood = 'normal') {
     happy: `<path d="M35 43 q6 -7 12 0 M53 43 q6 -7 12 0" stroke="${INK}" stroke-width="2.8" fill="none" stroke-linecap="round"/>`,
   };
   eyes.wave = eyes.normal; eyes.dreamy = eyes.happy;
+  const blinks = mood === 'normal' || mood === 'wave';
   const mouth = mood === 'shock'
     ? `<ellipse cx="50" cy="61" rx="4.5" ry="5.5" fill="#7A2A20" ${st}/>`
     : `<path d="M50 54 q-4 5 -8 1.5 M50 54 q4 5 8 1.5" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
   const paw = mood === 'wave'
-    ? `<path d="M70 74 Q78 66 80 52" stroke="${INK}" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M70 74 Q78 66 80 52" stroke="${o}" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M74 46 l-1 -5 M80 45 v-5 M86 46 l1 -5" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/>`
+    ? `<g class="float"><path d="M70 74 Q78 66 80 52" stroke="${INK}" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M70 74 Q78 66 80 52" stroke="${o}" stroke-width="7.5" stroke-linecap="round" fill="none"/><path d="M74 46 l-1 -5 M80 45 v-5 M86 46 l1 -5" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/></g>`
     : '';
-  return `<g transform="translate(${x} ${y}) scale(${s})">
-    <path d="M72 86 C100 84 102 54 88 42" stroke="${INK}" stroke-width="12.5" fill="none" stroke-linecap="round"/>
-    <path d="M72 86 C100 84 102 54 88 42" stroke="${o}" stroke-width="7.5" fill="none" stroke-linecap="round"/>
+  return `<g class="tail"><path d="M72 86 C100 84 102 54 88 42" stroke="${INK}" stroke-width="12.5" fill="none" stroke-linecap="round"/>
+    <path d="M72 86 C100 84 102 54 88 42" stroke="${o}" stroke-width="7.5" fill="none" stroke-linecap="round"/></g>
+    <g class="breathe">
     <ellipse cx="50" cy="80" rx="26" ry="19" fill="${o}" ${st}/>
     <ellipse cx="50" cy="85" rx="12" ry="11" fill="#FFF4E6"/>
     <path d="M36 96 v2 M44 97 v2 M56 97 v2 M64 96 v2" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
@@ -236,30 +325,31 @@ function cat(x, y, s, mood = 'normal') {
     <circle cx="50" cy="44" r="23" fill="${o}" ${st}/>
     <ellipse cx="50" cy="55" rx="11" ry="8" fill="#FFF4E6"/>
     <path d="M43 22 l2 7 M50 21 v8 M57 22 l-2 7 M28 42 h6 M72 42 h-6" stroke="#C9631A" stroke-width="2.6" stroke-linecap="round"/>
-    ${eyes[mood]}
+    <g class="${blinks ? 'blink' : ''}">${eyes[mood]}</g>
     <path d="M46.5 50 h7 l-3.5 4 z" fill="#E8707E" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>
     ${mouth}
     <path d="M38 53 L20 50 M38 56 L20 59 M62 53 L80 50 M62 56 L80 59" stroke="${INK}" stroke-width="1.3" stroke-linecap="round"/>
     ${mood === 'happy' || mood === 'dreamy' ? `<circle cx="36" cy="51" r="3.5" fill="#F07A7A" opacity="0.55"/><circle cx="64" cy="51" r="3.5" fill="#F07A7A" opacity="0.55"/>` : ''}
-    ${paw}
-  </g>`;
+    ${paw}</g>`;
 }
+const cat = (x, y, s, mood) =>
+  `<g class="actor" data-who="karl" tabindex="0" role="button" aria-label="Tap to hear Karl"><g transform="translate(${x} ${y}) scale(${s})"><g class="jumper">${catBody(mood)}</g></g></g>`;
 const apple = (x, y) => `<g transform="translate(${x} ${y})"><circle r="11" fill="#D7263D" stroke="${INK}" stroke-width="2.2"/><path d="M0 -10 q2 -6 5 -8" stroke="${INK}" stroke-width="2.5" fill="none"/><ellipse cx="8" cy="-15" rx="6" ry="3" fill="#3FA34D" stroke="${INK}" stroke-width="1.6" transform="rotate(-25 8 -15)"/><circle cx="-4" cy="-4" r="2.5" fill="#fff" opacity="0.6"/></g>`;
 const bread = (x, y) => `<g transform="translate(${x} ${y})"><ellipse rx="18" ry="10" fill="#C27A38" stroke="${INK}" stroke-width="2.2"/><path d="M-8 -6 l4 8 M0 -8 l4 8 M8 -6 l4 7" stroke="#7E4A1C" stroke-width="2" stroke-linecap="round"/></g>`;
 const milk = (x, y) => `<g transform="translate(${x} ${y})"><rect x="-8" y="-14" width="16" height="30" rx="4" fill="#FFFFFF" stroke="${INK}" stroke-width="2.2"/><rect x="-5" y="-20" width="10" height="7" rx="2" fill="#2F62A3" stroke="${INK}" stroke-width="1.8"/><rect x="-8" y="-1" width="16" height="8" fill="#9EC1EE" stroke="${INK}" stroke-width="1.5"/></g>`;
-const bubbleThought = () => `<circle cx="114" cy="88" r="5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="125" cy="73" r="8" fill="#fff" stroke="${INK}" stroke-width="2"/>
-  <ellipse cx="164" cy="42" rx="46" ry="29" fill="#fff" stroke="${INK}" stroke-width="2.2"/>${milk(144, 44)}${bread(178, 46)}`;
+const bubbleThought = () => `<g class="thought"><circle cx="114" cy="88" r="5" fill="#fff" stroke="${INK}" stroke-width="2"/><circle cx="125" cy="73" r="8" fill="#fff" stroke="${INK}" stroke-width="2"/>
+  <ellipse cx="164" cy="42" rx="46" ry="29" fill="#fff" stroke="${INK}" stroke-width="2.2"/>${milk(144, 44)}${bread(178, 46)}</g>`;
 
 const ART_PANELS = [
   () => `${bg()}${door()}${person('jonas-calm', 8, 34, 130)}${table(10)}${cat(140, 68, 1.05, 'wave')}`,
   () => `${bg()}${person('becker-smile', 196, -6, 166)}${counter()}${cat(36, 76, 1, 'normal')}`,
   () => `${bg()}${person('becker-smile', 196, -6, 166)}${counter()}${cat(24, 76, 1, 'dreamy')}${bubbleThought()}`,
-  () => `${bg()}${person('becker-explain', 196, -6, 166)}${counter()}${apple(214, 120)}${cat(36, 76, 1, 'normal')}`,
-  () => `${bg()}${person('jonas-awe', 6, 34, 130)}${table(8)}${counter()}${apple(270, 120)}${cat(142, 54, 1.2, 'shock')}
-         <text x="116" y="62" font-size="42" font-weight="800" fill="#D7263D" stroke="${INK}" stroke-width="1.5" font-family="sans-serif">?!</text>`,
-  () => `${bg()}${person('jonas-lol', 6, 34, 130)}${table(8)}${person('becker-lol', 196, -6, 166)}${counter()}${milk(206, 116)}
+  () => `${bg()}${person('becker-explain', 196, -6, 166)}${counter()}<g class="float">${apple(214, 120)}</g>${cat(36, 76, 1, 'normal')}`,
+  () => `${bg()}${person('jonas-awe', 6, 34, 130, 'b2')}${table(8)}${counter()}${apple(270, 120)}${cat(142, 54, 1.2, 'shock')}
+         <g class="shake"><text x="116" y="62" font-size="42" font-weight="800" fill="#D7263D" stroke="${INK}" stroke-width="1.5" font-family="sans-serif">?!</text></g>`,
+  () => `${bg()}${person('jonas-lol', 6, 34, 130, 'b2')}${table(8)}${person('becker-lol', 196, -6, 166)}${counter()}${milk(206, 116)}
          <ellipse cx="166" cy="177" rx="18" ry="5.5" fill="#FFFFFF" stroke="${INK}" stroke-width="2"/>${cat(112, 82, 0.92, 'happy')}
-         <text x="186" y="100" font-size="20" fill="#E8707E" font-family="sans-serif">♥</text>`,
+         <g class="float"><text x="186" y="100" font-size="20" fill="#E8707E" font-family="sans-serif">♥</text></g>`,
 ];
 const PANELS = [
   { art: 0, caption: 'Berlin, 7 in the morning. Jonas is having his coffee when a hungry cat walks into the bakery.', lines: [0] },
@@ -278,38 +368,186 @@ const isWord = (t) => t.length > 1;
 const germanOf = (line) => line.toks.map((t) => (isWord(t) ? ' ' + t[1] : t[0])).join('').trim();
 const bridgeOf = (line) => line.toks.map((t) => (isWord(t) ? ' ' + t[0] : t[0])).join('').trim();
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-let unlocked = load('karl-codes', []);
-let built = load('karl-built', []);
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 function load(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 
+let unlocked = load('karl-codes', []);
+let points = load('karl-points', 0);
+let soundOn = load('karl-sound', true);
+
+// ---------- sound effects (generated, no files) ----------
+let actx = null;
+function tone(freq, dur, type = 'sine', vol = 0.12, slideTo = null, at = 0) {
+  if (!soundOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + at;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+  } catch {}
+}
+const sfx = {
+  pop: () => tone(520, 0.09, 'sine', 0.12, 880),
+  tick: () => tone(1200, 0.03, 'triangle', 0.05),
+  ding: () => { tone(880, 0.18, 'sine', 0.12); tone(1320, 0.3, 'sine', 0.1, null, 0.1); },
+  fanfare: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.22, 'triangle', 0.1, null, i * 0.11)),
+  buzz: () => tone(160, 0.22, 'square', 0.05, 110),
+  boing: () => tone(300, 0.3, 'sine', 0.12, 700),
+};
+$('sound').addEventListener('click', () => {
+  soundOn = !soundOn; store('karl-sound', soundOn); renderSound();
+  if (!soundOn && synth) synth.cancel(); else sfx.pop();
+});
+function renderSound() { $('sound').textContent = soundOn ? '🔊 Sound on' : '🔇 Sound off'; }
+
+// ---------- speech with karaoke ----------
 const synth = window.speechSynthesis;
-function say(text, lang = 'de') {
-  if (!synth) return;
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang === 'de' ? 'de-DE' : 'en-US';
-  const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().startsWith(lang));
-  if (v) u.voice = v;
-  u.rate = lang === 'de' ? 0.85 : 1;
-  synth.speak(u);
+function speak(text, lang = 'de', wordEls = null) {
+  return new Promise((resolve) => {
+    const clear = () => wordEls && wordEls.forEach((w) => w.classList.remove('lit'));
+    let fallback = null, gotBoundary = false;
+    const finish = () => { clearInterval(fallback); clear(); resolve(); };
+    // Fallback highlighting when the voice gives no word timings (or there is no voice).
+    const startFallback = () => {
+      if (!wordEls || gotBoundary) return;
+      let i = 0;
+      const step = () => { clear(); if (wordEls[i]) wordEls[i].classList.add('lit'); i++; };
+      step();
+      fallback = setInterval(step, 430);
+    };
+    if (!synth || !soundOn) {
+      startFallback();
+      setTimeout(finish, wordEls ? wordEls.length * 430 + 200 : 300);
+      return;
+    }
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'de' ? 'de-DE' : 'en-US';
+    const v = synth.getVoices().find((x) => x.lang && x.lang.toLowerCase().startsWith(lang));
+    if (v) u.voice = v;
+    u.rate = lang === 'de' ? 0.85 : 1;
+    if (wordEls) {
+      const starts = []; let pos = 0;
+      for (const w of wordEls) { const at = text.indexOf(w.textContent, pos); starts.push(at); pos = at + w.textContent.length; }
+      u.onboundary = (e) => {
+        if (e.name && e.name !== 'word') return;
+        gotBoundary = true; clearInterval(fallback); clear();
+        let idx = 0; starts.forEach((s, k) => { if (e.charIndex >= s) idx = k; });
+        wordEls[idx]?.classList.add('lit');
+      };
+      setTimeout(startFallback, 450);
+    }
+    u.onend = finish; u.onerror = finish;
+    setTimeout(finish, 9000);
+    synth.speak(u);
+  });
 }
 
+// ---------- effects ----------
+const fx = $('fx'), ctx = fx.getContext('2d');
+let parts = [], fxRunning = false;
+function sizeFx() { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; }
+addEventListener('resize', sizeFx); sizeFx();
+function burst(x, y, n = 18, spread = 1) {
+  if (reduceMotion) return;
+  const colors = ['#E39B26', '#2160E0', '#D52C44', '#11895A', '#F28C28', '#FFFFFF'];
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, s = (2 + Math.random() * 5) * spread;
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 3 * spread, life: 1, size: 4 + Math.random() * 5, c: pick(colors), r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4 });
+  }
+  if (!fxRunning) { fxRunning = true; requestAnimationFrame(tickFx); }
+}
+function burstAt(el, n, spread) { const r = el.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, n, spread); }
+function confetti() { for (let i = 0; i < 5; i++) setTimeout(() => burst(innerWidth * (0.15 + Math.random() * 0.7), innerHeight * 0.35, 26, 1.4), i * 120); }
+function tickFx() {
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  ctx.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter((p) => p.life > 0);
+  for (const p of parts) {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.25; p.vx *= 0.98; p.r += p.vr; p.life -= 0.016;
+    ctx.save(); ctx.globalAlpha = Math.max(p.life, 0); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+    ctx.fillStyle = p.c; ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2); ctx.restore();
+  }
+  if (parts.length) requestAnimationFrame(tickFx); else { fxRunning = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+}
+function jump(el) {
+  const j = el.querySelector('.jumper') || el;
+  j.classList.remove('jump'); void j.getBoundingClientRect(); j.classList.add('jump');
+}
+
+// ---------- points ----------
+function addPoints(n, el) {
+  points += n; store('karl-points', points);
+  $('points').textContent = points;
+  const s = $('score'); s.classList.remove('bump'); void s.offsetWidth; s.classList.add('bump');
+  if (el) burstAt(el, 10, 0.7);
+}
+
+// ---------- Karl in the corner ----------
+const BUDDY_MOODS = { normal: catBody('normal'), happy: catBody('happy'), shock: catBody('shock') };
+let buddyTimer = null;
+function buddy(mood, text, speakIt = false) {
+  const b = $('buddy');
+  b.innerHTML = `<g class="jumper">${BUDDY_MOODS[mood] || BUDDY_MOODS.normal}</g>`;
+  jump(b);
+  const t = $('buddy-talk');
+  t.textContent = text; t.classList.add('show');
+  clearTimeout(buddyTimer);
+  buddyTimer = setTimeout(() => { t.classList.remove('show'); b.innerHTML = `<g class="jumper">${BUDDY_MOODS.normal}</g>`; }, 2600);
+  if (speakIt) speak(text.split(' (')[0]);
+}
+$('buddy').innerHTML = `<g class="jumper">${BUDDY_MOODS.normal}</g>`;
+const buddyTap = () => { sfx.boing(); buddy('happy', pick(['Miau! (meow!)', 'Hallo! (hello!)', 'Ich bin Karl! (I am Karl!)', 'Brot? (bread?)']), true); };
+$('buddy').addEventListener('click', buddyTap);
+$('buddy').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); buddyTap(); } });
+
+// ---------- tap a character in a picture ----------
+function speechPop(svgEl, actor, text) {
+  const box = actor.getBBox();
+  const x = Math.min(Math.max(box.x + box.width / 2, 40), 320), y = Math.max(box.y + 8, 30);
+  const w = text.length * 8 + 22;
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', 'say-pop');
+  g.setAttribute('pointer-events', 'none');
+  g.innerHTML = `<rect x="${x - w / 2}" y="${y - 30}" width="${w}" height="24" rx="12" fill="#fff" stroke="${INK}" stroke-width="2"/>
+    <path d="M${x - 5} ${y - 7} l5 9 l5 -9" fill="#fff" stroke="${INK}" stroke-width="2"/><rect x="${x - 7}" y="${y - 9}" width="14" height="4" fill="#fff"/>
+    <text x="${x}" y="${y - 13}" font-size="13" font-weight="700" text-anchor="middle" font-family="sans-serif" fill="${INK}">${text}</text>`;
+  svgEl.append(g);
+  setTimeout(() => g.remove(), 1500);
+}
+function wireActors(root) {
+  root.querySelectorAll('.actor').forEach((a) => {
+    const go = () => {
+      const [de, en] = pick(VOICES[a.dataset.who]);
+      jump(a); sfx.pop();
+      speechPop(a.ownerSVGElement, a, de);
+      speak(de);
+      buddy('happy', `${de} = ${en}`);
+    };
+    a.addEventListener('click', go);
+    a.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+}
+
+// ---------- secret codes ----------
 function unlock(codes) {
   let fresh = null;
   for (const c of codes || []) if (!unlocked.includes(c)) { unlocked.push(c); fresh = fresh || c; }
-  if (fresh) { store('karl-codes', unlocked); renderCodes(); }
+  if (fresh) { store('karl-codes', unlocked); renderCodes(fresh); }
   return fresh;
 }
-
-function renderCodes() {
+function renderCodes(just = null) {
   const box = $('codes');
   box.textContent = '';
   for (const [id, r] of Object.entries(RULES)) {
     const open = unlocked.includes(id);
     const d = document.createElement('div');
-    d.className = 'code ' + (open ? 'open' : 'locked');
+    d.className = 'code ' + (open ? 'open' : 'locked') + (id === just ? ' just' : '');
     d.innerHTML = `<span class="rule">${open ? `${r.from} → ${r.to}` : '🔒 ? → ?'}</span><span class="ex">${r.ex}</span>`;
     box.append(d);
   }
@@ -327,22 +565,35 @@ function openSheet(tok) {
   if (info.note) meta.push(info.note);
   $('sh-meta').textContent = meta.join(' · ') || 'Tap Hear to listen.';
   $('sheet').hidden = false;
-  say(sheetWord);
+  sfx.tick();
+  speak(sheetWord);
 }
-$('sh-say').addEventListener('click', () => say(sheetWord));
+$('sh-say').addEventListener('click', () => speak(sheetWord));
 $('sh-close').addEventListener('click', () => { $('sheet').hidden = true; });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('sheet').hidden = true; });
 
 // ---------- READ ----------
+let playing = false;
 function renderRead() {
+  const box = document.createElement('div');
+  box.style.display = 'grid'; box.style.gap = '14px';
+  const ctrl = document.createElement('div');
+  ctrl.className = 'player';
+  const playBtn = Object.assign(document.createElement('button'), { className: 'btn big', type: 'button', textContent: '▶ Play the story' });
+  const tip = Object.assign(document.createElement('p'), { className: 'tip', textContent: 'Plays every panel with voices and lights up each word as it is spoken.' });
+  ctrl.append(playBtn, tip);
+  box.append(ctrl);
+
   const strip = document.createElement('div');
   strip.className = 'strip';
+  const panelEls = [];
   for (const p of PANELS) {
     const art = document.createElement('article');
     art.className = 'panel';
     art.innerHTML = svg(p.art) + (p.caption ? `<p class="caption">${p.caption}</p>` : '');
     const bubbles = document.createElement('div');
     bubbles.className = 'bubbles';
+    const items = [];
     for (const i of p.lines) {
       const line = LINES[i];
       const b = document.createElement('div');
@@ -350,6 +601,7 @@ function renderRead() {
       b.innerHTML = `<span class="who ${line.who}">${NAMES[line.who]}</span>`;
       const de = document.createElement('div');
       de.className = 'de-line';
+      const words = [];
       line.toks.forEach((t, k) => {
         if (!isWord(t)) { de.append(t[0]); return; }
         if (k > 0) de.append(' ');
@@ -358,84 +610,118 @@ function renderRead() {
         w.className = 'w' + (t[2]?.g ? ' g-' + t[2].g : '') + (t[2]?.code ? ' coded' : '');
         w.textContent = t[1];
         w.addEventListener('click', () => openSheet(t));
-        de.append(w);
+        de.append(w); words.push(w);
       });
-      const enEl = document.createElement('div');
-      enEl.className = 'en-line';
-      enEl.textContent = line.en;
-      const play = document.createElement('button');
-      play.type = 'button';
-      play.className = 'play';
-      play.textContent = '🔊';
+      const enEl = Object.assign(document.createElement('div'), { className: 'en-line', textContent: line.en });
+      const play = Object.assign(document.createElement('button'), { className: 'play', type: 'button', textContent: '🔊' });
       play.setAttribute('aria-label', 'Hear this line in German');
-      play.addEventListener('click', () => say(germanOf(line)));
+      play.addEventListener('click', async () => { b.classList.add('speaking'); await speak(germanOf(line), 'de', words); b.classList.remove('speaking'); });
       b.append(de, play, enEl);
       bubbles.append(b);
+      items.push({ line, b, words });
     }
     art.append(bubbles);
     strip.append(art);
+    wireActors(art);
+    panelEls.push({ art, items });
   }
-  return strip;
+  box.append(strip);
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('seen'); io.unobserve(e.target); } }), { threshold: 0.4 });
+    panelEls.forEach(({ art }) => io.observe(art));
+  }
+
+  playBtn.addEventListener('click', async () => {
+    if (playing) { playing = false; if (synth) synth.cancel(); return; }
+    playing = true;
+    playBtn.textContent = '■ Stop';
+    sfx.pop();
+    for (const { art, items } of panelEls) {
+      if (!playing) break;
+      art.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      art.classList.add('live');
+      await wait(650);
+      for (const { line, b, words } of items) {
+        if (!playing) break;
+        const speaker = art.querySelector(`.actor[data-who="${line.who}"]`);
+        if (speaker) jump(speaker);
+        b.classList.add('speaking');
+        await speak(germanOf(line), 'de', words);
+        b.classList.remove('speaking');
+        await wait(350);
+      }
+      art.classList.remove('live');
+    }
+    if (playing) { sfx.fanfare(); confetti(); buddy('happy', 'Ende! (the end!)'); addPoints(5); }
+    playing = false;
+    playBtn.textContent = '▶ Play the story';
+  });
+  return box;
 }
 
 // ---------- MORPH ----------
 let morphIdx = 0;
+function progress(i) { return `<div class="progress" aria-hidden="true"><i style="width:${(i / LINES.length) * 100}%"></i></div>`; }
 function renderMorph() {
   const line = LINES[morphIdx];
   const card = document.createElement('section');
   card.className = 'work';
   card.innerHTML = `
-    <div class="work-head"><span class="who ${line.who}">${NAMES[line.who]}</span><span class="step-count">Line ${morphIdx + 1} of ${LINES.length}</span></div>
+    <div class="work-head"><span class="who ${line.who}">${NAMES[line.who]}</span>${progress(morphIdx)}<span class="tip">${morphIdx + 1} / ${LINES.length}</span></div>
     ${svg(panelOfLine(morphIdx).art, 'thumb')}
     <p class="label">1 · What they mean</p>
     <p class="big-en">${line.en}</p>
     <p class="label">2 · Say it the German way, still in English</p>
     <p class="big-en" style="color: var(--muted)">“${bridgeOf(line)}”</p>
     <p class="label">3 · Tap each word to turn it German</p>`;
-  const row = document.createElement('div');
-  row.className = 'row';
-  const pop = document.createElement('p');
-  pop.className = 'code-pop';
-  pop.hidden = true;
-  const nav = document.createElement('div');
-  nav.className = 'row';
+  wireActors(card);
+  const row = Object.assign(document.createElement('div'), { className: 'row' });
+  const pop = Object.assign(document.createElement('p'), { className: 'code-pop', hidden: true });
+  const nav = Object.assign(document.createElement('div'), { className: 'row' });
   const hear = Object.assign(document.createElement('button'), { className: 'btn ghost', type: 'button', textContent: '🔊 Hear it', disabled: true });
-  hear.addEventListener('click', () => say(germanOf(line)));
   const next = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', disabled: true,
     textContent: morphIdx < LINES.length - 1 ? 'Next line →' : 'Now build it yourself →' });
-  next.addEventListener('click', () => {
-    if (morphIdx < LINES.length - 1) { morphIdx++; render(); } else { setMode('build'); }
-  });
+  next.addEventListener('click', () => { sfx.pop(); if (morphIdx < LINES.length - 1) { morphIdx++; render(); } else { setMode('build'); } });
   nav.append(hear, next);
 
+  const doneEls = [];
   let left = line.toks.filter(isWord).length;
   for (const t of line.toks) {
-    if (!isWord(t)) { const s = document.createElement('span'); s.className = 'punct'; s.textContent = t[0]; row.append(s); continue; }
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'tok todo';
-    b.textContent = t[0];
+    if (!isWord(t)) { row.append(Object.assign(document.createElement('span'), { className: 'punct', textContent: t[0] })); continue; }
+    const b = Object.assign(document.createElement('button'), { type: 'button', className: 'tok todo', textContent: t[0] });
+    doneEls.push(b);
     b.addEventListener('click', () => {
       if (b.classList.contains('done')) { openSheet(t); return; }
+      if (b.dataset.busy) return;
+      b.dataset.busy = '1';
       b.classList.remove('todo');
-      b.classList.add('done');
-      if (t[2]?.g) b.classList.add('g-' + t[2].g);
       morph(b, t[0], t[1], () => {
-        say(t[1]);
+        b.classList.add('done');
+        if (t[2]?.g) b.classList.add('g-' + t[2].g);
+        speak(t[1]);
+        addPoints(1, b);
         const fresh = unlock(t[2]?.code);
         if (t[2]?.code) {
           const r = RULES[t[2].code[0]];
           pop.hidden = false;
           pop.innerHTML = `${fresh ? '🎉 New code unlocked! ' : '🔑 '}<b>${r.from} → ${r.to}</b>: ${t[0].toLowerCase()} → ${t[1]}`;
-        } else if (t[2]?.note) {
-          pop.hidden = false;
-          pop.textContent = '💡 ' + t[2].note;
+          if (fresh) { sfx.fanfare(); addPoints(3); buddy('happy', `New code: ${RULES[fresh].from} → ${RULES[fresh].to}!`); burstAt(pop, 30, 1.2); }
+          else sfx.ding();
+        } else {
+          sfx.ding();
+          if (t[2]?.note) { pop.hidden = false; pop.textContent = '💡 ' + t[2].note; }
         }
-        if (--left === 0) { hear.disabled = false; next.disabled = false; setTimeout(() => say(germanOf(line)), 700); }
+        if (--left === 0) {
+          hear.disabled = false; next.disabled = false;
+          setTimeout(() => speak(germanOf(line), 'de', doneEls), 700);
+          buddy('happy', pick(['Super!', 'Toll! (great!)', 'Sehr gut! (very good!)']));
+        }
       });
     });
     row.append(b);
   }
+  hear.addEventListener('click', () => speak(germanOf(line), 'de', doneEls));
   card.append(row, pop, nav);
   return card;
 }
@@ -445,27 +731,37 @@ function morph(btn, from, to, done) {
   let i = 0;
   const timer = setInterval(() => {
     i++;
-    btn.innerHTML = '';
-    const n = document.createElement('span');
-    n.className = 'new';
-    n.textContent = to.slice(0, i);
-    btn.append(n, from.slice(i));
-    if (i >= steps) { clearInterval(timer); btn.textContent = to; done(); }
-  }, 90);
+    btn.textContent = '';
+    for (let k = 0; k < Math.min(i, to.length); k++) {
+      const n = document.createElement('span'); n.className = 'new'; n.textContent = to[k]; btn.append(n);
+    }
+    btn.append(from.slice(i));
+    sfx.tick();
+    if (i >= steps) { clearInterval(timer); setTimeout(() => { btn.textContent = to; done(); }, 120); }
+  }, 85);
 }
 
 // ---------- BUILD ----------
-let buildIdx = 0;
-let buildScore = 0;
+let buildIdx = 0, buildScore = 0;
+function moveTile(tile, target) {
+  const first = tile.getBoundingClientRect();
+  target.append(tile);
+  if (reduceMotion) return;
+  const last = tile.getBoundingClientRect();
+  tile.animate([{ transform: `translate(${first.left - last.left}px, ${first.top - last.top}px)` }, { transform: 'none' }],
+    { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+}
 function renderBuild() {
   const card = document.createElement('section');
   card.className = 'work';
   if (buildIdx >= LINES.length) {
-    card.innerHTML = `<div class="done-card"><p class="score">${buildScore} / ${LINES.length}</p>
-      <p>${buildScore === LINES.length ? 'Sehr gut! You built the whole comic in German.' : 'Gut gemacht! Try again and the lines will stick even better.'}</p></div>`;
-    const again = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', textContent: 'Build again' });
-    again.addEventListener('click', () => { buildIdx = 0; buildScore = 0; render(); });
+    const perfect = buildScore === LINES.length;
+    card.innerHTML = `<div class="done-card"><p class="final">${buildScore} / ${LINES.length}</p>
+      <p>${perfect ? 'Sehr gut! You built the whole comic in German.' : 'Gut gemacht! Build it again and the lines will stick even better.'}</p></div>`;
+    const again = Object.assign(document.createElement('button'), { className: 'btn big', type: 'button', textContent: 'Build again' });
+    again.addEventListener('click', () => { buildIdx = 0; buildScore = 0; sfx.pop(); render(); });
     card.querySelector('.done-card').append(again);
+    setTimeout(() => { sfx.fanfare(); confetti(); buddy(perfect ? 'happy' : 'normal', perfect ? 'Perfekt! 🥨' : 'Noch einmal! (once more!)'); }, 200);
     return card;
   }
   const line = LINES[buildIdx];
@@ -474,46 +770,52 @@ function renderBuild() {
   if (words.length > 1 && shuffled.every((s, k) => s.k === k)) shuffled.reverse();
 
   card.innerHTML = `
-    <div class="work-head"><span class="who ${line.who}">${NAMES[line.who]}</span><span class="step-count">Line ${buildIdx + 1} of ${LINES.length}</span></div>
+    <div class="work-head"><span class="who ${line.who}">${NAMES[line.who]}</span>${progress(buildIdx)}<span class="tip">${buildIdx + 1} / ${LINES.length}</span></div>
     ${svg(panelOfLine(buildIdx).art, 'thumb')}
     <p class="label">Say this in German</p>
     <p class="big-en">${line.en}</p>`;
-  const slot = document.createElement('div');
-  slot.className = 'slot';
-  const pool = document.createElement('div');
-  pool.className = 'row';
-  const fb = document.createElement('p');
-  fb.className = 'feedback';
-  const nav = document.createElement('div');
-  nav.className = 'row';
+  wireActors(card);
+  const slot = Object.assign(document.createElement('div'), { className: 'slot' });
+  const pool = Object.assign(document.createElement('div'), { className: 'row' });
+  const fb = Object.assign(document.createElement('p'), { className: 'feedback' });
+  const nav = Object.assign(document.createElement('div'), { className: 'row' });
   const hint = Object.assign(document.createElement('button'), { className: 'btn ghost', type: 'button', textContent: '💡 Bridge hint' });
-  hint.addEventListener('click', () => { fb.className = 'feedback'; fb.textContent = `German order: “${bridgeOf(line)}”`; });
+  hint.addEventListener('click', () => { sfx.tick(); fb.className = 'feedback'; fb.textContent = `German order: “${bridgeOf(line)}”`; });
   const check = Object.assign(document.createElement('button'), { className: 'btn', type: 'button', textContent: 'Check', disabled: true });
   nav.append(hint, check);
 
   for (const s of shuffled) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'tok';
-    b.textContent = s.w;
+    const b = Object.assign(document.createElement('button'), { type: 'button', className: 'tok', textContent: s.w });
     b.addEventListener('click', () => {
       if (check.dataset.finished) return;
-      (b.parentElement === pool ? slot : pool).append(b);
+      sfx.tick();
+      moveTile(b, b.parentElement === pool ? slot : pool);
       check.disabled = slot.children.length !== words.length;
     });
     pool.append(b);
   }
-  check.addEventListener('click', () => {
-    if (check.dataset.finished) { buildIdx++; render(); return; }
-    const got = [...slot.children].map((c) => c.textContent);
-    const ok = got.join(' ') === words.join(' ');
-    fb.className = 'feedback ' + (ok ? 'ok' : 'no');
-    fb.textContent = ok ? `Richtig! ${germanOf(line)}` : `Almost! It goes: ${germanOf(line)}`;
-    if (ok) { buildScore++; if (!built.includes(buildIdx)) { built.push(buildIdx); store('karl-built', built); } }
-    say(germanOf(line));
+  check.addEventListener('click', async () => {
+    if (check.dataset.finished) { sfx.pop(); buildIdx++; render(); return; }
+    const tiles = [...slot.children];
+    const ok = tiles.map((c) => c.textContent).join(' ') === words.join(' ');
     check.dataset.finished = '1';
     check.textContent = 'Next →';
     hint.hidden = true;
+    if (ok) {
+      buildScore++;
+      slot.classList.add('right');
+      fb.className = 'feedback ok'; fb.textContent = `Richtig! ${germanOf(line)}`;
+      sfx.ding(); addPoints(5, slot); burstAt(slot, 34, 1.2);
+      buddy('happy', pick(['Richtig! (right!)', 'Wunderbar!', 'Super gemacht!']));
+    } else {
+      tiles.forEach((t) => { t.classList.remove('shake-x'); void t.offsetWidth; t.classList.add('shake-x'); });
+      fb.className = 'feedback no'; fb.textContent = `Almost! It goes: ${germanOf(line)}`;
+      sfx.buzz();
+      buddy('shock', 'Fast! (almost!)');
+      await wait(500);
+      words.forEach((w) => { const t = tiles.find((x) => x.textContent === w && !x.dataset.placed); if (t) { t.dataset.placed = '1'; moveTile(t, slot); } });
+    }
+    speak(germanOf(line), 'de', [...slot.children]);
   });
   card.append(slot, pool, fb, nav);
   return card;
@@ -521,18 +823,19 @@ function renderBuild() {
 
 // ---------- modes ----------
 const INTROS = {
-  read: 'Read the comic. German is big, English is small. Tap any German word to hear it and see the English word it grew from. 🔑 marks a word with a secret code.',
-  morph: 'Make the German yourself. First see the English, then the same words in German order, then tap each word and watch it turn German.',
-  build: 'Now no help. Read the English and put the German words in order. Stuck? Use the bridge hint.',
+  read: 'Press play to watch the story, or read it yourself. German is big, English is small. Tap a word to hear it. Tap a person or Karl in a picture and they talk.',
+  morph: 'Make the German yourself. See the English, then the same words in German order, then tap each word and watch it turn German.',
+  build: 'Now without help. Read the English and put the German words in order.',
 };
 let mode = 'read';
 function setMode(m) {
   mode = m;
+  playing = false;
   document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === m)));
   render();
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 }
-document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => { sfx.pop(); setMode(b.dataset.mode); }));
 function render() {
   $('sheet').hidden = true;
   if (synth) synth.cancel();
@@ -541,6 +844,16 @@ function render() {
   main.textContent = '';
   main.append(mode === 'read' ? renderRead() : mode === 'morph' ? renderMorph() : renderBuild());
 }
+
+// Wave the title letters.
+(function waveTitle() {
+  const h = $('title'); const text = h.textContent; h.textContent = '';
+  [...text].forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.setProperty('--i', i); s.setAttribute('aria-hidden', 'true'); h.append(s); });
+})();
+
+$('points').textContent = points;
+renderSound();
 render();
 renderCodes();
+setTimeout(() => buddy('happy', 'Hallo! Tap me! 🐾'), 900);
 </script>
