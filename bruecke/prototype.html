@@ -1,0 +1,656 @@
+<title>Brücke Deutsch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: floating glass rail on the left (collapses to icons), one centred study surface; phone = bottom tab bar. Single dark look by choice. */
+:root{
+  color-scheme: dark;
+  --ink:#09080b;          /* page ground, faint violet bias */
+  --slab:#141317;         /* raised surfaces */
+  --slab-2:#1b1a1f;
+  --line:rgba(255,255,255,.07);
+  --line-2:rgba(255,255,255,.12);
+  --paper:#ece6dc;        /* warm cream text, from the moon card */
+  --mute:#8d8894;
+  --dim:#5c5862;
+  --violet:#b25cff;       /* the active-glow accent */
+  --violet-soft:rgba(178,92,255,.32);
+  --der:#8fb1ff; --die:#ff8faa; --das:#88dcb4;   /* gender colours, desaturated */
+  --ok:#88dcb4; --bad:#ff8faa; --warn:#f2c57c;
+  --f-ui:"Geist", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r-card:26px; --r-tile:22px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0;background:var(--ink);color:var(--paper);font-family:var(--f-ui);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(55% 45% at 78% -8%, rgba(255,255,255,.075), transparent 62%),
+    radial-gradient(40% 40% at 0% 30%, rgba(178,92,255,.05), transparent 70%);
+  background-attachment:fixed;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--violet);outline-offset:3px;border-radius:12px}
+svg.lucide{stroke-width:1.5;width:20px;height:20px;flex:none}
+
+.app{
+  min-height:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;
+  padding-left:max(20px, env(safe-area-inset-left,0px));padding-right:max(20px, env(safe-area-inset-right,0px));
+  padding-block:20px;
+}
+
+/* ---------- rail (ref 1) ---------- */
+.rail{
+  position:sticky;top:20px;align-self:start;width:76px;transition:width .35s cubic-bezier(.2,.7,.2,1);
+  background:linear-gradient(180deg,#17161a,#0f0e11);border:1px solid var(--line);border-radius:30px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 30px 60px -20px rgba(0,0,0,.7);
+  padding:18px 12px;display:flex;flex-direction:column;gap:6px;
+}
+.rail.open{width:236px}
+.brand{display:flex;align-items:center;gap:10px;height:40px;padding-left:14px;white-space:nowrap;overflow:hidden}
+.brand svg{width:24px;height:24px;flex:none}
+.brand b{font-weight:600;font-size:15px;letter-spacing:-.01em;opacity:0;transition:opacity .2s}
+.rail.open .brand b{opacity:1}
+.sep{height:1px;margin:10px 6px;background:linear-gradient(90deg,transparent,var(--line-2),transparent)}
+.nav{position:relative;display:flex;align-items:center;gap:14px;height:46px;padding:0 13px;border-radius:999px;
+  color:var(--mute);white-space:nowrap;overflow:hidden;border:1px solid transparent;transition:color .2s,background .2s,border-color .2s}
+.nav:hover{color:var(--paper);background:rgba(255,255,255,.03)}
+.nav .lbl{font-size:14px;font-weight:500;opacity:0;transition:opacity .2s}
+.rail.open .nav .lbl{opacity:1}
+.nav .badge{margin-left:auto;font:500 11px/1 var(--f-mono);padding:4px 7px;border-radius:999px;border:1px solid var(--line-2);color:var(--paper);opacity:0;transition:opacity .2s}
+.rail.open .nav .badge{opacity:1}
+.nav .pip{position:absolute;top:9px;left:31px;width:7px;height:7px;border-radius:50%;background:var(--violet);box-shadow:0 0 8px var(--violet);transition:opacity .2s}
+.rail.open .nav .pip{opacity:0}
+.nav.on{color:var(--paper);border-color:var(--line-2);
+  background:radial-gradient(130% 160% at 0% 50%, var(--violet-soft), transparent 58%), rgba(255,255,255,.025);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.nav.on::before{content:"";position:absolute;left:-12px;top:50%;width:3px;height:18px;margin-top:-9px;border-radius:3px;background:var(--violet);box-shadow:0 0 12px 2px var(--violet-soft)}
+.nav.on{overflow:visible}
+.nav.toggle.active{color:var(--paper)}
+.nav.toggle .state{margin-left:auto;font:500 10px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);opacity:0;transition:opacity .2s}
+.rail.open .nav.toggle .state{opacity:1}
+.nav.toggle.active .state{color:var(--violet)}
+.spacer{flex:1}
+
+/* ---------- main ---------- */
+.main{min-width:0;display:flex;flex-direction:column;gap:28px;padding-top:6px}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px}
+.top h1{margin:0;font-size:28px;font-weight:500;letter-spacing:-.025em;text-wrap:balance}
+.eyebrow{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--slab);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.seg button{height:30px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:500;color:var(--mute);display:inline-flex;align-items:center;gap:6px;transition:color .2s,background .2s}
+.seg button:hover{color:var(--paper)}
+.seg button.on{color:var(--paper);background:var(--slab-2);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 0 0 1px var(--line-2)}
+.seg svg.lucide{width:14px;height:14px}
+.chip-stat{height:38px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;background:var(--slab);border:1px solid var(--line);font:500 13px/1 var(--f-mono);color:var(--paper);font-variant-numeric:tabular-nums}
+.chip-stat svg.lucide{width:15px;height:15px;color:var(--warn)}
+.chip-stat span{color:var(--mute);font-family:var(--f-ui);font-weight:400}
+
+.view{display:flex;flex-direction:column;align-items:center;gap:22px}
+.stage{width:100%;max-width:660px;padding-top:44px;display:flex;flex-direction:column;gap:18px}
+
+/* ---------- card (ref 2) ---------- */
+.card{
+  position:relative;border-radius:var(--r-card);padding:72px 36px 32px;
+  background:linear-gradient(160deg,#1c1b20 0%,#141317 45%,#111013 100%);
+  border:1px solid var(--line);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 40px 80px -30px rgba(0,0,0,.85),0 2px 0 rgba(0,0,0,.4);
+  display:flex;flex-direction:column;gap:22px;
+}
+.tile{
+  position:absolute;top:-44px;left:28px;width:92px;height:92px;border-radius:var(--r-tile);display:grid;place-items:center;
+  background:linear-gradient(145deg,#25242a,#141317);border:1px solid var(--line);
+  box-shadow:0 22px 40px -10px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.09),inset 0 -3px 8px rgba(0,0,0,.45);
+}
+.tile svg.lucide{width:40px;height:40px;stroke-width:1.4;color:var(--paper);filter:drop-shadow(0 4px 10px rgba(236,230,220,.18))}
+.card-top{position:absolute;top:22px;right:24px;left:140px;display:flex;justify-content:flex-end;align-items:center;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line);font-size:13px;color:var(--paper)}
+.chip i{font-style:normal;color:var(--mute)}
+.boxes{display:flex;gap:4px}
+.boxes span{width:6px;height:6px;border-radius:2px;background:var(--line-2)}
+.boxes span.f{background:var(--violet);box-shadow:0 0 6px var(--violet-soft)}
+
+.head{display:flex;flex-direction:column;gap:14px;outline:none}
+.word{text-align:left;font-size:clamp(40px,7.4vw,62px);line-height:1.02;font-weight:500;letter-spacing:-.035em;display:inline-flex;align-items:baseline;gap:.28em;flex-wrap:wrap;width:fit-content}
+.word .art{font-weight:400}
+.word:hover .n{text-shadow:0 0 24px rgba(236,230,220,.18)}
+.a-der{color:var(--der)} .a-die{color:var(--die)} .a-das{color:var(--das)}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;font-size:15px}
+.meta .k{font:500 10.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.meta .v{display:flex;align-items:center;gap:8px;color:var(--paper);min-width:0}
+.meta .v.muted{color:var(--mute)}
+.pl-val{filter:blur(7px);opacity:.45;transition:filter .35s,opacity .35s;user-select:none}
+.head:hover .pl-val,.head:focus-within .pl-val,.head.show .pl-val{filter:none;opacity:1;user-select:auto}
+.pl-hint{font-size:12px;color:var(--dim);transition:opacity .25s}
+.head:hover .pl-hint,.head:focus-within .pl-hint,.head.show .pl-hint{opacity:0}
+.icon-btn{width:30px;height:30px;border-radius:10px;display:inline-grid;place-items:center;color:var(--mute);border:1px solid transparent;transition:all .2s;flex:none}
+.icon-btn:hover{color:var(--paper);border-color:var(--line-2);background:rgba(255,255,255,.03)}
+.icon-btn svg.lucide{width:16px;height:16px}
+.icon-btn.talking{color:var(--violet)}
+
+.hatch{position:relative;height:14px;border-radius:7px;border:1px solid var(--line);overflow:hidden;
+  background:repeating-linear-gradient(-45deg,rgba(255,255,255,.045) 0 2px,transparent 2px 7px)}
+.hatch span{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,rgba(178,92,255,.25),rgba(178,92,255,.6));box-shadow:0 0 14px var(--violet-soft);transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.hatch-row{display:flex;align-items:center;gap:12px}
+.hatch-row .hatch{flex:1}
+.hatch-row small{font:500 11px/1 var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.sent{display:flex;flex-direction:column;gap:12px}
+.sent .de{margin:0;font-size:19px;line-height:1.6;color:var(--paper);max-width:60ch;text-wrap:pretty}
+.sent .line{display:flex;gap:10px;align-items:flex-start}
+.sent .line .icon-btn{margin-top:2px}
+.hl{border-radius:4px;padding:0 2px;margin:0 -2px}
+.hl.sg{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:5px}
+.hl.sg.a-der{color:var(--der)} .hl.sg.a-die{color:var(--die)} .hl.sg.a-das{color:var(--das)}
+.hl.pl{color:var(--paper);text-decoration:underline dotted var(--violet);text-decoration-thickness:2px;text-underline-offset:5px}
+.en{margin:0;font-size:16px;line-height:1.6;color:var(--mute);max-width:62ch;transition:filter .4s,opacity .4s}
+.en.hidden{filter:blur(8px);opacity:.5;user-select:none}
+.en-label{font:500 10.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.ff{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:rgba(242,197,124,.06);border:1px solid rgba(242,197,124,.18);color:var(--paper);font-size:14px}
+.ff svg.lucide{color:var(--warn);width:18px;height:18px;margin-top:1px}
+
+.prompt-en{margin:0;font-size:clamp(22px,3.4vw,28px);line-height:1.35;font-weight:450;letter-spacing:-.015em;text-wrap:balance}
+.compose{width:100%;min-height:96px;resize:vertical;border-radius:16px;padding:14px 16px;background:rgba(0,0,0,.25);border:1px solid var(--line-2);color:var(--paper);font:400 17px/1.55 var(--f-ui);box-shadow:inset 0 2px 8px rgba(0,0,0,.35)}
+.compose::placeholder{color:var(--dim)}
+.compose:focus{outline:none;border-color:rgba(178,92,255,.55);box-shadow:inset 0 2px 8px rgba(0,0,0,.35),0 0 0 4px rgba(178,92,255,.12)}
+.diff .tok{transition:color .3s}
+.diff .hit{color:var(--paper)}
+.diff .miss{color:var(--bad);text-decoration:underline wavy rgba(255,143,170,.5);text-underline-offset:5px}
+.score{display:flex;align-items:center;gap:10px;font:500 12px/1 var(--f-mono);color:var(--mute)}
+.score b{color:var(--paper);font-size:20px;font-family:var(--f-ui);font-weight:500}
+.hint-row{display:flex;flex-wrap:wrap;gap:8px}
+
+/* actions */
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{height:50px;padding:0 20px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:500;
+  background:var(--slab);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:background .2s,border-color .2s,transform .1s}
+.btn:hover{background:var(--slab-2);border-color:var(--line-2)}
+.btn:active{transform:translateY(1px)}
+.btn.grow{flex:1}
+.btn.primary{border-color:rgba(178,92,255,.45);background:radial-gradient(120% 180% at 0% 50%, rgba(178,92,255,.28), transparent 60%), var(--slab-2)}
+.btn.primary:hover{border-color:rgba(178,92,255,.7)}
+.btn kbd{font:500 11px/1 var(--f-mono);padding:4px 6px;border-radius:6px;border:1px solid var(--line-2);color:var(--mute)}
+.btn.again svg.lucide{color:var(--bad)} .btn.got svg.lucide{color:var(--ok)}
+.keys{font:400 12px/1.6 var(--f-mono);color:var(--dim);text-align:center}
+.keys kbd{font:inherit;color:var(--mute);padding:1px 5px;border:1px solid var(--line);border-radius:5px}
+
+/* ---------- sprint ---------- */
+.sp-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;font:500 12px/1 var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nums}
+.sp-meta b{font:500 22px/1 var(--f-ui);color:var(--paper)}
+.sp-noun{font-size:clamp(44px,8vw,68px);font-weight:500;letter-spacing:-.035em;line-height:1.05}
+.sp-fb{min-height:26px;font-size:16px;color:var(--mute)}
+.sp-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sp-btns .btn{height:64px;font-size:20px;border-radius:18px}
+.sp-btns .btn kbd{margin-left:4px}
+.card.flash-ok{box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px rgba(136,220,180,.5),0 0 40px -6px rgba(136,220,180,.35)}
+.card.flash-bad{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.misses{display:flex;flex-wrap:wrap;gap:8px}
+.misses button{height:34px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px}
+.big-num{font-size:64px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.lede{color:var(--mute);margin:0;max-width:56ch}
+
+/* ---------- word bank ---------- */
+.bank{width:100%;max-width:1080px;display:flex;flex-direction:column;gap:18px}
+.bank-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{flex:1;min-width:200px;height:42px;display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:14px;background:var(--slab);border:1px solid var(--line)}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--paper);font:inherit;outline:none}
+.search svg.lucide{color:var(--mute);width:16px;height:16px}
+.dist{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.dist div{display:flex;flex-direction:column;gap:7px}
+.dist .bar{height:8px;border-radius:4px;background:repeating-linear-gradient(-45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 6px);border:1px solid var(--line);overflow:hidden;position:relative}
+.dist .bar span{position:absolute;inset:0 auto 0 0;background:var(--violet);opacity:.75}
+.dist small{font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between}
+.dist small b{color:var(--paper);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.wt{position:relative;text-align:left;padding:16px;border-radius:18px;background:linear-gradient(160deg,#18171c,#111013);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px;transition:border-color .2s,transform .2s}
+.wt:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.wt .ti{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#25242a,#151418);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.wt .ti svg.lucide{width:22px;height:22px}
+.wt .w{font-size:18px;font-weight:500;letter-spacing:-.015em;line-height:1.2}
+.wt .sub{position:relative;height:20px;font-size:13px;color:var(--mute)}
+.wt .sub span{position:absolute;inset:0;transition:opacity .25s,transform .25s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wt .sub .p{opacity:0;transform:translateY(6px);color:var(--paper)}
+.wt:hover .sub .g,.wt:focus-visible .sub .g{opacity:0;transform:translateY(-6px)}
+.wt:hover .sub .p,.wt:focus-visible .sub .p{opacity:1;transform:none}
+.wt .lv{position:absolute;top:16px;right:16px;font:500 10.5px/1 var(--f-mono);color:var(--dim);letter-spacing:.06em}
+.empty{padding:40px;text-align:center;color:var(--mute);border:1px dashed var(--line-2);border-radius:18px}
+
+/* ---------- bridges ---------- */
+.bridges{width:100%;max-width:1080px;display:flex;flex-direction:column;gap:22px}
+.bridges .intro{display:flex;flex-direction:column;gap:10px;max-width:64ch}
+.bridges .intro p{margin:0;color:var(--mute);font-size:16px}
+.bridges .intro p b{color:var(--paper);font-weight:500}
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.rule{padding:20px;border-radius:20px;background:linear-gradient(160deg,#18171c,#111013);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.rule h3{margin:0;font:500 22px/1 var(--f-mono);letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.rule h3 small{font:400 12px/1.3 var(--f-ui);color:var(--mute);letter-spacing:0}
+.rule ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rule li button{width:100%;display:grid;grid-template-columns:1fr auto 1fr auto;gap:10px;align-items:center;padding:7px 8px;margin:0 -8px;border-radius:10px;text-align:left;font-size:14.5px}
+.rule li button:hover{background:rgba(255,255,255,.03)}
+.rule li .e{color:var(--mute)} .rule li .d{color:var(--paper);font-weight:500}
+.rule li .arr{color:var(--dim);font-family:var(--f-mono);font-size:12px}
+.rule li svg.lucide{width:14px;height:14px;color:var(--dim)}
+.rule.warnr{border-color:rgba(242,197,124,.18);background:linear-gradient(160deg,rgba(242,197,124,.06),#111013 60%)}
+.rule.warnr h3{color:var(--warn)}
+
+.toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  padding:10px 16px;border-radius:12px;background:#1f1e23;border:1px solid var(--line-2);font-size:14px;transition:all .3s;z-index:50;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr);gap:0;padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:16px 110px}
+  .rail,.rail.open{position:fixed;top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:max(12px, env(safe-area-inset-left,0px));right:max(12px, env(safe-area-inset-right,0px));
+    width:auto;flex-direction:row;justify-content:space-around;padding:8px;border-radius:24px;z-index:20;backdrop-filter:blur(12px);background:rgba(20,19,23,.88)}
+  .brand,.sep,.spacer,.nav .lbl,.nav .badge,.nav.toggle .state,#collapseBtn{display:none}
+  .nav{width:46px;justify-content:center;padding:0}
+  .nav .pip{left:28px;opacity:1!important}
+  .nav.on::before{left:50%;top:-9px;width:18px;height:3px;margin:0 0 0 -9px}
+  .card{padding:64px 22px 24px}
+  .tile{width:76px;height:76px;left:20px;top:-38px}
+  .tile svg.lucide{width:34px;height:34px}
+  .card-top{left:110px;right:16px;top:18px}
+  .stage{padding-top:38px}
+  .sent .de{font-size:17px}
+  .top h1{font-size:24px}
+  .keys{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <aside class="rail" id="rail" aria-label="Main">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 17c3-6.5 6.6-9.5 10-9.5S19 10.5 22 17"/><path d="M2 17h20M7 17v-5.3M12 17V7.5M17 17v-5.3"/></svg>
+      <b>Brücke</b>
+    </div>
+    <div class="sep"></div>
+    <button class="nav on" data-view="cards" title="Cards"><i data-lucide="layers"></i><span class="lbl">Cards</span><span class="badge" id="dueBadge">0</span><span class="pip"></span></button>
+    <button class="nav" data-view="sprint" title="Article sprint"><i data-lucide="zap"></i><span class="lbl">Article sprint</span></button>
+    <div class="sep"></div>
+    <button class="nav" data-view="words" title="Word bank"><i data-lucide="library"></i><span class="lbl">Word bank</span></button>
+    <button class="nav" data-view="bridges" title="English bridges"><i data-lucide="route"></i><span class="lbl">English bridges</span></button>
+    <div class="sep"></div>
+    <div class="spacer"></div>
+    <button class="nav toggle" id="slowBtn" title="Slow audio"><i data-lucide="snail"></i><span class="lbl">Slow audio</span><span class="state" id="slowState">Off</span></button>
+    <button class="nav toggle" id="collapseBtn" title="Expand sidebar"><i data-lucide="panel-left"></i><span class="lbl">Collapse</span></button>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div>
+        <div class="eyebrow" id="eyebrow">Null → A2 · through English</div>
+        <h1 id="title">Cards</h1>
+      </div>
+      <div class="ctrls">
+        <div class="seg" id="modeSeg" role="group" aria-label="Direction">
+          <button data-mode="de" class="on">Deutsch <i data-lucide="arrow-right"></i> English</button>
+          <button data-mode="en">English <i data-lucide="arrow-right"></i> Deutsch</button>
+        </div>
+        <div class="seg" id="levelSeg" role="group" aria-label="Level">
+          <button data-level="all" class="on">All</button>
+          <button data-level="A1">A1</button>
+          <button data-level="A2">A2</button>
+        </div>
+        <div class="chip-stat" title="Cards reviewed today"><i data-lucide="flame"></i><b id="todayN">0</b><span>today</span></div>
+      </div>
+    </header>
+
+    <section class="view" id="view-cards"><div class="stage" id="cardStage"></div></section>
+    <section class="view" id="view-sprint" hidden><div class="stage" id="sprintStage"></div></section>
+    <section class="view" id="view-words" hidden><div class="bank" id="bank"></div></section>
+    <section class="view" id="view-bridges" hidden><div class="bridges" id="bridgesEl"></div></section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+/* ---------- data ----------
+   a article · w word · p plural (without article) · i icon · l level · c category
+   b English bridge · f false-friend note
+   s German sentence: [singular form] {plural form} · t English sentence */
+const WORDS = [
+ {a:"das",w:"Haus",p:"Häuser",i:"house",l:"A1",c:"Wohnen",b:"house · ou → au",s:"[Das Haus] meiner Eltern ist klein, aber alle {Häuser} in ihrer Straße haben einen großen Garten.",t:"My parents' house is small, but all the houses on their street have a big garden."},
+ {a:"der",w:"Apfel",p:"Äpfel",i:"apple",l:"A1",c:"Essen",b:"apple · p → pf",s:"Ich esse jeden Morgen [einen Apfel], und am Wochenende kaufe ich frische {Äpfel} auf dem Markt.",t:"I eat an apple every morning, and at the weekend I buy fresh apples at the market."},
+ {a:"das",w:"Buch",p:"Bücher",i:"book-open",l:"A1",c:"Alltag",b:"book · k → ch",s:"[Dieses Buch] ist spannend, deshalb leihe ich mir morgen noch zwei {Bücher} von der Autorin aus.",t:"This book is exciting, so tomorrow I'm borrowing two more books by the same author."},
+ {a:"der",w:"Hund",p:"Hunde",i:"dog",l:"A1",c:"Tiere",b:"hound · same root",s:"[Der Hund] meiner Nachbarin bellt jeden Abend, wenn andere {Hunde} am Haus vorbeilaufen.",t:"My neighbour's dog barks every evening when other dogs walk past the house."},
+ {a:"die",w:"Katze",p:"Katzen",i:"cat",l:"A1",c:"Tiere",b:"cat · t → tz",s:"[Die Katze] schläft auf dem Sofa, während die {Katzen} der Nachbarn draußen im Garten spielen.",t:"The cat sleeps on the sofa while the neighbours' cats play outside in the garden."},
+ {a:"der",w:"Tag",p:"Tage",i:"sun",l:"A1",c:"Zeit",b:"day · d → t, y → g",s:"Heute war [ein langer Tag], aber die nächsten {Tage} werden hoffentlich ruhiger.",t:"Today was a long day, but the next few days will hopefully be quieter."},
+ {a:"die",w:"Nacht",p:"Nächte",i:"moon",l:"A1",c:"Zeit",b:"night · -ght → -cht",s:"[Die erste Nacht] im Hotel war laut, doch die anderen {Nächte} waren wunderbar still.",t:"The first night at the hotel was loud, but the other nights were wonderfully quiet."},
+ {a:"das",w:"Schiff",p:"Schiffe",i:"ship",l:"A1",c:"Verkehr",b:"ship · sh → sch, p → ff",s:"Vom Hafen aus sehen wir [ein großes Schiff] und viele kleine {Schiffe}, die aufs Meer fahren.",t:"From the harbour we can see a big ship and lots of little ships heading out to sea."},
+ {a:"der",w:"Schuh",p:"Schuhe",i:"footprints",l:"A1",c:"Kleidung",b:"shoe · sh → sch",s:"[Ein Schuh] ist kaputt, also brauche ich für die Reise neue {Schuhe}.",t:"One shoe is broken, so I need new shoes for the trip."},
+ {a:"das",w:"Bett",p:"Betten",i:"bed",l:"A1",c:"Wohnen",b:"bed · d → t",s:"Im Hotelzimmer steht [ein großes Bett], aber die Kinder möchten lieber zwei kleine {Betten}.",t:"There's a big bed in the hotel room, but the children would rather have two small beds."},
+ {a:"die",w:"Tür",p:"Türen",i:"door-open",l:"A1",c:"Wohnen",b:"door · d → t",s:"Bitte schließ [die Tür], denn im Winter lassen wir alle {Türen} im Haus zu.",t:"Please close the door, because in winter we keep all the doors in the house shut."},
+ {a:"der",w:"Schlüssel",p:"Schlüssel",i:"key-round",l:"A1",c:"Wohnen",s:"Ich habe [meinen Schlüssel] verloren, zum Glück hat meine Schwester noch zwei {Schlüssel} für die Wohnung.",t:"I've lost my key; luckily my sister still has two keys to the flat."},
+ {a:"das",w:"Handy",p:"Handys",i:"smartphone",l:"A1",c:"Alltag",f:"Not “handy”. Das Handy is your mobile phone.",s:"[Mein Handy] ist leer, und im Zug laden alle ihre {Handys} gleichzeitig auf.",t:"My phone is dead, and on the train everyone charges their phones at the same time."},
+ {a:"die",w:"Uhr",p:"Uhren",i:"clock",l:"A1",c:"Zeit",b:"hour · same root",s:"[Die Uhr] in der Küche geht falsch, deshalb stellen wir heute alle {Uhren} neu.",t:"The kitchen clock is wrong, so today we're resetting all the clocks."},
+ {a:"der",w:"Zug",p:"Züge",i:"train-front",l:"A1",c:"Verkehr",b:"tug · t → z",s:"[Der Zug] nach Berlin hat Verspätung, aber die {Züge} nach München fahren pünktlich.",t:"The train to Berlin is delayed, but the trains to Munich are running on time."},
+ {a:"das",w:"Auto",p:"Autos",i:"car",l:"A1",c:"Verkehr",b:"auto · as in automobile",s:"[Unser Auto] steht in der Garage, weil vor dem Haus schon drei {Autos} parken.",t:"Our car is in the garage because three cars are already parked in front of the house."},
+ {a:"das",w:"Fahrrad",p:"Fahrräder",i:"bike",l:"A1",c:"Verkehr",s:"Ich fahre mit [dem Fahrrad] zur Arbeit, und vor dem Büro stehen jeden Tag viele {Fahrräder}.",t:"I ride my bike to work, and there are lots of bikes outside the office every day."},
+ {a:"der",w:"Bus",p:"Busse",i:"bus",l:"A1",c:"Verkehr",b:"bus · identical",s:"[Der Bus] kommt alle zehn Minuten, am Sonntag fahren aber nur wenige {Busse}.",t:"The bus comes every ten minutes, but on Sundays only a few buses run."},
+ {a:"das",w:"Flugzeug",p:"Flugzeuge",i:"plane",l:"A1",c:"Verkehr",b:"flight-thing · Flug + Zeug",s:"[Das Flugzeug] landet gleich, und am Flughafen warten schon viele andere {Flugzeuge}.",t:"The plane is about to land, and lots of other planes are already waiting at the airport."},
+ {a:"der",w:"Baum",p:"Bäume",i:"trees",l:"A1",c:"Natur",b:"beam · same root",s:"Im Garten steht [ein alter Baum], und im Park daneben wachsen hunderte {Bäume}.",t:"There's an old tree in the garden, and hundreds of trees grow in the park next door."},
+ {a:"die",w:"Blume",p:"Blumen",i:"flower",l:"A1",c:"Natur",b:"bloom · same root",s:"[Diese Blume] ist für dich, die anderen {Blumen} bringe ich meiner Oma.",t:"This flower is for you; I'm taking the other flowers to my grandma."},
+ {a:"der",w:"Fisch",p:"Fische",i:"fish",l:"A1",c:"Tiere",b:"fish · sh → sch",s:"Mein Sohn hat heute [einen Fisch] gefangen, aber im See gibt es noch viele größere {Fische}.",t:"My son caught a fish today, but there are lots of bigger fish in the lake."},
+ {a:"das",w:"Brot",p:"Brote",i:"wheat",l:"A1",c:"Essen",b:"bread · d → t",s:"Ich kaufe [ein Brot] beim Bäcker, und für das Picknick mache ich noch vier {Brote} mit Käse.",t:"I buy a loaf of bread at the bakery, and for the picnic I'm also making four cheese sandwiches."},
+ {a:"das",w:"Ei",p:"Eier",i:"egg",l:"A1",c:"Essen",s:"Zum Frühstück esse ich [ein Ei], aber für den Kuchen brauche ich sechs {Eier}.",t:"I have one egg for breakfast, but I need six eggs for the cake."},
+ {a:"die",w:"Tasse",p:"Tassen",i:"coffee",l:"A1",c:"Essen",s:"Möchtest du [eine Tasse] Kaffee? Die sauberen {Tassen} stehen oben im Schrank.",t:"Would you like a cup of coffee? The clean cups are up in the cupboard."},
+ {a:"das",w:"Glas",p:"Gläser",i:"glass-water",l:"A1",c:"Essen",b:"glass · identical root",s:"Ich trinke [ein Glas] Wasser, dann stelle ich die leeren {Gläser} in die Spülmaschine.",t:"I drink a glass of water, then I put the empty glasses in the dishwasher."},
+ {a:"der",w:"Kuchen",p:"Kuchen",i:"cake-slice",l:"A1",c:"Essen",b:"cake · k → ch",s:"[Der Kuchen] ist fast fertig, und für die Party backen wir morgen noch zwei {Kuchen}.",t:"The cake is almost done, and we're baking two more cakes for the party tomorrow."},
+ {a:"die",w:"Brille",p:"Brillen",i:"glasses",l:"A2",c:"Alltag",s:"Ohne [meine Brille] sehe ich nichts, deshalb habe ich zu Hause immer zwei {Brillen}.",t:"I can't see anything without my glasses, so I always keep two pairs at home."},
+ {a:"das",w:"Hemd",p:"Hemden",i:"shirt",l:"A1",c:"Kleidung",s:"Für das Interview trage ich [ein weißes Hemd], die bunten {Hemden} bleiben im Schrank.",t:"I'm wearing a white shirt to the interview; the colourful shirts stay in the wardrobe."},
+ {a:"der",w:"Regenschirm",p:"Regenschirme",i:"umbrella",l:"A2",c:"Alltag",b:"rain-screen · Regen + Schirm",s:"Nimm [deinen Regenschirm] mit, im Büro haben wir nämlich keine {Regenschirme} mehr.",t:"Take your umbrella, because we don't have any umbrellas left at the office."},
+ {a:"die",w:"Schule",p:"Schulen",i:"school",l:"A1",c:"Schule",b:"school · sk → sch",s:"Meine Tochter geht gern in [die Schule], und in unserer Stadt gibt es drei gute {Schulen}.",t:"My daughter likes going to school, and there are three good schools in our town."},
+ {a:"der",w:"Brief",p:"Briefe",i:"mail",l:"A1",c:"Alltag",b:"brief · a short note",s:"Heute kam [ein Brief] von meiner Freundin, ich bewahre alle ihre {Briefe} in einer Kiste auf.",t:"A letter came from my friend today; I keep all her letters in a box."},
+ {a:"das",w:"Lied",p:"Lieder",i:"music",l:"A1",c:"Freizeit",s:"[Dieses Lied] höre ich jeden Tag, aber die alten {Lieder} der Band mag ich noch lieber.",t:"I listen to this song every day, but I like the band's old songs even more."},
+ {a:"die",w:"Hand",p:"Hände",i:"hand",l:"A1",c:"Körper",b:"hand · identical",s:"Gib mir [deine Hand], und vor dem Essen waschen wir uns alle die {Hände}.",t:"Give me your hand, and we all wash our hands before eating."},
+ {a:"das",w:"Auge",p:"Augen",i:"eye",l:"A1",c:"Körper",s:"[Mein linkes Auge] tut weh, darum mache ich am Abend die {Augen} früh zu.",t:"My left eye hurts, so I close my eyes early in the evening."},
+ {a:"der",w:"Stuhl",p:"Stühle",i:"armchair",l:"A1",c:"Wohnen",b:"stool · same root",s:"[Ein Stuhl] fehlt noch am Tisch, also holen wir zwei {Stühle} aus der Küche.",t:"There's still a chair missing at the table, so we're getting two chairs from the kitchen."},
+ {a:"der",w:"Computer",p:"Computer",i:"laptop",l:"A1",c:"Arbeit",b:"computer · identical",s:"[Mein Computer] ist zu langsam, im Büro bekommen wir nächsten Monat neue {Computer}.",t:"My computer is too slow; we're getting new computers at the office next month."},
+ {a:"die",w:"Karte",p:"Karten",i:"ticket",l:"A1",c:"Freizeit",b:"card · d → t",s:"Ich habe nur [eine Karte] für das Konzert, aber meine Freunde brauchen noch drei {Karten}.",t:"I've only got one ticket for the concert, but my friends still need three tickets."},
+ {a:"der",w:"Berg",p:"Berge",i:"mountain",l:"A1",c:"Natur",b:"ice-berg · Berg = mountain",s:"[Dieser Berg] ist nicht sehr hoch, aber von oben sieht man die {Berge} in Österreich.",t:"This mountain isn't very high, but from the top you can see the mountains in Austria."},
+ {a:"das",w:"Geschenk",p:"Geschenke",i:"gift",l:"A1",c:"Freizeit",f:"Careful: das Gift means poison, not gift.",s:"[Das Geschenk] für Papa ist schon verpackt, die anderen {Geschenke} kaufe ich am Freitag.",t:"Dad's present is already wrapped; I'm buying the other presents on Friday."},
+ {a:"die",w:"Lampe",p:"Lampen",i:"lamp",l:"A1",c:"Wohnen",b:"lamp · identical",s:"[Die Lampe] über dem Tisch ist kaputt, also kaufen wir neue {Lampen} für das Wohnzimmer.",t:"The lamp above the table is broken, so we're buying new lamps for the living room."},
+ {a:"das",w:"Sofa",p:"Sofas",i:"sofa",l:"A1",c:"Wohnen",b:"sofa · identical",s:"[Das Sofa] ist sehr bequem, aber im Möbelhaus gibt es noch schönere {Sofas}.",t:"The sofa is very comfortable, but there are even nicer sofas at the furniture store."},
+ {a:"der",w:"Fernseher",p:"Fernseher",i:"tv",l:"A2",c:"Wohnen",b:"far-seer · fern + sehen",s:"[Der Fernseher] im Wohnzimmer ist neu, die alten {Fernseher} bringen wir zum Recycling.",t:"The TV in the living room is new; we're taking the old TVs to be recycled."},
+ {a:"die",w:"Banane",p:"Bananen",i:"banana",l:"A1",c:"Essen",b:"banana · add -e",s:"Ich nehme [eine Banane] mit zur Arbeit, die restlichen {Bananen} sind für die Kinder.",t:"I'm taking a banana to work; the rest of the bananas are for the kids."},
+ {a:"die",w:"Karotte",p:"Karotten",i:"carrot",l:"A1",c:"Essen",b:"carrot · add -e",s:"Das Kaninchen frisst [eine Karotte], und im Kühlschrank liegen noch viele {Karotten}.",t:"The rabbit is eating a carrot, and there are lots more carrots in the fridge."},
+ {a:"der",w:"Vogel",p:"Vögel",i:"bird",l:"A1",c:"Tiere",b:"fowl · same root",s:"[Ein kleiner Vogel] sitzt auf dem Balkon, und am Morgen singen alle {Vögel} im Park.",t:"A little bird is sitting on the balcony, and in the morning all the birds in the park sing."},
+ {a:"die",w:"Kamera",p:"Kameras",i:"camera",l:"A1",c:"Freizeit",b:"camera · c → k",s:"[Meine Kamera] ist ziemlich alt, aber die neuen {Kameras} sind mir zu teuer.",t:"My camera is quite old, but the new cameras are too expensive for me."},
+ {a:"der",w:"Stift",p:"Stifte",i:"pen",l:"A1",c:"Schule",s:"Hast du [einen Stift] für mich? Meine {Stifte} liegen alle noch zu Hause.",t:"Do you have a pen for me? My pens are all still at home."},
+ {a:"die",w:"Zeitung",p:"Zeitungen",i:"newspaper",l:"A1",c:"Alltag",b:"tidings · t → z",s:"Mein Opa liest jeden Morgen [die Zeitung], am Sonntag kauft er sogar zwei {Zeitungen}.",t:"My grandpa reads the newspaper every morning; on Sundays he even buys two newspapers."},
+ {a:"das",w:"Zimmer",p:"Zimmer",i:"door-closed",l:"A1",c:"Wohnen",b:"timber · t → z",s:"[Mein Zimmer] ist ziemlich klein, aber die Wohnung hat insgesamt vier {Zimmer}.",t:"My room is quite small, but the flat has four rooms in total."},
+ {a:"die",w:"Wohnung",p:"Wohnungen",i:"building-2",l:"A1",c:"Wohnen",s:"[Unsere Wohnung] liegt im dritten Stock, und im ganzen Haus gibt es zwölf {Wohnungen}.",t:"Our flat is on the third floor, and there are twelve flats in the whole building."},
+ {a:"der",w:"Arzt",p:"Ärzte",i:"stethoscope",l:"A1",c:"Gesundheit",s:"[Mein Arzt] ist im Urlaub, deshalb sind die anderen {Ärzte} in der Praxis sehr beschäftigt.",t:"My doctor is on holiday, so the other doctors at the practice are very busy."},
+ {a:"die",w:"Rechnung",p:"Rechnungen",i:"receipt",l:"A2",c:"Alltag",b:"reckoning · k → ch",s:"[Die Rechnung] für den Strom ist hoch, und am Monatsende kommen noch mehr {Rechnungen}.",t:"The electricity bill is high, and more bills arrive at the end of the month."},
+ {a:"der",w:"Termin",p:"Termine",i:"calendar",l:"A2",c:"Arbeit",b:"term · a fixed date",s:"Ich habe morgen [einen Termin] beim Zahnarzt, und am Freitag habe ich drei {Termine} hintereinander.",t:"I've got a dentist appointment tomorrow, and on Friday I have three appointments in a row."},
+ {a:"die",w:"Erfahrung",p:"Erfahrungen",i:"lightbulb",l:"A2",c:"Arbeit",s:"Das Praktikum war [eine gute Erfahrung], und im Ausland habe ich noch viele neue {Erfahrungen} gesammelt.",t:"The internship was a good experience, and abroad I gained lots of new experiences."},
+ {a:"das",w:"Gehalt",p:"Gehälter",i:"wallet",l:"A2",c:"Arbeit",s:"[Mein Gehalt] kommt am Ende des Monats, aber die {Gehälter} in dieser Branche sind leider niedrig.",t:"My salary comes at the end of the month, but salaries in this industry are unfortunately low."},
+ {a:"die",w:"Reise",p:"Reisen",i:"compass",l:"A1",c:"Reisen",s:"[Die Reise] nach Spanien war wunderschön, und nächstes Jahr planen wir zwei kurze {Reisen}.",t:"The trip to Spain was beautiful, and next year we're planning two short trips."},
+ {a:"der",w:"Koffer",p:"Koffer",i:"luggage",l:"A2",c:"Reisen",b:"coffer · same root",s:"[Mein Koffer] ist schon gepackt, aber die {Koffer} der Kinder stehen noch leer im Flur.",t:"My suitcase is already packed, but the children's suitcases are still empty in the hallway."},
+ {a:"die",w:"Prüfung",p:"Prüfungen",i:"clipboard-check",l:"A2",c:"Schule",b:"proof · to test",s:"[Die Prüfung] am Montag war schwer, aber die nächsten {Prüfungen} sind zum Glück mündlich.",t:"Monday's exam was hard, but luckily the next exams are oral."},
+ {a:"der",w:"Nachbar",p:"Nachbarn",i:"users",l:"A2",c:"Alltag",b:"neighbour · same root",s:"[Unser Nachbar] hilft uns oft, und auch die anderen {Nachbarn} im Haus sind sehr freundlich.",t:"Our neighbour often helps us, and the other neighbours in the building are very friendly too."}
+];
+WORDS.forEach((w,i)=>w.id=i);
+
+const RULES = [
+ {r:"t → z · ss",n:"The hard t softens",x:[["ten","zehn"],["tongue","Zunge"],["water","Wasser"],["eat","essen"],["white","weiß"],["salt","Salz"]]},
+ {r:"p → f · pf",n:"Lips stay open",x:[["ship","Schiff"],["sleep","schlafen"],["apple","Apfel"],["pepper","Pfeffer"],["help","helfen"],["open","offen"]]},
+ {r:"d → t",n:"Voice drops away",x:[["day","Tag"],["door","Tür"],["drink","trinken"],["bed","Bett"],["red","rot"],["garden","Garten"]]},
+ {r:"th → d",n:"German lost the th",x:[["thing","Ding"],["three","drei"],["thank","danken"],["think","denken"],["bath","Bad"],["thick","dick"]]},
+ {r:"k → ch",n:"Back of the throat",x:[["make","machen"],["book","Buch"],["week","Woche"],["cook","kochen"],["milk","Milch"],["break","brechen"]]},
+ {r:"-ght → -cht",n:"Spelled the way it sounds",x:[["night","Nacht"],["light","Licht"],["right","recht"],["eight","acht"],["daughter","Tochter"],["might","Macht"]]},
+ {r:"v · f → b",n:"Between vowels",x:[["have","haben"],["give","geben"],["live","leben"],["love","lieben"],["seven","sieben"],["over","über"]]},
+ {r:"y → g",n:"English softened the g",x:[["day","Tag"],["way","Weg"],["yesterday","gestern"],["yellow","gelb"],["say","sagen"],["lay","legen"]]},
+ {r:"sh → sch",n:"Same sound, longer spelling",x:[["ship","Schiff"],["shoe","Schuh"],["fish","Fisch"],["shine","scheinen"],["wash","waschen"],["English","Englisch"]]},
+];
+const FALSE = [["Gift","poison"],["Handy","mobile phone"],["bekommen","to get"],["Rat","advice"],["also","so / therefore"],["Chef","boss"],["fast","almost"],["Kind","child"]];
+
+/* ---------- state ---------- */
+const KEY="bruecke.v1";
+const S={view:"cards",mode:"de",level:"all",queue:[],idx:0,revealed:false,checked:false,hint:false,draft:"",slow:false,open:false,prog:{},today:{d:"",n:0},best:0,q:"",art:"all"};
+try{const saved=JSON.parse(localStorage.getItem(KEY)||"{}");["prog","today","best","slow","open","mode","level"].forEach(k=>{if(saved[k]!==undefined)S[k]=saved[k]});}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({prog:S.prog,today:S.today,best:S.best,slow:S.slow,open:S.open,mode:S.mode,level:S.level}))}catch(e){}}
+const todayKey=()=>new Date().toISOString().slice(0,10);
+if(S.today.d!==todayKey())S.today={d:todayKey(),n:0};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const box=w=>S.prog[w.id]||0;
+const pool=()=>WORDS.filter(w=>S.level==="all"||w.l===S.level);
+const plain=s=>s.replace(/[\[\]{}]/g,"");
+function icons(){if(window.lucide)lucide.createIcons({attrs:{"stroke-width":1.5}});}
+let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),2200);}
+
+/* ---------- audio ---------- */
+let deVoice=null;
+function pickVoice(){if(!("speechSynthesis" in window))return;const v=speechSynthesis.getVoices();deVoice=v.find(x=>/^de[-_]DE/i.test(x.lang)&&/google|natural|premium|enhanced/i.test(x.name))||v.find(x=>/^de[-_]DE/i.test(x.lang))||v.find(x=>/^de/i.test(x.lang))||null;}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(text,btn){
+  if(!("speechSynthesis" in window)){toast("This browser can't play speech. Try Chrome, Edge or Safari.");return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";if(deVoice)u.voice=deVoice;u.rate=S.slow?.68:.95;
+  if(btn){btn.classList.add("talking");u.onend=u.onerror=()=>btn.classList.remove("talking");}
+  speechSynthesis.speak(u);
+}
+
+/* ---------- queue (Leitner-style) ---------- */
+function buildQueue(){
+  const list=pool().slice().sort((a,b)=>box(a)-box(b)||Math.random()-.5);
+  S.queue=list.map(w=>w.id);S.idx=0;resetCard();
+}
+function resetCard(){S.revealed=false;S.checked=false;S.hint=false;S.draft="";}
+const cur=()=>WORDS[S.queue[S.idx]];
+function grade(ok){
+  const w=cur();if(!w)return;
+  S.prog[w.id]=ok?Math.min(box(w)+1,4):0;
+  S.today.n++;
+  if(!ok){S.queue.splice(Math.min(S.idx+4,S.queue.length),0,w.id);}
+  S.idx++;
+  if(S.idx>=S.queue.length){buildQueue();toast("Round complete. Shuffled a fresh deck.");}
+  resetCard();save();renderStats();renderCard();
+}
+
+/* ---------- sentence helpers ---------- */
+function markup(w){
+  return esc(w.s).replace(/\[([^\]]+)\]/g,`<span class="hl sg a-${w.a}">$1</span>`).replace(/\{([^}]+)\}/g,`<span class="hl pl">$1</span>`);
+}
+const norm=t=>t.toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]/g,"");
+function diff(target,input){
+  const T=target.split(/\s+/).filter(Boolean),tn=T.map(norm);
+  const U=input.split(/\s+/).map(norm).filter(Boolean);
+  const m=tn.length,n=U.length,L=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)L[i][j]=tn[i]&&tn[i]===U[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const hit=new Array(m).fill(false);let i=0,j=0;
+  while(i<m&&j<n){if(tn[i]&&tn[i]===U[j]){hit[i]=true;i++;j++;}else if(L[i+1][j]>=L[i][j+1])i++;else j++;}
+  return {html:T.map((t,k)=>`<span class="tok ${hit[k]?"hit":"miss"}">${esc(t)}</span>`).join(" "),hits:hit.filter(Boolean).length,total:m};
+}
+function boxesHTML(w){const b=box(w);return `<span class="boxes" title="Memory box ${b+1} of 5">${[0,1,2,3,4].map(k=>`<span class="${k<=b&&b>0?"f":""}"></span>`).join("")}</span>`;}
+
+/* ---------- render: cards ---------- */
+function renderCard(){
+  const el=$("#cardStage");const w=cur();
+  if(!w){el.innerHTML=`<div class="empty">No words at this level yet.</div>`;return;}
+  const pct=Math.round(S.idx/S.queue.length*100);
+  const prog=`<div class="hatch-row"><div class="hatch"><span style="width:${pct}%"></span></div><small>${S.idx+1} / ${S.queue.length}</small></div>`;
+  const top=`<div class="tile"><i data-lucide="${w.i}"></i></div><div class="card-top">${boxesHTML(w)}<span class="chip">${esc(w.c)} <i>· ${w.l}</i></span></div>`;
+  const ff=w.f?`<div class="ff"><i data-lucide="triangle-alert"></i><span>${esc(w.f)}</span></div>`:"";
+  let body,actions;
+  if(S.mode==="de"){
+    body=`
+      <div class="head" id="head" tabindex="0" aria-label="Hover or focus to see the plural">
+        <button class="word" id="sayWord" title="Listen (L)"><span class="art a-${w.a}">${w.a}</span><span class="n">${esc(w.w)}</span></button>
+        <div class="meta">
+          <span class="k">Plural</span>
+          <span class="v"><span class="pl-val"><span class="a-die">die</span> ${esc(w.p)}</span><button class="icon-btn" id="sayPl" title="Listen to the plural (P)"><i data-lucide="volume-2"></i></button><span class="pl-hint">hover the word</span></span>
+          <span class="k">Bridge</span>
+          <span class="v ${w.b?"":"muted"}">${w.b?"≈ "+esc(w.b):"No English twin. Let the sentence carry it."}</span>
+        </div>
+      </div>
+      ${prog}
+      <div class="sent">
+        <div class="line"><p class="de">${markup(w)}</p><button class="icon-btn" id="saySent" title="Listen to the sentence (S)"><i data-lucide="volume-2"></i></button></div>
+        <span class="en-label">In English</span>
+        <p class="en ${S.revealed?"":"hidden"}" id="enLine">${esc(w.t)}</p>
+      </div>${ff}`;
+    actions=S.revealed
+      ?`<button class="btn grow again" data-g="0"><i data-lucide="rotate-ccw"></i>Again <kbd>1</kbd></button><button class="btn grow got primary" data-g="1"><i data-lucide="check"></i>Got it <kbd>2</kbd></button>`
+      :`<button class="btn grow primary" id="revealBtn"><i data-lucide="eye"></i>Reveal the English <kbd>Space</kbd></button>`;
+  }else{
+    const hint=S.hint?`<div class="hint-row"><span class="chip"><span class="a-${w.a}">${w.a}</span>&nbsp;${esc(w.w)}</span><span class="chip"><span class="a-die">die</span>&nbsp;${esc(w.p)}</span></div>`:"";
+    const res=S.checked?(()=>{const d=diff(plain(w.s),S.draft);return `
+      <div class="score"><b>${d.hits}/${d.total}</b> words in the right order</div>
+      <div class="line" style="display:flex;gap:10px"><p class="de diff" style="margin:0;font-size:19px;line-height:1.6">${d.html}</p><button class="icon-btn" id="saySent" title="Listen (S)"><i data-lucide="volume-2"></i></button></div>
+      <p class="de" style="margin:0;font-size:15px;color:var(--mute)">${markup(w)}</p>`;})():"";
+    body=`
+      <span class="en-label">Say it in German</span>
+      <p class="prompt-en">${esc(w.t)}</p>
+      ${prog}${hint}
+      <textarea class="compose" id="compose" placeholder="Schreib den Satz auf Deutsch …  (Enter to check)" ${S.checked?"readonly":""}>${esc(S.draft)}</textarea>
+      ${res}${S.checked?ff:""}`;
+    actions=S.checked
+      ?`<button class="btn grow again" data-g="0"><i data-lucide="rotate-ccw"></i>Again <kbd>1</kbd></button><button class="btn grow got primary" data-g="1"><i data-lucide="check"></i>Got it <kbd>2</kbd></button>`
+      :`<button class="btn" id="hintBtn"><i data-lucide="key-round"></i>Hint</button><button class="btn grow primary" id="checkBtn"><i data-lucide="check"></i>Check <kbd>Enter</kbd></button>`;
+  }
+  el.innerHTML=`<article class="card" id="card">${top}${body}</article><div class="actions">${actions}</div>
+    <div class="keys">${S.mode==="de"?"<kbd>L</kbd> word · <kbd>P</kbd> plural · <kbd>S</kbd> sentence · <kbd>Space</kbd> reveal · <kbd>1</kbd>/<kbd>2</kbd> grade":"<kbd>Enter</kbd> check · <kbd>Shift</kbd>+<kbd>Enter</kbd> new line · <kbd>1</kbd>/<kbd>2</kbd> grade"}</div>`;
+  icons();
+  const on=(id,fn)=>{const b=document.getElementById(id);if(b)b.onclick=fn;};
+  on("sayWord",e=>{say(`${w.a} ${w.w}`);$("#head").classList.toggle("show");});
+  on("sayPl",e=>say(`die ${w.p}`,e.currentTarget));
+  on("saySent",e=>say(plain(w.s),e.currentTarget));
+  on("revealBtn",reveal);
+  on("hintBtn",()=>{S.hint=true;S.draft=$("#compose").value;renderCard();$("#compose").focus();});
+  on("checkBtn",check);
+  el.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>grade(b.dataset.g==="1"));
+  const c=$("#compose");
+  if(c){c.oninput=()=>S.draft=c.value;c.onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();if(!S.checked)check();}};}
+}
+function reveal(){if(S.revealed)return;S.revealed=true;renderCard();}
+function check(){const c=$("#compose");S.draft=c?c.value:"";if(!S.draft.trim()){toast("Type your German sentence first, or take a hint.");return;}S.checked=true;renderCard();say(plain(cur().s));}
+
+/* ---------- render: sprint ---------- */
+const SP={state:"idle",t:0,score:0,n:0,word:null,miss:[],timer:null,lock:false};
+const SPRINT_SECONDS=45;
+function renderSprint(){
+  const el=$("#sprintStage");
+  if(SP.state==="idle"||SP.state==="done"){
+    const done=SP.state==="done";
+    el.innerHTML=`<article class="card"><div class="tile"><i data-lucide="${done?"flame":"zap"}"></i></div>
+      ${done?`<div class="big-num">${SP.score}<span style="font-size:22px;color:var(--mute);letter-spacing:0"> / ${SP.n}</span></div>
+        <p class="lede">${SP.score>=S.best&&SP.score>0?"New best. ":""}Best so far: ${S.best}. ${SP.miss.length?"Tap a miss to hear it with its article.":"No misses. Sauber."}</p>
+        ${SP.miss.length?`<div class="misses">${SP.miss.map(w=>`<button data-say="${w.a} ${esc(w.w)}"><span class="a-${w.a}">${w.a}</span> ${esc(w.w)}</button>`).join("")}</div>`:""}`
+      :`<h2 style="margin:0;font-size:30px;font-weight:500;letter-spacing:-.025em">der, die or das?</h2>
+        <p class="lede">${SPRINT_SECONDS} seconds. A noun appears, you pick its article. Keys 1, 2, 3 work too. Colour memory does the rest: blue der, rose die, green das.</p>
+        <div class="sp-meta"><span>Best <b>${S.best}</b></span><span>${pool().length} nouns in play</span></div>`}
+      </article><div class="actions"><button class="btn grow primary" id="spStart"><i data-lucide="${done?"rotate-ccw":"zap"}"></i>${done?"Run it again":"Start sprint"}</button></div>`;
+    icons();
+    $("#spStart").onclick=startSprint;
+    el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>say(b.dataset.say));
+    return;
+  }
+  const w=SP.word;
+  el.innerHTML=`<article class="card" id="spCard"><div class="tile"><i data-lucide="${w.i}"></i></div>
+     <div class="sp-meta"><span>Score <b id="spScore">${SP.score}</b></span><span id="spTime">${Math.ceil(SP.t)}s</span></div>
+     <div class="hatch"><span id="spBar" style="width:${SP.t/SPRINT_SECONDS*100}%"></span></div>
+     <div class="sp-noun">${esc(w.w)}</div><div class="sp-fb" id="spFb">&nbsp;</div></article>
+     <div class="sp-btns">${["der","die","das"].map((a,k)=>`<button class="btn" data-a="${a}"><span class="a-${a}">${a}</span><kbd>${k+1}</kbd></button>`).join("")}</div>`;
+  icons();
+  el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(b.dataset.a));
+}
+function nextSprintWord(){const p=pool();let w;do{w=p[Math.floor(Math.random()*p.length)];}while(p.length>1&&SP.word&&w.id===SP.word.id);SP.word=w;}
+function startSprint(){
+  clearInterval(SP.timer);Object.assign(SP,{state:"run",t:SPRINT_SECONDS,score:0,n:0,miss:[],lock:false,word:null});nextSprintWord();renderSprint();
+  SP.timer=setInterval(()=>{SP.t-=.1;const b=$("#spBar"),t=$("#spTime");if(b)b.style.width=Math.max(0,SP.t/SPRINT_SECONDS*100)+"%";if(t)t.textContent=Math.max(0,Math.ceil(SP.t))+"s";
+    if(SP.t<=0){clearInterval(SP.timer);SP.state="done";if(SP.score>S.best){S.best=SP.score;save();}renderSprint();}},100);
+}
+function answer(a){
+  if(SP.state!=="run"||SP.lock)return;const w=SP.word;SP.n++;SP.lock=true;
+  const card=$("#spCard"),fb=$("#spFb");
+  if(a===w.a){SP.score++;card.classList.add("flash-ok");fb.innerHTML=`<span class="a-${w.a}">${w.a}</span> ${esc(w.w)} · <span style="color:var(--mute)">die ${esc(w.p)}</span>`;}
+  else{if(!SP.miss.find(m=>m.id===w.id))SP.miss.push(w);card.classList.add("flash-bad");fb.innerHTML=`It's <span class="a-${w.a}">${w.a}</span> ${esc(w.w)}`;}
+  $("#spScore").textContent=SP.score;
+  setTimeout(()=>{if(SP.state!=="run")return;SP.lock=false;nextSprintWord();renderSprint();},a===w.a?420:900);
+}
+
+/* ---------- render: word bank ---------- */
+function renderBank(){
+  const el=$("#bank");const p=pool();
+  const counts=[0,0,0,0,0];p.forEach(w=>counts[box(w)]++);
+  const names=["New","Box 2","Box 3","Box 4","Known"];
+  const q=norm(S.q);
+  const list=p.filter(w=>(S.art==="all"||w.a===S.art)&&(!q||norm(w.w).includes(q)||norm(w.p).includes(q)||norm(w.t).includes(q)||norm(w.c).includes(q)));
+  if(!el.dataset.built){
+    el.innerHTML=`<div class="dist" id="dist"></div>
+      <div class="bank-tools">
+        <label class="search"><i data-lucide="search"></i><input id="q" type="search" placeholder="Search German or English" autocomplete="off"></label>
+        <div class="seg" id="artSeg">${["all","der","die","das"].map(a=>`<button data-art="${a}" class="${S.art===a?"on":""}">${a==="all"?"All":`<span class="a-${a}">${a}</span>`}</button>`).join("")}</div>
+      </div><div class="grid" id="grid"></div>`;
+    el.dataset.built="1";icons();
+    $("#q").oninput=e=>{S.q=e.target.value;renderBank();};
+    el.querySelectorAll("[data-art]").forEach(b=>b.onclick=()=>{S.art=b.dataset.art;el.querySelectorAll("[data-art]").forEach(x=>x.classList.toggle("on",x===b));renderBank();});
+  }
+  $("#dist").innerHTML=names.map((n,k)=>`<div><small>${n}<b>${counts[k]}</b></small><div class="bar"><span style="width:${p.length?counts[k]/p.length*100:0}%"></span></div></div>`).join("");
+  $("#grid").innerHTML=list.length?list.map(w=>`<button class="wt" data-id="${w.id}" title="Open card">
+      <span class="ti"><i data-lucide="${w.i}"></i></span><span class="lv">${w.l}</span>
+      <span class="w"><span class="a-${w.a}">${w.a}</span> ${esc(w.w)}</span>
+      <span class="sub"><span class="g">${esc(w.c)}${w.b?" · ≈ "+esc(w.b.split(" · ")[0]):""}</span><span class="p"><span class="a-die">die</span> ${esc(w.p)}</span></span>
+    </button>`).join(""):`<div class="empty" style="grid-column:1/-1">Nothing matches “${esc(S.q)}”. Try the English word, or clear the filter.</div>`;
+  icons();
+  $("#grid").querySelectorAll("[data-id]").forEach(b=>{
+    b.onclick=()=>{const id=+b.dataset.id;const w=WORDS[id];say(`${w.a} ${w.w}`);
+      const at=S.queue.indexOf(id);if(at>=0){S.queue.splice(at,1);}S.queue.splice(S.idx,0,id);resetCard();setView("cards");};
+  });
+}
+
+/* ---------- render: bridges ---------- */
+function renderBridges(){
+  const el=$("#bridgesEl");if(el.dataset.built)return;el.dataset.built="1";
+  el.innerHTML=`<div class="intro">
+      <p><b>You already know thousands of German words.</b> English and German split from the same West Germanic parent about 1,500 years ago. German shifted a handful of sounds, English shifted others. Learn the shifts once and words like <b>Wasser</b>, <b>Schiff</b> and <b>Nacht</b> stop being new.</p>
+      <p>Tap any pair to hear the German.</p></div>
+    <div class="rules">${RULES.map(r=>`<section class="rule"><h3>${esc(r.r)} <small>${esc(r.n)}</small></h3><ul>${r.x.map(([e,d])=>`<li><button data-say="${esc(d)}"><span class="e">${esc(e)}</span><span class="arr">→</span><span class="d">${esc(d)}</span><i data-lucide="volume-2"></i></button></li>`).join("")}</ul></section>`).join("")}
+      <section class="rule warnr"><h3><i data-lucide="triangle-alert"></i> False friends <small>Look English, aren't</small></h3><ul>${FALSE.map(([d,e])=>`<li><button data-say="${esc(d)}"><span class="d">${esc(d)}</span><span class="arr">=</span><span class="e">${esc(e)}</span><i data-lucide="volume-2"></i></button></li>`).join("")}</ul></section>
+    </div>`;
+  icons();
+  el.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>say(b.dataset.say));
+}
+
+/* ---------- shell ---------- */
+const TITLES={cards:["Cards","Null → A2 · through English"],sprint:["Article sprint","Colour-coded gender drill"],words:["Word bank",""],bridges:["English bridges","The method"]};
+function renderStats(){
+  $("#todayN").textContent=S.today.n;
+  $("#dueBadge").textContent=pool().filter(w=>box(w)<2).length;
+  TITLES.words[1]=`${pool().length} nouns · ${S.level==="all"?"A1 + A2":S.level}`;
+  if(S.view==="words")$("#eyebrow").textContent=TITLES.words[1];
+}
+function setView(v){
+  if(S.view==="sprint"&&v!=="sprint"&&SP.state==="run"){clearInterval(SP.timer);SP.state="idle";}
+  S.view=v;
+  document.querySelectorAll(".nav[data-view]").forEach(n=>n.classList.toggle("on",n.dataset.view===v));
+  ["cards","sprint","words","bridges"].forEach(k=>$("#view-"+k).hidden=k!==v);
+  $("#title").textContent=TITLES[v][0];$("#eyebrow").textContent=TITLES[v][1];
+  $("#modeSeg").hidden=v!=="cards";
+  if(v==="cards")renderCard();if(v==="sprint")renderSprint();if(v==="words")renderBank();if(v==="bridges")renderBridges();
+  renderStats();
+}
+function applyPrefs(){
+  $("#rail").classList.toggle("open",S.open);
+  $("#collapseBtn").title=S.open?"Collapse sidebar":"Expand sidebar";
+  $("#collapseBtn .lbl").textContent=S.open?"Collapse":"Expand";
+  $("#slowBtn").classList.toggle("active",S.slow);$("#slowState").textContent=S.slow?"On":"Off";
+  document.querySelectorAll("#modeSeg button").forEach(b=>b.classList.toggle("on",b.dataset.mode===S.mode));
+  document.querySelectorAll("#levelSeg button").forEach(b=>b.classList.toggle("on",b.dataset.level===S.level));
+}
+document.querySelectorAll(".nav[data-view]").forEach(n=>n.onclick=()=>setView(n.dataset.view));
+$("#collapseBtn").onclick=()=>{S.open=!S.open;save();applyPrefs();};
+$("#slowBtn").onclick=()=>{S.slow=!S.slow;save();applyPrefs();toast(S.slow?"Slow audio on":"Slow audio off");};
+document.querySelectorAll("#modeSeg button").forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;resetCard();save();applyPrefs();renderCard();if(S.mode==="en")setTimeout(()=>$("#compose")?.focus(),50);});
+document.querySelectorAll("#levelSeg button").forEach(b=>b.onclick=()=>{S.level=b.dataset.level;save();applyPrefs();buildQueue();
+  const bank=$("#bank");delete bank.dataset.built;setView(S.view);});
+
+document.addEventListener("keydown",e=>{
+  const typing=/^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(S.view==="sprint"&&SP.state==="run"&&!typing){const m={"1":"der","2":"die","3":"das"}[e.key];if(m){e.preventDefault();answer(m);}return;}
+  if(S.view!=="cards")return;
+  const w=cur();if(!w)return;
+  const graded=S.mode==="de"?S.revealed:S.checked;
+  if(typing&&!(S.checked&&(e.key==="1"||e.key==="2")))return;
+  if(e.key===" "&&S.mode==="de"&&!S.revealed){e.preventDefault();reveal();}
+  else if(e.key==="1"&&graded){e.preventDefault();grade(false);}
+  else if(e.key==="2"&&graded){e.preventDefault();grade(true);}
+  else if(e.key.toLowerCase()==="l"){say(`${w.a} ${w.w}`);}
+  else if(e.key.toLowerCase()==="p"){say(`die ${w.p}`);$("#head")?.classList.add("show");}
+  else if(e.key.toLowerCase()==="s"){say(plain(w.s));}
+});
+
+applyPrefs();buildQueue();setView("cards");
+</script>
