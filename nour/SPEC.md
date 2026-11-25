@@ -1,5 +1,5 @@
-# NOUR — Product & Technical Specification
-Version 1.0 · Android · Kotlin / Jetpack Compose
+# Nour.27 — Product & Technical Specification
+Version 1.0 · Android · Kotlin / Jetpack Compose · `com.nour27.app`
 
 Read alongside `BRAND.md`. Where they conflict, `BRAND.md` wins on appearance,
 this file wins on behaviour.
@@ -122,7 +122,7 @@ One column, hairline-separated rows, no section cards.
 - **Haptics** — switch.
 - **Text size** — three steps: Standard / Large / Larger (scales the affirmation tier
   by 1.0 / 1.15 / 1.3 before the optical sizing rule runs).
-- **Share Nour**, **Licences**, **Version**.
+- **Share Nour.27**, **Licences**, **Version**.
 
 No "restore purchases", no "sign in", no "feedback" form, no theme picker.
 
@@ -130,7 +130,7 @@ No "restore purchases", no "sign in", no "feedback" form, no theme picker.
 1. **The promise.** One sentence: *"One line a day. Nothing else."* → `Continue`
 2. **The appointment.** *"When do you want it?"* Four preset pills + `Choose another time`.
    Default pre-selected: 07:30. → `Continue`
-3. **The permission.** *"Nour sends one notification a day. Nothing else."* →
+3. **The permission.** *"Nour.27 sends one notification a day. Nothing else."* →
    `Turn on reminders` triggers the system `POST_NOTIFICATIONS` dialog.
    A text-only `Not now` sits below it, same size, no colour.
 
@@ -334,8 +334,8 @@ No `INTERNET`. State that in the store listing — it is a feature.
 - Font scale to 1.5× must not clip or truncate — the optical sizing rule (`BRAND.md` §5)
   runs after the user's scale is applied.
 - All targets ≥ 48dp.
-- `inkTertiary` (3.7:1) only at `eyebrow`/`caption` weight-size combinations that qualify
-  as large text; never for anything a user must read to operate the app.
+- `inkTertiary` is `#807D77` (5.1:1) so the eyebrow and the streak line pass AA at 11sp
+  and 12sp. Do not darken it to taste — the earlier value failed.
 - Reduced motion honoured per `BRAND.md` §7.
 - Dark-only is a deliberate decision: the affirmation sits at 19:1 contrast, above AAA.
 
@@ -376,7 +376,8 @@ No `INTERNET`. State that in the store listing — it is a feature.
 
 ## 9. Store listing
 
-- Title: `Nour — One Line a Day`
+- Application id: `com.nour27.app`
+- Title: `Nour.27 — One Line a Day`
 - Short description: `One affirmation a day. No feed, no account, no noise.`
 - Long description: five short paragraphs, no emoji, no feature bullet soup, no
   exclamation marks. Lead with the restraint. State that the app has no internet

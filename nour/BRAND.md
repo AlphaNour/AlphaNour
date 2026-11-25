@@ -1,24 +1,33 @@
-# NOUR — Brand & Design System
+# Nour.27 — Brand & Design System
 Version 1.0 · Dark-only · Android
 
 ---
 
 ## 1. The Name
 
-**NOUR** — Arabic: light.
+**Nour.27** — Arabic: light. Plus an edition mark.
 
 A black app named light. The whole brand sits in that tension: you open darkness and
 find one illuminated line. It is personal (your name), short, pronounceable in every
 language, and it means something. It needs no explanation and it never dates.
 
-Wordmark: `N O U R` — Inter Medium, uppercase, letter-spacing +0.18em, optical kerning.
-Never bold. Never italic. Never coloured. Warm white on black, or black on warm white.
+The `.27` reads as an edition, not a version number. It makes a soft, ownable name
+specific and searchable, and it gives the wordmark a hinge — one punctuation mark where
+the single accent colour can live. Do not increment it, do not explain it anywhere in the
+product, and do not append it to any other string.
+
+Wordmark: `Nour.27` — Inter Medium, sentence case, letter-spacing −0.01em, set tight as
+one lockup that never breaks across lines. `Nour` in `inkPrimary`, `.27` in `accent`.
+A screen showing the wordmark spends its entire gold allowance on those three characters
+and nowhere else. Monochrome variant: `.27` steps down to `inkTertiary`.
+Never bold. Never italic. Never all caps. Never letter-spaced wide.
 
 Tagline: **One line a day.**
 Store subtitle: *One line a day. Nothing else.*
 
-Fallbacks if the Play listing name is taken: `Nour — One Line a Day`, `Nour Daily`.
-Do not append numbers, do not append "App", do not use a hyphenated compound.
+The suffix makes a listing collision unlikely; if one occurs, use `Nour.27 — One Line a
+Day`. Never append a second number, never append "App", never hyphenate the compound.
+Application id: `com.nour27.app`.
 
 ---
 
@@ -30,11 +39,11 @@ Do not append numbers, do not append "App", do not use a hyphenated compound.
 | Promise | Ten seconds that change the posture of your day |
 | Anti-promise | No feed, no library, no coach, no streak anxiety, no account |
 | Felt quality | A hand-set page, not a dashboard |
-| Competitive wedge | Everyone else gives you *more*. Nour gives you *one*. |
+| Competitive wedge | Everyone else gives you *more*. Nour.27 gives you *one*. |
 
 **The restraint is the product.** Every feature request gets measured against: does this
 make the single line land harder? If not, it is cut. An affirmations app with a browse
-tab is a content app. Nour is an appointment.
+tab is a content app. Nour.27 is an appointment.
 
 ---
 
@@ -79,7 +88,7 @@ Hairlines are drawn at exactly 1 physical pixel (`1.dp / density`), not 1dp.
 |---|---|---|---|
 | `inkPrimary` | `#F7F5F1` | 19.1:1 | Affirmation, titles |
 | `inkSecondary` | `#A3A09B` | 8.1:1 | Body, settings labels |
-| `inkTertiary` | `#6B6862` | 3.7:1 | Eyebrows, metadata — **large/bold only** |
+| `inkTertiary` | `#807D77` | 5.1:1 | Eyebrows, metadata, the streak line |
 
 Never `#FFFFFF`. Pure white on pure black vibrates at the edges and reads cheap.
 `#F7F5F1` is a half-degree warm and sits still.
@@ -146,7 +155,7 @@ A sentence must never scroll and must never be truncated.
 - Left-aligned. Ragged right. Never centred, never justified.
 - Optically centred in the viewport: the text block sits at roughly 46% of the height,
   not 50% — a block centred by maths reads low.
-- Measure: 24dp side gutters, block max width 420dp, target 28–36 characters per line.
+- Measure: 24dp side gutters, block max width 420dp, target 20–28 characters per line.
 - No hanging punctuation, no quotation marks around the affirmation, no attribution,
   no quote glyph, no full stop unless the sentence is genuinely two clauses.
 - One word may be italic for emphasis, chosen in the content file, never by code.
@@ -254,8 +263,9 @@ Monochrome layer required for Android 13+ themed icons.
 silhouette with transparent background and no built-in padding beyond 2dp.
 
 **Share card:** 1080×1920 and 1080×1080. Black. Affirmation set in Instrument Serif,
-optically centred, 72dp side margins. A 1px `accent` rule 32px wide above the wordmark.
-Wordmark `N O U R` at the bottom in `inkTertiary`. No URL, no store badge, no QR code.
+optically centred, 72dp side margins. A 1px `accent` rule 96px wide above the wordmark.
+Wordmark at the bottom: `Nour` in `inkTertiary`, `.27` in `accentDim`. No URL, no store
+badge, no QR code.
 
 ---
 

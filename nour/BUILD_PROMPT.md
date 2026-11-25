@@ -1,28 +1,33 @@
-# NOUR — Master Build Prompt
+# Nour.27 — Master Build Prompt
 Paste the block below into a Claude Code terminal session. It is self-contained.
 
 ---
 
 ```
-You are building NOUR, a production-grade Android affirmations app, solo, end to end.
+You are building Nour.27, a production-grade Android affirmations app, solo, end to end.
 
 If the files nour/BRAND.md and nour/SPEC.md exist in this repository, read BOTH in full
 before writing any code — they are the authoritative design and behaviour contract and
 they override anything in this prompt that is less specific. If they do not exist, this
 prompt is the complete contract.
 
-## WHAT NOUR IS
+## WHAT Nour.27 IS
 
 One screen. One affirmation per calendar day, identical from local midnight to local
 midnight, chosen deterministically, stored offline. One notification a day, engineered so
 that the user actually taps it and reads the line. Nothing else.
 
 The restraint is the product. An affirmations app with a browse tab is a content app.
-Nour is a ten-second appointment. Every feature you are tempted to add must make the
+Nour.27 is a ten-second appointment. Every feature you are tempted to add must make the
 single line land harder, or it does not ship.
 
-Name: NOUR (Arabic: light). A black app named light.
-Wordmark: N O U R — Inter Medium, uppercase, letter-spacing +0.18em, never bold.
+Name: Nour.27 — Arabic "light", plus an edition mark. A black app named light.
+Application id: com.nour27.app
+Wordmark: Nour.27 — Inter Medium, sentence case, letter-spacing -0.01em, set tight as one
+lockup that never breaks across lines. "Nour" in inkPrimary, ".27" in accent. A screen
+showing the wordmark spends its entire gold allowance on those three characters and
+nowhere else. Never bold, never italic, never all caps, never letter-spaced wide. The .27
+is an edition mark, not a version number: never increment it, never explain it in the UI.
 Tagline: One line a day.
 
 ## NON-NEGOTIABLE HOUSE RULES
@@ -53,7 +58,7 @@ Colour (warm-neutral axis; a blue-black reads clinical)
   hairlineStrong  #FFFFFF @ 14%
   inkPrimary      #F7F5F1    affirmation, titles        (19.1:1)
   inkSecondary    #A3A09B    body, labels               (8.1:1)
-  inkTertiary     #6B6862    eyebrows, metadata only    (3.7:1 — large text only)
+  inkTertiary     #807D77    eyebrows, metadata, streak  (5.1:1)
   accent          #C8A96A    the light
   accentDim       #8A7447
 Never #FFFFFF text — pure white on pure black vibrates and reads cheap.
@@ -82,7 +87,7 @@ Type
 
   Setting the affirmation: left-aligned, ragged right, never centred, never justified.
   Optically centred at ~46% of viewport height, not 50%. 24dp side gutters, block max
-  width 420dp, target 28-36 characters per line. No quotation marks, no attribution, no
+  width 420dp, target 20-28 characters per line. No quotation marks, no attribution, no
   quote glyph. One word may render italic, chosen in the content file, never by code.
 
 Space and form
@@ -259,23 +264,23 @@ one goes unread, one quiet nudge five hours later." · Exact delivery row, rende
 when the OS has denied exact alarms, copy "Android is batching your reminder. Allow exact
 timing so it lands at 07:30." · Haptics switch · Text size, three steps Standard/Large/
 Larger scaling the affirmation by 1.0/1.15/1.3 before the optical sizing rule runs ·
-Share Nour · Licences · Version. Nothing else — no sign-in, no theme picker, no feedback
+Share Nour.27 · Licences · Version. Nothing else — no sign-in, no theme picker, no feedback
 form, no restore purchases.
 
 Onboarding — three screens, under twenty seconds, never shown again.
   1. "One line a day. Nothing else." -> Continue
   2. "When do you want it?" four preset pills with 07:30 pre-selected, plus Choose another
      time -> Continue
-  3. "Nour sends one notification a day. Nothing else." -> Turn on reminders triggers the
+  3. "Nour.27 sends one notification a day. Nothing else." -> Turn on reminders triggers the
      system POST_NOTIFICATIONS dialog. A text-only "Not now" sits below at the same size
      with no colour.
   Then straight into Today with the full Reveal. No account, no name, no goals quiz, no
   "what brings you here" survey.
 
 Share card — rendered off-screen at 1080x1920 and 1080x1080: black, affirmation in
-Instrument Serif optically centred with 72px side margins, a 1px accent rule 32px wide
-above the wordmark, N O U R at the bottom in inkTertiary. No URL, no store badge, no QR
-code, no text appended to the share intent. Write to cache via FileProvider and hand to
+Instrument Serif optically centred with 72px side margins, a 1px accent rule 96px wide
+above the wordmark, and the wordmark at the bottom with "Nour" in inkTertiary and ".27"
+in accentDim. No URL, no store badge, no QR code, no text appended to the share intent. Write to cache via FileProvider and hand to
 ACTION_SEND as image/png.
 
 Icon — black field edge to edge, a single thin accent arc rising from the lower edge: a
@@ -310,8 +315,8 @@ RECEIVE_BOOT_COMPLETED, VIBRATE. No INTERNET.
 Accessibility: TalkBack must read the affirmation as ONE sentence — merge the per-line Text
 composables with semantics(mergeDescendants = true) and an explicit contentDescription
 carrying the whole string; per-line reading is a bug. Font scale to 1.5x must not clip or
-truncate. All targets >= 48dp. inkTertiary only at eyebrow/caption sizes, never for
-anything a user must read to operate the app. Honour reduced motion.
+truncate. All targets >= 48dp. inkTertiary is #807D77 (5.1:1) so the eyebrow and streak
+line pass AA at 11sp and 12sp — do not darken it to taste. Honour reduced motion.
 
 ## HOW TO WORK
 
